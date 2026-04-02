@@ -11,9 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('projects', function (Blueprint $table) {
-            $table->renameColumn('client_id', 'user_id');
-        });
+        Schema::create('categories', function (Blueprint $table) {
+    $table->id();
+
+    $table->string('name', 100)->unique();
+    $table->string('slug', 120)->unique();
+
+    $table->boolean('is_active')->default(true);
+
+    $table->timestamps();
+});
     }
 
     /**
@@ -21,8 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('projects', function (Blueprint $table) {
-         $table->renameColumn('user_id', 'client_id');
-        });
+        Schema::dropIfExists('categories');
     }
 };
