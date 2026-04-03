@@ -165,6 +165,10 @@ return [
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
 
+        'options' => extension_loaded('pdo_pgsql') ? [
+    PDO::ATTR_TIMEOUT => 10,
+] : [],
+
         'cache' => [
             'url' => env('REDIS_URL'),
             'host' => env('REDIS_HOST', '127.0.0.1'),
