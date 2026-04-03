@@ -27,7 +27,12 @@ use Illuminate\Support\Facades\Mail;
 
 use App\Services\GoogleMeetService;
 
-
+Route::get('/ping', function () {
+    return response()->json([
+        'status' => 'ok',
+        'time' => now()
+    ]);
+});
 
 
 Route::get('/categories', [CategoryController::class, 'index']);
