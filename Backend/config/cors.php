@@ -7,7 +7,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://local-skill.vercel.app/'
+        'https://local-skill.vercel.app/','http://localhost:5173'
     ],
 
     'allowed_headers' => ['*'],
