@@ -64,11 +64,11 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => [
-        'id' => $user->id,
-        'username' => $user->username,
-        'email' => $user->email,
-        'role' => $user->role,
-    ]
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
         ]);
     }
 
