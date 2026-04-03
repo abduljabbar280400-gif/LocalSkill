@@ -24,6 +24,7 @@ use App\Http\Controllers\FreelancerController;
 
 
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Artisan;
 
 use App\Services\GoogleMeetService;
 
@@ -34,6 +35,10 @@ Route::get('/ping', function () {
     ]);
 });
 
+Route::get('/run-migrate', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return "Migration Done";
+});
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}/skills', [SkillController::class, 'byCategory']);
