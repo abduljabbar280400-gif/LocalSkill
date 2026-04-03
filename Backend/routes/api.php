@@ -28,6 +28,16 @@ use Illuminate\Support\Facades\Artisan;
 
 use App\Services\GoogleMeetService;
 
+
+Route::get('/routes', function () {
+    return collect(Route::getRoutes())->map(function ($route) {
+        return [
+            'uri' => $route->uri(),
+            'methods' => $route->methods(),
+        ];
+    });
+});
+
 Route::get('/ping', function () {
     return response()->json([
         'status' => 'ok',
