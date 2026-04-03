@@ -24,10 +24,16 @@ use App\Http\Controllers\FreelancerController;
 
 
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Artisan;
+
 use App\Services\GoogleMeetService;
 
 
-
+// Temporay
+Route::get('/clear-cache', function () {
+    Artisan::call('optimize:clear');
+    return "Cache Cleared";
+});
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}/skills', [SkillController::class, 'byCategory']);
