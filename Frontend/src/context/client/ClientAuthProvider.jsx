@@ -74,11 +74,7 @@ export default function ClientAuthProvider({ children }) {
     setToken(token);
 
     // 🔥 Attach token directly for this request
-    const meResponse = await api.get("/hire-freelancer/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const meResponse = await api.get("/hire-freelancer/me");
 
     const { user, profile, is_profile_completed } = meResponse.data;
 
