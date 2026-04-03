@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: localskill-backend
+    env: php
+    buildCommand: |
+      composer install
+      php artisan optimize:clear
+    startCommand: |
+      php -S 0.0.0.0:$PORT -t public
