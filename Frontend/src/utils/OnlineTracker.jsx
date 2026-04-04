@@ -1,26 +1,11 @@
 import { useEffect } from "react";
-import axios from "axios";
+import api from "../../src/services/api";
 
 function OnlineTracker() {
   useEffect(() => {
-    const token =
-      localStorage.getItem("client_token") ||
-      localStorage.getItem("freelancer_token");
-
-    if (!token) return;
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    };
-
     const updateLastSeen = async () => {
       try {
-        await axios.post(
-          "http://localhost:8000/api/chat/last-seen",
-          {},
-          { headers },
-        );
+        await api.post("/chat/last-seen");
       } catch (error) {
         if (error.response?.status === 401) {
           console.warn("Unauthorized — stopping tracker");
