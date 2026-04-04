@@ -229,42 +229,82 @@ export default function Header() {
       </div>
 
       {/* MOBILE MENU */}
-      {menuOpen && (
-        <div className="md:hidden px-4 pb-6">
-          <div className="flex flex-col gap-3 p-4 rounded-2xl bg-slate-100 shadow-[6px_6px_14px_#d1d5db,-6px_-6px_14px_#ffffff]">
+      {/* MOBILE SIDEBAR */}
+      <div
+        className={`fixed inset-0 z-[999] md:hidden ${
+          menuOpen ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+      >
+        {/* Overlay */}
+        <div
+          className={`fixed inset-0 backdrop-blur-sm transition-opacity duration-300 ${
+            menuOpen ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={() => setMenuOpen(false)}
+        />
+
+        {/* Sidebar */}
+        <div
+          className={`fixed top-0 right-0 h-screen w-85 bg-white/95 backdrop-blur-xl shadow-xl p-5 flex flex-col transform transition-transform duration-300 ease-out ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          {/* TOP SECTION */}
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-lg font-semibold text-gray-700">Menu</span>
+            <button onClick={() => setMenuOpen(false)}>
+              <FiX size={22} />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex flex-col gap-6 mt-6">
             {navItems.map((item, index) => (
-              <Link key={index} to={item.to} className={linkClass(item.to)}>
+              <Link
+                key={index}
+                to={item.to}
+                onClick={() => setMenuOpen(false)}
+                className={linkClass(item.to)}
+              >
                 {item.icon}
                 {item.label}
               </Link>
             ))}
+          </div>
 
+          {/* BOTTOM SECTION */}
+          <div className="mt-auto pt-3 border-t border-gray-200 ">
+            {/* Notification */}
+            {(freelancerAuthenticated || clientAuthenticated) && (
+              <div className="mt-3 flex w-full justify-center cursor-pointer">
+                <div className={linkBase + " " + hoverStyle}>
+                  <NotificationBell />
+                  <span>Notifications</span>
+                </div>
+              </div>
+            )}
             {freelancerAuthenticated && (
-              <button onClick={logoutFreelancer} className={logoutButton}>
+              <button
+                onClick={logoutFreelancer}
+                className={`${logoutButton} w-full justify-center`}
+              >
                 <FiLogOut /> Logout
               </button>
             )}
 
             {clientAuthenticated && (
-              <button onClick={logoutClient} className={logoutButton}>
+              <button
+                onClick={logoutClient}
+                className={`${logoutButton} w-full justify-center`}
+              >
                 <FiLogOut /> Logout
               </button>
             )}
-
-            {!freelancerAuthenticated && isFreelancerRoute && (
-              <Link to="/freelancer/signup" className={freelancerButton}>
-                Join as Freelancer
-              </Link>
-            )}
-
-            {!clientAuthenticated && isClientRoute && (
-              <Link to="/hire-freelancer/signup" className={primaryButton}>
-                Join as Client
-              </Link>
-            )}
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }
