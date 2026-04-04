@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "../../services/api";
 import { useClientAuth } from "../../context/client/useClientAuth";
 import LocationPicker from "../../components/profile/freelancer/LocationPicker";
 
 export default function ClientProfile() {
-  const { token, profile, refreshUser, logout } = useClientAuth();
+  const { profile, refreshUser, logout } = useClientAuth();
   const { username } = useParams();
 
   const [formData, setFormData] = useState({
@@ -92,14 +92,14 @@ export default function ClientProfile() {
       };
 
       await axios.put(
-        `http://127.0.0.1:8000/api/hire-freelancer/${username}/profile`,
+        `/hire-freelancer/${username}/profile`,
         payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        },
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //     Accept: "application/json",
+        //   },
+        // },
       );
 
       await refreshUser();
@@ -139,13 +139,13 @@ export default function ClientProfile() {
       setLoading(true);
 
       await axios.delete(
-        `http://127.0.0.1:8000/api/hire-freelancer/${username}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        },
+        `/hire-freelancer/${username}`,
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //     Accept: "application/json",
+        //   },
+        // },
       );
 
       alert("Your account has been deleted.");
@@ -184,17 +184,17 @@ export default function ClientProfile() {
       setSavingLocation(true);
 
       await axios.put(
-        `http://127.0.0.1:8000/api/hire-freelancer/${username}/profile`,
+        `/hire-freelancer/${username}/profile`,
         {
           latitude: selectedLat,
           longitude: selectedLng,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        },
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //     Accept: "application/json",
+        //   },
+        // },
       );
 
       await refreshUser(); // 🔥 IMPORTANT

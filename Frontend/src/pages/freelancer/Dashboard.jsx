@@ -3,17 +3,6 @@ import { Navigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
 export default function FreelancerDashboard() {
   const { user, logout } = useAuth();
   const [stats, setStats] = useState(null);
