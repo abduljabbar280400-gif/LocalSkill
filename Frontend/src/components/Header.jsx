@@ -160,73 +160,75 @@ export default function Header() {
   /* Header UI */
   /* ----------------------- */
   return (
-    <header
-      className={`sticky  top-0 z-[1000] transition-all duration-300 ${
-        scrolled
-          ? "backdrop-blur-xl bg-white/70 border-b border-white/30 shadow-md py-2"
-          : "backdrop-blur-md bg-white/40 py-3"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* LOGO */}
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center rounded-xl text-blue-600 font-bold backdrop-blur-md bg-white/50 border border-white/40 shadow-sm">
-            LS
-          </div>
-          <span className="font-semibold text-gray-700 text-lg">
-            LocalSkill
-          </span>
-        </Link>
+    <>
+      <header
+        className={`sticky  top-0 z-[1000] transition-all duration-300 ${
+          scrolled
+            ? "backdrop-blur-xl bg-white/70 border-b border-white/30 shadow-md py-2"
+            : "backdrop-blur-md bg-white/40 py-3"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          {/* LOGO */}
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 flex items-center justify-center rounded-xl text-blue-600 font-bold backdrop-blur-md bg-white/50 border border-white/40 shadow-sm">
+              LS
+            </div>
+            <span className="font-semibold text-gray-700 text-lg">
+              LocalSkill
+            </span>
+          </Link>
 
-        {/* DESKTOP NAV */}
-        <nav className="hidden md:flex items-center gap-4">
-          {navItems.map((item, index) => (
-            <Link key={index} to={item.to} className={linkClass(item.to)}>
-              {item.icon}
-              {item.label}
-            </Link>
-          ))}
+          {/* DESKTOP NAV */}
+          <nav className="hidden md:flex items-center gap-4">
+            {navItems.map((item, index) => (
+              <Link key={index} to={item.to} className={linkClass(item.to)}>
+                {item.icon}
+                {item.label}
+              </Link>
+            ))}
 
-          {/* Notification Bell (Only when logged in) */}
-          {(freelancerAuthenticated || clientAuthenticated) && (
-            <NotificationBell />
-          )}
+            {/* Notification Bell (Only when logged in) */}
+            {(freelancerAuthenticated || clientAuthenticated) && (
+              <NotificationBell />
+            )}
 
-          {/* Logout */}
-          {freelancerAuthenticated && (
-            <button onClick={logoutFreelancer} className={logoutButton}>
-              <FiLogOut /> Logout
-            </button>
-          )}
+            {/* Logout */}
+            {freelancerAuthenticated && (
+              <button onClick={logoutFreelancer} className={logoutButton}>
+                <FiLogOut /> Logout
+              </button>
+            )}
 
-          {clientAuthenticated && (
-            <button onClick={logoutClient} className={logoutButton}>
-              <FiLogOut /> Logout
-            </button>
-          )}
+            {clientAuthenticated && (
+              <button onClick={logoutClient} className={logoutButton}>
+                <FiLogOut /> Logout
+              </button>
+            )}
 
-          {/* Sign Up */}
-          {!freelancerAuthenticated && isFreelancerRoute && (
-            <Link to="/freelancer/signup" className={freelancerButton}>
-              Join as Freelancer
-            </Link>
-          )}
+            {/* Sign Up */}
+            {!freelancerAuthenticated && isFreelancerRoute && (
+              <Link to="/freelancer/signup" className={freelancerButton}>
+                Join as Freelancer
+              </Link>
+            )}
 
-          {!clientAuthenticated && isClientRoute && (
-            <Link to="/hire-freelancer/signup" className={primaryButton}>
-              Join as Client
-            </Link>
-          )}
-        </nav>
+            {!clientAuthenticated && isClientRoute && (
+              <Link to="/hire-freelancer/signup" className={primaryButton}>
+                Join as Client
+              </Link>
+            )}
+          </nav>
 
-        {/* MOBILE BUTTON */}
-        <button
-          className="md:hidden p-2 rounded-xl shadow-[4px_4px_10px_#d1d5db,-4px_-4px_10px_#ffffff]"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-        </button>
-      </div>
+          {/* MOBILE BUTTON */}
+          <button
+            className="md:hidden p-2 rounded-xl shadow-[4px_4px_10px_#d1d5db,-4px_-4px_10px_#ffffff]"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+          </button>
+        </div>
+      </header>
 
       {/* MOBILE MENU */}
       {/* MOBILE SIDEBAR */}
@@ -245,7 +247,7 @@ export default function Header() {
 
         {/* Sidebar */}
         <div
-          className={`fixed top-0 right-0 h-screen w-70 bg-white/95 backdrop-blur-xl shadow-xl p-5 flex flex-col transform transition-transform duration-300 ease-out ${
+          className={`fixed top-0 right-0 bottom-0 h-screen w-[80%] max-w-xs bg-white/95 backdrop-blur-xl shadow-xl p-5 flex flex-col transform transition-transform duration-300 ease-out ${
             menuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
@@ -253,7 +255,6 @@ export default function Header() {
 
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <span className="text-lg font-semibold text-gray-700">Menu</span>
             <button onClick={() => setMenuOpen(false)}>
               <FiX size={22} />
             </button>
@@ -305,6 +306,6 @@ export default function Header() {
           </div>
         </div>
       </div>
-    </header>
+    </>
   );
 }
