@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from "../../src/services/api";
 import { FiSend, FiMessageCircle } from "react-icons/fi";
 
 function ChatBox({ contractId }) {
@@ -21,24 +21,21 @@ function ChatBox({ contractId }) {
 
   const messagesContainerRef = useRef(null);
 
-  const token =
-    localStorage.getItem("client_token") ||
-    localStorage.getItem("freelancer_token");
+  // const token =
+  //   localStorage.getItem("client_token") ||
+  //   localStorage.getItem("freelancer_token");
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/json",
-  };
+  // const headers = {
+  //   Authorization: `Bearer ${token}`,
+  //   Accept: "application/json",
+  // };
 
   /* ================= LOAD CONVERSATION ================= */
 
   useEffect(() => {
     const loadConversation = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/api/contracts/${contractId}/conversation`,
-          { headers },
-        );
+        const res = await api.get(`/contracts/${contractId}/conversation`);
         setConversationId(res.data.id);
       } catch (err) {
         console.error("Conversation load error", err);
@@ -55,10 +52,7 @@ function ChatBox({ contractId }) {
 
     const loadMessages = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/api/conversations/${conversationId}/messages`,
-          { headers },
-        );
+        const res = await api.get(`/conversations/${conversationId}/messages`);
 
         setMessages(res.data);
 
@@ -127,18 +121,11 @@ function ChatBox({ contractId }) {
     if (!message.trim()) return;
 
     try {
-      await axios.post(
-        `http://localhost:8000/api/conversations/${conversationId}/send`,
-        { message },
-        { headers },
-      );
+      await api.post(`/conversations/${conversationId}/send`, { message });
 
       setMessage("");
 
-      const res = await axios.get(
-        `http://localhost:8000/api/conversations/${conversationId}/messages`,
-        { headers },
-      );
+      const res = await api.get(`conversations/${conversationId}/messages`);
 
       setMessages(res.data);
     } catch (err) {
@@ -151,11 +138,7 @@ function ChatBox({ contractId }) {
   useEffect(() => {
     const updateLastSeen = async () => {
       try {
-        await axios.post(
-          "http://localhost:8000/api/chat/last-seen",
-          {},
-          { headers },
-        );
+        await api.post(`/chat/last-seen`);
       } catch (err) {
         console.error("Last seen update error", err);
       }
