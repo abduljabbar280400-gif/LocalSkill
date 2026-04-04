@@ -245,7 +245,7 @@ export default function Header() {
 
         {/* Sidebar */}
         <div
-          className={`fixed top-0 right-0 h-screen w-85 bg-white/95 backdrop-blur-xl shadow-xl p-5 flex flex-col transform transition-transform duration-300 ease-out ${
+          className={`fixed top-0 right-0 h-screen w-70 bg-white/95 backdrop-blur-xl shadow-xl p-5 flex flex-col transform transition-transform duration-300 ease-out ${
             menuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
