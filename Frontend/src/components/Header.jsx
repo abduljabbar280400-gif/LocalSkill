@@ -162,7 +162,7 @@ export default function Header() {
   return (
     <>
       <header
-        className={`sticky  top-0 z-[1000] transition-all duration-300 ${
+        className={`sticky top-0 z-[1000] transition-all duration-300 ${
           scrolled
             ? "backdrop-blur-xl bg-white/70 border-b border-white/30 shadow-md py-2"
             : "backdrop-blur-md bg-white/40 py-3"
@@ -247,7 +247,7 @@ export default function Header() {
 
         {/* Sidebar */}
         <div
-          className={`fixed top-0 right-0 bottom-0 h-screen w-[80%] max-w-xs bg-white/95 backdrop-blur-xl shadow-xl p-5 flex flex-col transform transition-transform duration-300 ease-out ${
+          className={`fixed top-0 right-0 z-[900] bottom-0 h-screen w-[80%] max-w-xs bg-white/95 backdrop-blur-xl shadow-xl p-5 flex flex-col transform transition-transform duration-300 ease-out ${
             menuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
