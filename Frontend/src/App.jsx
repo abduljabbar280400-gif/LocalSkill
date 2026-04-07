@@ -1,7 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+
 import ProtectedRoute from "./routes/ProtectedRoute";
+import ClientProtectedRoute from "./routes/ClientProtectedRoute";
 
 import Home from "./pages/Home";
 import HireFreelancer from "./pages/HireFreelancer";
@@ -25,7 +27,6 @@ import EditProfilePage from "./pages/freelancer/EditProfilePage";
 
 import NotFound from "./pages/NotFound";
 
-import ClientProtectedRoute from "./routes/ClientProtectedRoute";
 import ClientDashboard from "./pages/hire-freelancer/Dashboard";
 import ClientProfile from "./pages/hire-freelancer/Profile";
 import Projects from "./pages/hire-freelancer/Projects";
@@ -43,6 +44,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import OnlineTracker from "./utils/OnlineTracker";
+
+import NotificationPage from "./pages/NotificationPage";
 
 // import ClientPaymentPage from "./pages/hire-freelancer/ClientPaymentPage";
 
@@ -89,6 +92,7 @@ function App() {
             />
 
             {/* Protected Routes */}
+
             <Route
               path="/freelancer/:username/edit-profile"
               element={
@@ -97,6 +101,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/freelancer/:username/notifications"
+              element={
+                <ProtectedRoute>
+                  <NotificationPage />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/freelancer/:username/my-profile"
               element={
@@ -143,6 +157,16 @@ function App() {
                 </ClientProtectedRoute>
               }
             />
+
+            <Route
+              path="/hire-freelancer/:username/notifications"
+              element={
+                <ClientProtectedRoute>
+                  <NotificationPage />
+                </ClientProtectedRoute>
+              }
+            />
+
             <Route
               path="/hire-freelancer/:username/profile"
               element={

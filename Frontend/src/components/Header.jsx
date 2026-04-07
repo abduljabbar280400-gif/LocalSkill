@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import { useAuth } from "../context/useAuth";
 import { useClientAuth } from "../context/client/useClientAuth";
 import { useState, useEffect } from "react";
@@ -13,6 +14,9 @@ import {
   FiUser,
   FiLogOut,
   FiSearch,
+  FiBell,
+  FiMessageCircle,
+  FiCompass,
 } from "react-icons/fi";
 
 export default function Header() {
@@ -39,10 +43,24 @@ export default function Header() {
   const isFreelancerRoute = path.startsWith("/freelancer");
   const isClientRoute = path.startsWith("/hire-freelancer");
 
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const dropdownRef = useRef(null);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   if (freelancerLoading) return null;
@@ -53,8 +71,8 @@ export default function Header() {
   const linkBase =
     "flex items-center gap-2 px-4 py-2 rounded-xl text-gray-700 font-medium transition-all";
 
-  const hoverStyle =
-    "hover:shadow-[inset_3px_3px_6px_#d1d5db,inset_-3px_-3px_6px_#ffffff]";
+  const hoverStyle = "";
+  // "hover:shadow-[inset_3px_3px_6px_#d1d5db,inset_-3px_-3px_6px_#ffffff]";
 
   const activeStyle =
     "text-blue-600 shadow-[inset_3px_3px_6px_#d1d5db,inset_-3px_-3px_6px_#ffffff]";
@@ -126,7 +144,7 @@ export default function Header() {
         },
         {
           to: `/hire-freelancer/${user.username}/profile`,
-          label: "Profile",
+          label: "My Profile",
           icon: <FiUser />,
         },
       ];
@@ -162,7 +180,7 @@ export default function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-[1000] transition-all duration-300 ${
+        className={`sticky top-0 z-[5000] transition-all duration-300 ${
           scrolled
             ? "backdrop-blur-xl bg-white/70 border-b border-white/30 shadow-md py-2"
             : "backdrop-blur-md bg-white/40 py-3"
@@ -170,7 +188,7 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* LOGO */}
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 sm:mx-10">
             <div className="w-10 h-10 flex items-center justify-center rounded-xl text-blue-600 font-bold backdrop-blur-md bg-white/50 border border-white/40 shadow-sm">
               LS
             </div>
@@ -180,44 +198,169 @@ export default function Header() {
           </Link>
 
           {/* DESKTOP NAV */}
-          <nav className="hidden md:flex items-center gap-4">
-            {navItems.map((item, index) => (
-              <Link key={index} to={item.to} className={linkClass(item.to)}>
-                {item.icon}
-                {item.label}
-              </Link>
-            ))}
+          <nav className="hidden md:flex items-center w-full">
+            {/* SEARCH BAR */}
+            <div className="flex-1 max-w-2xl">
+              <div className="flex items-center bg-white/70 backdrop-blur-md rounded-4xl px-4 py-2 shadow-sm">
+                <FiSearch className="text-gray-500 mr-2" />
+                <input
+                  type="text"
+                  placeholder="Search projects, skills, categories..."
+                  className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400"
+                />
+              </div>
+            </div>
+            {/* RIGHT ICONS */}
+            <div
+              className="flex items-center gap-3 ml-auto relative"
+              ref={dropdownRef}
+            >
+              {/* 🔍 Quick Action Menu */}
+              {(freelancerAuthenticated || clientAuthenticated) && (
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setActiveDropdown(
+                        activeDropdown === "quick" ? null : "quick",
+                      )
+                    }
+                    className={linkBase + " " + hoverStyle}
+                  >
+                    <FiCompass size={18} />
+                  </button>
 
-            {/* Notification Bell (Only when logged in) */}
-            {(freelancerAuthenticated || clientAuthenticated) && (
-              <NotificationBell />
-            )}
+                  {/* DROPDOWN */}
+                  {activeDropdown === "quick" && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[2000]">
+                      {/* CLIENT → Find Freelancer */}
+                      {clientAuthenticated && (
+                        <button
+                          onClick={() => {
+                            setActiveDropdown(null);
+                            navigate("/find-freelancers"); // create later
+                          }}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                        >
+                          Find Freelancer
+                        </button>
+                      )}
 
-            {/* Logout */}
-            {freelancerAuthenticated && (
-              <button onClick={logoutFreelancer} className={logoutButton}>
-                <FiLogOut /> Logout
-              </button>
-            )}
+                      {/* FREELANCER → Find Projects */}
+                      {freelancerAuthenticated && (
+                        <button
+                          onClick={() => {
+                            setActiveDropdown(null);
+                            navigate("/projects");
+                          }}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                        >
+                          Find Projects
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* 🔔 Notification */}
+              {(freelancerAuthenticated || clientAuthenticated) && (
+                <div className={linkBase + " " + hoverStyle}>
+                  <NotificationBell />
+                </div>
+              )}
 
-            {clientAuthenticated && (
-              <button onClick={logoutClient} className={logoutButton}>
-                <FiLogOut /> Logout
-              </button>
-            )}
+              {/* 💬 Messages */}
+              {(freelancerAuthenticated || clientAuthenticated) && (
+                <button className={linkBase + " " + hoverStyle}>
+                  <FiMessageCircle size={18} />
+                </button>
+              )}
 
-            {/* Sign Up */}
-            {!freelancerAuthenticated && isFreelancerRoute && (
-              <Link to="/freelancer/signup" className={freelancerButton}>
-                Join as Freelancer
-              </Link>
-            )}
+              {/* 👤 Profile Dropdown */}
+              {(freelancerAuthenticated || clientAuthenticated) && (
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setActiveDropdown(
+                        activeDropdown === "profile" ? null : "profile",
+                      )
+                    }
+                    className={linkBase + " " + hoverStyle}
+                  >
+                    <FiUser size={18} />
+                  </button>
 
-            {!clientAuthenticated && isClientRoute && (
-              <Link to="/hire-freelancer/signup" className={primaryButton}>
-                Join as Client
-              </Link>
-            )}
+                  {/* DROPDOWN */}
+                  {activeDropdown === "profile" && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[2000]">
+                      {/* Dashboard */}
+                      <Link
+                        to={
+                          freelancerAuthenticated
+                            ? `/freelancer/${freelancerUser.username}/dashboard`
+                            : `/hire-freelancer/${clientUser.username}/dashboard`
+                        }
+                        className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        Dashboard
+                      </Link>
+
+                      {/* My Projects */}
+                      <Link
+                        to={
+                          freelancerAuthenticated
+                            ? `/freelancer/${freelancerUser.username}/my-projects`
+                            : `/hire-freelancer/${clientUser.username}/projects`
+                        }
+                        className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        My Projects
+                      </Link>
+
+                      {/* Profile */}
+                      <Link
+                        to={
+                          freelancerAuthenticated
+                            ? `/freelancer/${freelancerUser.username}`
+                            : `/hire-freelancer/${clientUser.username}/profile`
+                        }
+                        className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        My Profile
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Logout */}
+              {freelancerAuthenticated && (
+                <button onClick={logoutFreelancer} className={logoutButton}>
+                  <FiLogOut /> Logout
+                </button>
+              )}
+
+              {clientAuthenticated && (
+                <button onClick={logoutClient} className={logoutButton}>
+                  <FiLogOut /> Logout
+                </button>
+              )}
+
+              {/* Sign Up */}
+              {!freelancerAuthenticated && isFreelancerRoute && (
+                <Link to="/freelancer/signup" className={freelancerButton}>
+                  Join as Freelancer
+                </Link>
+              )}
+
+              {!clientAuthenticated && isClientRoute && (
+                <Link to="/hire-freelancer/signup" className={primaryButton}>
+                  Join as Client
+                </Link>
+              )}
+            </div>
           </nav>
 
           {/* MOBILE BUTTON */}
@@ -254,14 +397,14 @@ export default function Header() {
           {/* TOP SECTION */}
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          {/* <div className="flex items-center justify-between mb-6">
             <button onClick={() => setMenuOpen(false)}>
               <FiX size={22} />
             </button>
-          </div>
+          </div> */}
 
           {/* Navigation */}
-          <div className="flex flex-col gap-6 mt-6">
+          <div className="flex flex-col gap-8 mt-25">
             {navItems.map((item, index) => (
               <Link
                 key={index}
@@ -276,15 +419,30 @@ export default function Header() {
           </div>
 
           {/* BOTTOM SECTION */}
-          <div className="mt-auto pt-3 border-t border-gray-200 ">
+          <div className="mt-auto pt-3 border-t border-gray-200">
             {/* Notification */}
             {(freelancerAuthenticated || clientAuthenticated) && (
-              <div className="mt-3 flex w-full justify-center cursor-pointer">
-                <div className={linkBase + " " + hoverStyle}>
-                  <NotificationBell />
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+
+                  if (freelancerUser) {
+                    navigate(
+                      `/freelancer/${freelancerUser.username}/notifications`,
+                    );
+                  } else if (clientUser) {
+                    navigate(
+                      `/hire-freelancer/${clientUser.username}/notifications`,
+                    );
+                  }
+                }}
+                className={`${linkBase} ${hoverStyle} w-full flex items-center justify-center my-5`}
+              >
+                <div className="flex items-center gap-2">
+                  <FiBell />
                   <span>Notifications</span>
                 </div>
-              </div>
+              </button>
             )}
             {freelancerAuthenticated && (
               <button
@@ -298,9 +456,10 @@ export default function Header() {
             {clientAuthenticated && (
               <button
                 onClick={logoutClient}
-                className={`${logoutButton} w-full justify-center`}
+                className={`${logoutButton} w-full justify-center `}
               >
-                <FiLogOut /> Logout
+                <FiLogOut />
+                <span className="">Logout</span>
               </button>
             )}
           </div>
