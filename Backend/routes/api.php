@@ -65,6 +65,7 @@ Route::get('/projects/{slug}', [ProjectController::class, 'show']);
 Route::get('/location/from-postal', [LocationController::class, 'getLatLng']);
 Route::get('/location/from-coordinates', [LocationController::class, 'getCity']);
 
+Route::get('/freelancers', [FreelancerController::class, 'index']);
 Route::get('/freelancer/{username}/profile', [FreelancerProfileController::class, 'show']);
 Route::get('/freelancers/top', [FreelancerController::class, 'topFreelancers']);
 
