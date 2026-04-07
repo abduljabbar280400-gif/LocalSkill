@@ -17,6 +17,7 @@ import {
   FiBell,
   FiMessageCircle,
   FiCompass,
+  FiHeart,
 } from "react-icons/fi";
 
 export default function Header() {
@@ -61,6 +62,15 @@ export default function Header() {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") setActiveDropdown(null);
+    };
+
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
   if (freelancerLoading) return null;
@@ -126,6 +136,16 @@ export default function Header() {
           label: "My Profile",
           icon: <FiUser />,
         },
+        {
+          to: "/Messages",
+          label: "Messages",
+          icon: <FiMessageCircle />,
+        },
+        {
+          to: "/bookmarked",
+          label: "Save",
+          icon: <FiHeart />,
+        },
       ];
     }
 
@@ -146,6 +166,21 @@ export default function Header() {
           to: `/hire-freelancer/${user.username}/profile`,
           label: "My Profile",
           icon: <FiUser />,
+        },
+        {
+          to: "/Messages",
+          label: "Messages",
+          icon: <FiMessageCircle />,
+        },
+        {
+          to: "/find-freelancers",
+          label: "Explore",
+          icon: <FiCompass />,
+        },
+        {
+          to: "/bookmarked",
+          label: "Save",
+          icon: <FiHeart />,
         },
       ];
     }
@@ -188,11 +223,11 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* LOGO */}
-          <Link to="/" className="flex items-center gap-3 sm:mx-10">
+          <Link to="/" className="flex items-center gap-3 sm:mx-10 ">
             <div className="w-10 h-10 flex items-center justify-center rounded-xl text-blue-600 font-bold backdrop-blur-md bg-white/50 border border-white/40 shadow-sm">
               LS
             </div>
-            <span className="font-semibold text-gray-700 text-lg">
+            <span className="font-semibold text-gray-700 text-lg ">
               LocalSkill
             </span>
           </Link>
@@ -200,7 +235,7 @@ export default function Header() {
           {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center w-full">
             {/* SEARCH BAR */}
-            <div className="flex-1 max-w-2xl">
+            <div className="flex-1 max-w-2xl mr-10">
               <div className="flex items-center bg-white/70 backdrop-blur-md rounded-4xl px-4 py-2 shadow-sm">
                 <FiSearch className="text-gray-500 mr-2" />
                 <input
@@ -260,6 +295,13 @@ export default function Header() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* 💬 Save\Bookmark */}
+              {(freelancerAuthenticated || clientAuthenticated) && (
+                <button className={linkBase + " " + hoverStyle}>
+                  <FiHeart size={18} />
+                </button>
               )}
               {/* 🔔 Notification */}
               {(freelancerAuthenticated || clientAuthenticated) && (
@@ -365,7 +407,7 @@ export default function Header() {
 
           {/* MOBILE BUTTON */}
           <button
-            className="md:hidden p-2 rounded-xl shadow-[4px_4px_10px_#d1d5db,-4px_-4px_10px_#ffffff]"
+            className="md:hidden p-2 rounded-xl shadow-[4px_4px_10px_#d1d5db,-4px_-4px_10px_#ffffff] "
             onClick={() => setMenuOpen(!menuOpen)}
           >
             {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
