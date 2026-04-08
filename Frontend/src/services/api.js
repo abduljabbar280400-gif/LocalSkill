@@ -3,6 +3,7 @@ import axios from "axios";
 // Create Axios Instance
 const api = axios.create({
   baseURL: "https://localskill.onrender.com/api",
+  // baseURL:  import.meta.env.VITE_API_BASE_URL,
   // withCredentials: true,
   // timeout: 10000,
   headers: {
@@ -12,7 +13,7 @@ const api = axios.create({
   },
 });
 
-// console.log("API BASE URL:", "https://localskill.onrender.com/api");
+console.log("API BASE URL:", import.meta.env.VITE_API_BASE_URL);
 
 // ================================
 // ✅ REQUEST INTERCEPTOR (FIXED)

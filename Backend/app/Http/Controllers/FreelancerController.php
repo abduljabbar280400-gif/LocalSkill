@@ -10,12 +10,12 @@ class FreelancerController extends Controller
     /**
      * GET /api/freelancers
      */
-    public function index(Request $request)
+public function index(Request $request)
 {
     $query = DB::table('freelancer_profiles')
         ->join('users', 'freelancer_profiles.user_id', '=', 'users.id')
         ->where('users.role', 'freelancer')
-        ->where('freelancer_profiles.profile_visibility', 'visible')
+        ->where('freelancer_profiles.profile_visibility', 'visible') 
         ->where('freelancer_profiles.onboarding_completed', true)
         ->select(
             'users.id',
@@ -34,10 +34,8 @@ class FreelancerController extends Controller
             'freelancer_profiles.created_at'
         );
 
-    /**
-     * 🔍 Search
-     */
-    if ($request->search) {
+    // 🔍 Search
+    if ($request->filled('search')) {
         $query->where(function ($q) use ($request) {
             $q->where('users.first_name', 'ILIKE', '%' . $request->search . '%')
               ->orWhere('users.last_name', 'ILIKE', '%' . $request->search . '%')
@@ -45,27 +43,38 @@ class FreelancerController extends Controller
         });
     }
 
-    /**
-     * 🎯 Experience filter
-     */
-    if ($request->experience) {
+    // 🎯 Experience
+    if ($request->filled('experience')) {
         $query->where('freelancer_profiles.experience_level', $request->experience);
     }
 
-    /**
-     * 💰 Rate filter
-     */
-    if ($request->min_rate) {
+    // 💰 Rate
+    if ($request->filled('min_rate')) {
         $query->where('freelancer_profiles.hourly_rate', '>=', $request->min_rate);
     }
 
-    if ($request->max_rate) {
+    if ($request->filled('max_rate')) {
         $query->where('freelancer_profiles.hourly_rate', '<=', $request->max_rate);
     }
 
-    /**
-     * ⚡ Sorting
-     */
+    // 📂 Category
+    if ($request->filled('category_id')) {
+        $query->where('freelancer_profiles.primary_category_id', $request->category_id);
+    }
+
+    // 🧠 Skills Filter
+    if ($request->filled('skills')) {
+        $skills = $request->skills;
+
+        $query->whereExists(function ($q) use ($skills) {
+            $q->select(DB::raw(1))
+              ->from('freelancer_skills')
+              ->whereColumn('freelancer_skills.freelancer_profile_id', 'freelancer_profiles.id')
+              ->whereIn('freelancer_skills.skill_id', $skills);
+        });
+    }
+
+    // ⚡ Sorting
     switch ($request->sort) {
         case 'price_low':
             $query->orderBy('freelancer_profiles.hourly_rate', 'asc');
@@ -83,19 +92,24 @@ class FreelancerController extends Controller
             $query->orderByDesc('freelancer_profiles.created_at');
     }
 
-    /**
-     * 📄 Pagination
-     */
+    // 📄 Pagination
     $freelancers = $query->paginate(10);
 
     /**
-     * 🧠 Attach skills separately (CLEAN WAY)
+     * 🧠 Attach skills (FIXED)
      */
     $profileIds = collect($freelancers->items())->pluck('profile_id');
 
-    $skillsMap = DB::table('freelancer_skills')
+    $skillsMapQuery = DB::table('freelancer_skills')
         ->join('skills', 'freelancer_skills.skill_id', '=', 'skills.id')
-        ->whereIn('freelancer_skills.freelancer_profile_id', $profileIds)
+        ->whereIn('freelancer_skills.freelancer_profile_id', $profileIds);
+
+    // ✅ ONLY apply if skills filter exists
+    if ($request->filled('skills')) {
+        $skillsMapQuery->whereIn('skills.id', $request->skills);
+    }
+
+    $skillsMap = $skillsMapQuery
         ->select(
             'freelancer_skills.freelancer_profile_id',
             'skills.name'
@@ -104,7 +118,7 @@ class FreelancerController extends Controller
         ->groupBy('freelancer_profile_id');
 
     /**
-     * 🔄 Merge skills into freelancers
+     * 🔄 Merge skills
      */
     $freelancers->getCollection()->transform(function ($freelancer) use ($skillsMap) {
         $skills = $skillsMap[$freelancer->profile_id] ?? collect([]);

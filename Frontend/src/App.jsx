@@ -47,6 +47,8 @@ import OnlineTracker from "./utils/OnlineTracker";
 
 import NotificationPage from "./pages/NotificationPage";
 
+import FindFreelancers from "./pages/FindFreelancers";
+
 // import ClientPaymentPage from "./pages/hire-freelancer/ClientPaymentPage";
 
 function App() {
@@ -85,6 +87,7 @@ function App() {
             <Route path="/freelancer/signup" element={<FreelancerSignup />} />
             <Route path="/projects" element={<PublicProject />} />
             <Route path="/projects/:slug" element={<ProjectDetail />} />
+            <Route path="/find-freelancers" element={<FindFreelancers />} />
 
             <Route
               path="/freelancer/:username"
