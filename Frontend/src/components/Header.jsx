@@ -299,9 +299,13 @@ export default function Header() {
 
               {/* 💬 Save\Bookmark */}
               {(freelancerAuthenticated || clientAuthenticated) && (
-                <button className={linkBase + " " + hoverStyle}>
-                  <FiHeart size={18} />
-                </button>
+                <Link
+                  to={`/hire-freelancer/${clientUser.username}/saved-freelancer`}
+                >
+                  <button className={linkBase + " " + hoverStyle}>
+                    <FiHeart size={18} />
+                  </button>
+                </Link>
               )}
               {/* 🔔 Notification */}
               {(freelancerAuthenticated || clientAuthenticated) && (

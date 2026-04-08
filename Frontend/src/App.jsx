@@ -49,6 +49,8 @@ import NotificationPage from "./pages/NotificationPage";
 
 import FindFreelancers from "./pages/FindFreelancers";
 
+import SavedFreelancers from "./pages/hire-freelancer/SavedFreelancers";
+
 // import ClientPaymentPage from "./pages/hire-freelancer/ClientPaymentPage";
 
 function App() {
@@ -199,6 +201,14 @@ function App() {
               element={
                 <ClientProtectedRoute>
                   <ContractDetails />
+                </ClientProtectedRoute>
+              }
+            />
+            <Route
+              path="/hire-freelancer/:username/saved-freelancer"
+              element={
+                <ClientProtectedRoute>
+                  <SavedFreelancers />
                 </ClientProtectedRoute>
               }
             />

@@ -120,6 +120,7 @@ Route::middleware(['auth:sanctum', 'role:client'])->group(function () {
     Route::put('/hire-freelancer/{username}/contracts/{contractId}/rework',[ContractController::class, 'rework']);
     Route::post('/hire-freelancer/{username}/contracts/{contract}/review', [ReviewController::class, 'store']);
 
+    Route::get('/hire-freelancer/{username}/saved-freelancers', [SavedFreelancerController::class, 'details']);
 
     
 

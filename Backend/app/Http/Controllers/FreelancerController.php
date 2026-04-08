@@ -112,7 +112,9 @@ public function index(Request $request)
     $skillsMap = $skillsMapQuery
         ->select(
             'freelancer_skills.freelancer_profile_id',
-            'skills.name'
+            'skills.name',
+            'freelancer_skills.is_primary',
+            'freelancer_skills.experience_years'
         )
         ->get()
         ->groupBy('freelancer_profile_id');
@@ -123,7 +125,14 @@ public function index(Request $request)
     $freelancers->getCollection()->transform(function ($freelancer) use ($skillsMap) {
         $skills = $skillsMap[$freelancer->profile_id] ?? collect([]);
 
-        $freelancer->skills = $skills->pluck('name')->values();
+        // $freelancer->skills = $skills->pluck('name')->values();
+        $freelancer->skills = $skills->map(function ($skill) {
+    return [
+        'name' => $skill->name,
+        'is_primary' => (bool) $skill->is_primary,
+        'experience_years' => $skill->experience_years,
+    ];
+})->values();
 
         return $freelancer;
     });

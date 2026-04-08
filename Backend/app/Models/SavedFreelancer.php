@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SavedFreelancer extends Model
 {
@@ -12,4 +13,8 @@ class SavedFreelancer extends Model
         'user_id',
         'freelancer_profile_id',
     ];
+    public function freelancerProfile()
+{
+    return $this->belongsTo(FreelancerProfile::class);
+}
 }
