@@ -22,6 +22,8 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\FreelancerController;
 
+use App\Http\Controllers\SavedFreelancerController;
+
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Artisan;
@@ -207,6 +209,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+
+
+    Route::get('/saved-freelancers', [SavedFreelancerController::class, 'index']);
+    Route::post('/saved-freelancers/{id}', [SavedFreelancerController::class, 'store']);
+    Route::delete('/saved-freelancers/{id}', [SavedFreelancerController::class, 'destroy']);
 
 });
 

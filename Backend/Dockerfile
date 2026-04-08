@@ -25,4 +25,5 @@ EXPOSE 10000
 
 # Start Laravel server
 # CMD php artisan migrate --force && php artisan config:clear && php artisan serve --host=0.0.0.0 --port=$PORT
-CMD php artisan migrate --force && php artisan config:clear && php -S 0.0.0.0:$PORT -t public
+# CMD php artisan migrate --force && php artisan config:clear && php -S 0.0.0.0:$PORT -t public
+CMD php artisan config:clear && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=$PORT
