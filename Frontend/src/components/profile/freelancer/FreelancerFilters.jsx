@@ -88,10 +88,11 @@ export default function FreelancerFilters({ filters, setFilters }) {
           }))
         }
       >
-        <option value="">Experience</option>
+        <option value="">Choose Experience</option>
+        <option value="student">Student</option>
         <option value="beginner">Beginner</option>
         <option value="intermediate">Intermediate</option>
-        <option value="expert">Expert</option>
+        <option value="advanced">Expert</option>
       </select>
 
       {/* Rate */}
