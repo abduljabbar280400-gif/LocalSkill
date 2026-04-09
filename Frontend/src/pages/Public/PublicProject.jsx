@@ -6,71 +6,16 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 import Select from "react-select";
 
-import {
-  FaUser,
-  FaClock,
-  FaBullseye,
-  FaMoneyBillWave,
-  FaBriefcase,
-} from "react-icons/fa";
+import { FaBriefcase } from "react-icons/fa";
 
-import { FiSearch, FiFilter } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 
 import herobanner from "../../assets/image/top-laptop-comp.jpg";
 
+import ProjectCard from "../../components/ProjectCard";
+import useSavedProjects from "../../hooks/useSavedProjects";
+
 dayjs.extend(relativeTime);
-
-const ProjectCard = React.memo(({ project, isLast, lastProjectRef }) => {
-  return (
-    <Link
-      ref={isLast ? lastProjectRef : null}
-      to={`/projects/${project.slug}`}
-      className="group relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 hover:from-blue-300 hover:via-purple-300 hover:to-pink-300 transition-all duration-500"
-    >
-      <div className="h-full w-full rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
-        {/* Category */}
-        <span className="inline-block text-xs font-semibold px-3 py-1 mb-4 rounded-full bg-blue-100 text-blue-600">
-          {project.category?.name}
-        </span>
-
-        {/* Title */}
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 leading-snug">
-          {project.title}
-        </h3>
-
-        {/* Client + Time */}
-        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-          <div className="flex items-center gap-2">
-            <FaUser className="text-gray-400" />
-            <span>
-              {project.user.first_name} {project.user.last_name}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <FaClock className="text-gray-400" />
-            <span>{dayjs(project.created_at).fromNow()}</span>
-          </div>
-        </div>
-
-        {/* Experience + Budget */}
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2 text-gray-600">
-            <FaBullseye className="text-gray-400" />
-            <span>{project.experience_level}</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-green-600 font-semibold">
-            <FaMoneyBillWave />
-            <span>
-              ₹{project.budget_min} - ₹{project.budget_max}
-            </span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-});
 
 export default function Projects() {
   const [projects, setProjects] = useState([]);
@@ -95,6 +40,8 @@ export default function Projects() {
   const isFetchingRef = useRef(false);
 
   const observer = useRef();
+
+  const { isSaved, toggleSave } = useSavedProjects();
 
   useEffect(() => {
     setProjects([]);
@@ -263,6 +210,8 @@ export default function Projects() {
           project={project}
           isLast={projects.length === index + 1}
           lastProjectRef={lastProjectRef}
+          isSaved={isSaved}
+          toggleSave={toggleSave}
         />
       ))
     )}
@@ -395,6 +344,8 @@ export default function Projects() {
                 project={project}
                 isLast={projects.length === index + 1}
                 lastProjectRef={lastProjectRef}
+                isSaved={isSaved}
+                toggleSave={toggleSave}
               />
             ))
           )}

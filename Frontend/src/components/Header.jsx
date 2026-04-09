@@ -297,16 +297,21 @@ export default function Header() {
                 </div>
               )}
 
-              {/* 💬 Save\Bookmark */}
+              {/* ❤️ Save / Bookmark */}
               {(freelancerAuthenticated || clientAuthenticated) && (
                 <Link
-                  to={`/hire-freelancer/${clientUser.username}/saved-freelancer`}
+                  to={
+                    freelancerAuthenticated
+                      ? `/freelancer/${freelancerUser.username}/saved-projects`
+                      : `/hire-freelancer/${clientUser.username}/saved-freelancer`
+                  }
                 >
                   <button className={linkBase + " " + hoverStyle}>
                     <FiHeart size={18} />
                   </button>
                 </Link>
               )}
+
               {/* 🔔 Notification */}
               {(freelancerAuthenticated || clientAuthenticated) && (
                 <div className={linkBase + " " + hoverStyle}>

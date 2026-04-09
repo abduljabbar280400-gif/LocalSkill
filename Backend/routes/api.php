@@ -23,6 +23,9 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\FreelancerController;
 
 use App\Http\Controllers\SavedFreelancerController;
+use App\Http\Controllers\SavedProjectController;
+
+
 
 
 use Illuminate\Support\Facades\Mail;
@@ -120,6 +123,7 @@ Route::middleware(['auth:sanctum', 'role:client'])->group(function () {
     Route::put('/hire-freelancer/{username}/contracts/{contractId}/rework',[ContractController::class, 'rework']);
     Route::post('/hire-freelancer/{username}/contracts/{contract}/review', [ReviewController::class, 'store']);
 
+    //Saved freelancer page
     Route::get('/hire-freelancer/{username}/saved-freelancers', [SavedFreelancerController::class, 'details']);
 
     
@@ -215,6 +219,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/saved-freelancers', [SavedFreelancerController::class, 'index']);
     Route::post('/saved-freelancers/{id}', [SavedFreelancerController::class, 'store']);
     Route::delete('/saved-freelancers/{id}', [SavedFreelancerController::class, 'destroy']);
+
+    Route::get('/saved-projects', [SavedProjectController::class, 'index']);
+    Route::post('/saved-projects/{projectId}', [SavedProjectController::class, 'toggle']);
 
 });
 

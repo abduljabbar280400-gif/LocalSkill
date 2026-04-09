@@ -3,8 +3,6 @@ import api from "../../services/api";
 import { useParams } from "react-router-dom";
 import FreelancerCard from "../../components/profile/freelancer/FreelancerCard";
 
-import { FaHeart } from "react-icons/fa";
-
 export default function SavedFreelancers() {
   const { username } = useParams();
   const [freelancers, setFreelancers] = useState([]);

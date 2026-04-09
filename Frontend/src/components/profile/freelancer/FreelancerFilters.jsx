@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../services/api";
+import { FiFilter, FiRefreshCw } from "react-icons/fi";
 
 export default function FreelancerFilters({ filters, setFilters }) {
   const [categories, setCategories] = useState([]);
@@ -23,10 +24,10 @@ export default function FreelancerFilters({ filters, setFilters }) {
   }, []);
 
   /**
-   * 🔹 Load Skills ONLY when category exists
+   * 🔹 Load Skills when category changes
    */
   useEffect(() => {
-    if (!selectedCategory) return; // ✅ just exit, no setState
+    if (!selectedCategory) return;
 
     const loadSkills = async () => {
       try {
@@ -48,9 +49,7 @@ export default function FreelancerFilters({ filters, setFilters }) {
       const exists = prev.skills.includes(skill.id);
 
       if (exists) {
-        // ❌ REMOVE skill
         const updatedSkills = prev.skills.filter((id) => id !== skill.id);
-
         const updatedNames = { ...prev.skillNames };
         delete updatedNames[skill.id];
 
@@ -60,7 +59,6 @@ export default function FreelancerFilters({ filters, setFilters }) {
           skillNames: updatedNames,
         };
       } else {
-        // ✅ ADD skill
         return {
           ...prev,
           skills: [...prev.skills, skill.id],
@@ -73,62 +71,107 @@ export default function FreelancerFilters({ filters, setFilters }) {
     });
   };
 
+  /**
+   * 🔹 Clear Filters
+   */
+  const clearFilters = () => {
+    setSelectedCategory("");
+    setSkills([]);
+
+    setFilters({
+      search: "",
+      experience: "",
+      min_rate: "",
+      max_rate: "",
+      sort: "",
+      skills: [],
+      category_id: "",
+      skillNames: {},
+    });
+  };
+
   return (
-    <div className="w-64 bg-white p-4 rounded-xl shadow overflow-y-auto max-h-[80vh]">
-      <h2 className="font-semibold mb-4">Filters</h2>
+    <div className="bg-white rounded-2xl shadow-sm p-5">
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-5">
+        <div className="flex items-center gap-2">
+          <FiFilter className="text-gray-600" />
+          <h2 className="font-semibold text-lg">Filters</h2>
+        </div>
 
-      {/* Experience */}
-      <select
-        value={filters.experience}
-        className="w-full mb-3 border px-2 py-2 rounded"
-        onChange={(e) =>
-          setFilters((prev) => ({
-            ...prev,
-            experience: e.target.value,
-          }))
-        }
-      >
-        <option value="">Choose Experience</option>
-        <option value="student">Student</option>
-        <option value="beginner">Beginner</option>
-        <option value="intermediate">Intermediate</option>
-        <option value="advanced">Expert</option>
-      </select>
+        <button
+          onClick={clearFilters}
+          className="text-sm flex items-center gap-1 text-gray-500 hover:text-red-500"
+        >
+          <FiRefreshCw size={14} />
+          Clear
+        </button>
+      </div>
 
-      {/* Rate */}
-      <input
-        type="number"
-        value={filters.min_rate}
-        placeholder="Min Rate"
-        className="w-full mb-2 border px-2 py-2 rounded"
-        onChange={(e) =>
-          setFilters((prev) => ({
-            ...prev,
-            min_rate: e.target.value,
-          }))
-        }
-      />
+      {/* EXPERIENCE */}
+      <div className="mb-5">
+        <h3 className="text-sm font-medium mb-2 text-gray-700">
+          Experience Level
+        </h3>
 
-      <input
-        type="number"
-        value={filters.max_rate}
-        placeholder="Max Rate"
-        className="w-full mb-4 border px-2 py-2 rounded"
-        onChange={(e) =>
-          setFilters((prev) => ({
-            ...prev,
-            max_rate: e.target.value,
-          }))
-        }
-      />
+        <select
+          value={filters.experience}
+          className="w-full bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              experience: e.target.value,
+            }))
+          }
+        >
+          <option value="">All Levels</option>
+          <option value="student">Student</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Expert</option>
+        </select>
+      </div>
 
-      {/* Category */}
-      <div className="mb-4">
-        <h3 className="font-medium mb-2">Category</h3>
+      {/* RATE */}
+      <div className="mb-5">
+        <h3 className="text-sm font-medium mb-2 text-gray-700">Hourly Rate</h3>
+
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={filters.min_rate}
+            placeholder="Min"
+            className="w-1/2 bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                min_rate: e.target.value,
+              }))
+            }
+          />
+
+          <input
+            type="number"
+            value={filters.max_rate}
+            placeholder="Max"
+            className="w-1/2 bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                max_rate: e.target.value,
+              }))
+            }
+          />
+        </div>
+      </div>
+
+      {/* CATEGORY */}
+      <div className="mb-5">
+        <h3 className="text-sm font-medium mb-2 text-gray-700">Category</h3>
 
         <select
           value={selectedCategory}
-          className="w-full border px-2 py-2 rounded"
+          className="w-full bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
           onChange={(e) => {
             const value = e.target.value;
 
@@ -138,12 +181,13 @@ export default function FreelancerFilters({ filters, setFilters }) {
               ...prev,
               category_id: value,
               skills: [],
+              skillNames: {},
             }));
 
-            setSkills([]); // ✅ move reset HERE (event, not effect)
+            setSkills([]);
           }}
         >
-          <option value="">Select Category</option>
+          <option value="">All Categories</option>
 
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
@@ -153,30 +197,34 @@ export default function FreelancerFilters({ filters, setFilters }) {
         </select>
       </div>
 
-      {/* Skills */}
-      {selectedCategory && skills.length > 0 && (
+      {/* SKILLS */}
+      {selectedCategory && (
         <div>
-          <h3 className="font-medium mb-2">Skills</h3>
+          <h3 className="text-sm font-medium mb-2 text-gray-700">Skills</h3>
 
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill) => {
-              const isSelected = filters.skills.includes(skill.id);
+          {skills.length === 0 ? (
+            <p className="text-xs text-gray-400">Loading skills...</p>
+          ) : (
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
+              {skills.map((skill) => {
+                const isSelected = filters.skills.includes(skill.id);
 
-              return (
-                <button
-                  key={skill.id}
-                  onClick={() => toggleSkill(skill)}
-                  className={`text-xs px-2 py-1 rounded border ${
-                    isSelected
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  {skill.name}
-                </button>
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    key={skill.id}
+                    onClick={() => toggleSkill(skill)}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                      isSelected
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {skill.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -44,9 +44,9 @@ export default function FreelancerCard({
   );
 
   return (
-    <div className="relative transition-all duration-300 hover:scale-[1.02]">
+    <div className="relative  group rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 hover:from-blue-300 hover:via-purple-300 hover:to-pink-300 transition-all duration-500">
       <Link to={`/freelancer/${freelancer.username}`}>
-        <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer ">
+        <div className="relative h-full w-full rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
           {isLoggedIn && !loading && (
             <button
               onClick={async (e) => {

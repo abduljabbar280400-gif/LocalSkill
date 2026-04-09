@@ -50,6 +50,7 @@ import NotificationPage from "./pages/NotificationPage";
 import FindFreelancers from "./pages/FindFreelancers";
 
 import SavedFreelancers from "./pages/hire-freelancer/SavedFreelancers";
+import SavedProjects from "./pages/freelancer/SavedProjects";
 
 // import ClientPaymentPage from "./pages/hire-freelancer/ClientPaymentPage";
 
@@ -130,6 +131,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FreelancerDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/freelancer/:username/saved-projects"
+              element={
+                <ProtectedRoute>
+                  <SavedProjects />
                 </ProtectedRoute>
               }
             />
