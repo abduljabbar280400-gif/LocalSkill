@@ -60,6 +60,11 @@ export default function Signup({ config }) {
     return phone ? isValidPhoneNumber(phone) : false;
   };
 
+  const isPasswordMatch =
+    form.password &&
+    form.password_confirmation &&
+    form.password === form.password_confirmation;
+
   // ✅ Username check (only if valid)
   const { status: usernameStatus } = useAvailabilityCheck(
     routes.username,
@@ -366,7 +371,19 @@ export default function Signup({ config }) {
                         placeholder="Confirm"
                         value={form.password_confirmation}
                         onChange={handleChange}
-                        className="form-input !pl-10"
+                        onBlur={() =>
+                          setTouched((prev) => ({
+                            ...prev,
+                            password_confirmation: true,
+                          }))
+                        }
+                        className={`form-input !pl-10 ${
+                          touched.password_confirmation
+                            ? isPasswordMatch
+                              ? "border-green-500"
+                              : "border-red-500"
+                            : ""
+                        }`}
                         required
                       />
 
@@ -382,6 +399,19 @@ export default function Signup({ config }) {
                     </div>
                   </div>
                 </div>
+
+                {touched.password_confirmation &&
+                  form.password_confirmation && (
+                    <p
+                      className={`text-sm mt-1 ${
+                        isPasswordMatch ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {isPasswordMatch
+                        ? "Passwords match ✅"
+                        : "Passwords do not match ❌"}
+                    </p>
+                  )}
 
                 {form.password && (
                   <div className="mt-2 text-sm">
@@ -457,6 +487,7 @@ export default function Signup({ config }) {
                   disabled={
                     loading ||
                     Object.values(errors).some((e) => e) ||
+                    !isPasswordMatch ||
                     usernameStatus === false ||
                     emailStatus === false ||
                     phoneStatus === false

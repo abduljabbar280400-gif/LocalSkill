@@ -102,7 +102,7 @@ export default function AuthProvider({ children }) {
       api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
       const userData = await fetchMe();
-      return { userData };
+      return userData;
     } catch (err) {
       return { error: err.response?.data?.message || "Registration failed" };
     }
