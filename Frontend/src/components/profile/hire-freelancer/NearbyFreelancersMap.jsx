@@ -1,23 +1,41 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+
 import L from "leaflet";
-import { Link } from "react-router-dom";
 import { renderToString } from "react-dom/server";
-import { FaMapMarkerAlt, FaUserTie } from "react-icons/fa";
+import { FaMapMarkerAlt, FaUserTie, FaStar } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { useEffect } from "react";
 
-// ✅ Convert React Icon → HTML (VERY IMPORTANT)
-const createIcon = (icon, color = "blue") =>
+// 🎯 ICON BUILDER
+const createIcon = (content) =>
   L.divIcon({
-    html: renderToString(<div style={{ color, fontSize: "24px" }}>{icon}</div>),
+    html: renderToString(content),
     className: "",
-    iconSize: [30, 30],
+    iconSize: [40, 40],
   });
 
-// 📍 Icons
-const userIcon = createIcon(<FaMapMarkerAlt />, "red");
-const freelancerIcon = createIcon(<FaUserTie />, "#2563eb");
+// 📍 USER ICON (highlighted)
+const userIcon = createIcon(
+  <div className="bg-red-500 text-white p-2 rounded-full shadow-lg border-2 border-white">
+    <FaMapMarkerAlt />
+  </div>,
+);
 
-// 🎯 Zoom based on radius
+// 🧑 FREELANCER ICON
+const freelancerIcon = createIcon(
+  <div className="bg-blue-600 text-white p-2 rounded-full shadow-md border border-white">
+    <FaUserTie />
+  </div>,
+);
+
+// ⭐ BEST FREELANCER ICON
+const bestIcon = createIcon(
+  <div className="bg-yellow-400 text-white p-2 rounded-full shadow-xl border-2 border-white">
+    <FaStar />
+  </div>,
+);
+
+// 🎯 ZOOM LOGIC
 const getZoomLevel = (radius) => {
   if (radius <= 5) return 15;
   if (radius <= 10) return 13;
@@ -25,6 +43,7 @@ const getZoomLevel = (radius) => {
   return 10;
 };
 
+// 🔄 MAP CONTROL
 function MapUpdater({ userLocation, radius }) {
   const map = useMap();
 
@@ -48,48 +67,54 @@ export default function NearbyFreelancersMap({
 }) {
   if (!userLocation) return null;
 
+  // 🟢 Best freelancer (nearest)
+  const bestFreelancer = freelancers[0];
+
   return (
-    <div className="mt-10 rounded-2xl overflow-hidden shadow-md">
+    <div className="mt-10 rounded-2xl overflow-hidden shadow-lg">
       <MapContainer
         center={[userLocation.lat, userLocation.lon]}
-        zoom={15}
-        className="h-[400px] w-full"
-        /* 🔒 DISABLE ALL INTERACTIONS */
+        zoom={13}
+        className="h-[420px] w-full"
+        // 🔒 READ ONLY MAP
         zoomControl={false}
         scrollWheelZoom={false}
-        doubleClickZoom={false}
         dragging={false}
+        doubleClickZoom={false}
         touchZoom={false}
-        boxZoom={false}
-        keyboard={false}
       >
         <MapUpdater userLocation={userLocation} radius={radius} />
-        {/* 🌍 Map tiles */}
+
         <TileLayer
           attribution=""
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
+        {/* 🌫️ PREMIUM OVERLAY */}
+        <div className="absolute inset-0 bg-gradient-to-t from-white/30 to-transparent pointer-events-none z-[400]" />
+
         {/* 📍 USER */}
         <Marker position={[userLocation.lat, userLocation.lon]} icon={userIcon}>
           <Popup>
-            <div>You are here</div>
+            <div className="text-sm font-medium">You are here</div>
           </Popup>
         </Marker>
 
-        {/* 🧑‍💼 Freelancer Markers */}
+        {/* 🧑 FREELANCERS */}
         {freelancers.map((f) => {
           if (!f.latitude || !f.longitude) return null;
+
+          const isBest = bestFreelancer?.id === f.id;
 
           return (
             <Marker
               key={f.id}
               position={[parseFloat(f.latitude), parseFloat(f.longitude)]}
-              icon={freelancerIcon}
+              icon={isBest ? bestIcon : freelancerIcon}
             >
               <Popup>
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-sm">
+                <div className="space-y-1 text-sm">
+                  <h3 className="font-semibold">
                     {f.first_name} {f.last_name}
                   </h3>
 
@@ -102,12 +127,18 @@ export default function NearbyFreelancersMap({
                   </p>
 
                   <p className="text-xs text-green-600">
-                    📍 {f.distance?.toFixed(1)} km
+                    📍 {f.distance?.toFixed(1)} km away
                   </p>
+
+                  {isBest && (
+                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                      ⭐ Best Match
+                    </span>
+                  )}
 
                   <Link
                     to={`/freelancer/${f.username}`}
-                    className="text-blue-600 text-xs underline"
+                    className="block mt-2 text-center bg-blue-600 text-white py-1 rounded text-xs"
                   >
                     View Profile
                   </Link>

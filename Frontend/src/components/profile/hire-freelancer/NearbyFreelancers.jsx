@@ -122,7 +122,7 @@ export default function NearbyFreelancers() {
             <select
               value={radius}
               onChange={(e) => setRadius(Number(e.target.value))}
-              className="border rounded px-3 py-1"
+              className="bg-gray-100 rounded px-3 py-1"
             >
               <option value={5}>5 km</option>
               <option value={10}>10 km</option>
