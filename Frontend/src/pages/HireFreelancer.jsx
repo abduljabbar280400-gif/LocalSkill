@@ -7,6 +7,8 @@ import {
   FaHandshake,
 } from "react-icons/fa";
 
+import NearbyFreelancers from "../components/profile/hire-freelancer/NearbyFreelancers";
+
 export default function HireFreelancer() {
   return (
     <main className="app-main bg-gray-50 text-gray-800">
@@ -129,6 +131,8 @@ export default function HireFreelancer() {
           </div>
         </div>
       </section>
+
+      <NearbyFreelancers />
 
       {/* ================= USP SECTION ================= */}
       <section className="py-16 bg-white border-t">

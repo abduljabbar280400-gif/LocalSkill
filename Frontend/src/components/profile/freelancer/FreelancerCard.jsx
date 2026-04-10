@@ -125,11 +125,11 @@ export default function FreelancerCard({
                   key={index}
                   className={`text-xs px-3 py-1 rounded-full flex items-center gap-1 ${
                     isPrimary
-                      ? "bg-yellow-200 text-yellow-800 font-medium"
+                      ? "bg-yellow-100 text-yellow-600 font-medium"
                       : "bg-gray-100 text-gray-600"
                   }`}
                 >
-                  {isPrimary && "⭐ "}
+                  {isPrimary && <FaStar />}
                   {skill.name}
                 </span>
               );

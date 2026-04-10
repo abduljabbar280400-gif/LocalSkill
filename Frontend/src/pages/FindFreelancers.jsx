@@ -207,7 +207,7 @@ export default function FindFreelancers() {
           {/* 📱 MOBILE FILTER BUTTON */}
           <button
             onClick={() => setShowMobileFilters(true)}
-            className="lg:hidden fixed bottom-6 right-6 z-[999] bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition"
+            className="lg:hidden fixed bottom-6 right-6 z-[51] bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition"
           >
             <FiSliders size={20} />
           </button>
@@ -217,24 +217,16 @@ export default function FindFreelancers() {
             <>
               {/* BACKDROP */}
               <div
-                className="fixed inset-0 bg-black/40 z-[998]"
+                className="fixed inset-0 bg-black/40 z-[50]"
                 onClick={handleCloseFilters}
               />
 
               {/* DRAWER */}
               <div
-                className={`fixed bottom-0 left-0 right-0 z-[999] bg-white rounded-t-2xl shadow-xl max-h-[85vh] overflow-y-auto ${
+                className={`fixed bottom-0 left-0 right-0 z-[51] rounded-t-2xl shadow-xl max-h-[85vh] overflow-y-auto ${
                   closing ? "animate-slideDown" : "animate-slideUp"
                 }`}
               >
-                {/* HEADER */}
-                <div className="flex justify-between items-center p-4 border-b">
-                  <h2 className="font-semibold text-lg">Filters</h2>
-                  <button onClick={handleCloseFilters}>
-                    <FiX size={20} />
-                  </button>
-                </div>
-
                 {/* FILTER CONTENT */}
                 <div className="p-4">
                   <FreelancerFilters

@@ -31,6 +31,8 @@ public function index(Request $request)
             'freelancer_profiles.average_rating',
             'freelancer_profiles.total_reviews',
             'freelancer_profiles.availability_status',
+            'freelancer_profiles.latitude',
+            'freelancer_profiles.longitude',
             'freelancer_profiles.created_at'
         );
 

@@ -142,7 +142,7 @@ export default function Header() {
           icon: <FiMessageCircle />,
         },
         {
-          to: "/bookmarked",
+          to: `/freelancer/${user.username}/saved-projects`,
           label: "Save",
           icon: <FiHeart />,
         },
@@ -151,7 +151,11 @@ export default function Header() {
 
     if (role === "client") {
       return [
-        { to: "/projects", label: "Find Projects", icon: <FiSearch /> },
+        {
+          to: "/find-freelancers",
+          label: "Find Freelancers",
+          icon: <FiSearch />,
+        },
         {
           to: `/hire-freelancer/${user.username}/dashboard`,
           label: "Dashboard",
@@ -173,12 +177,7 @@ export default function Header() {
           icon: <FiMessageCircle />,
         },
         {
-          to: "/find-freelancers",
-          label: "Explore",
-          icon: <FiCompass />,
-        },
-        {
-          to: "/bookmarked",
+          to: `/hire-freelancer/${user.username}/saved-freelancer`,
           label: "Save",
           icon: <FiHeart />,
         },
@@ -447,15 +446,8 @@ export default function Header() {
         >
           {/* TOP SECTION */}
 
-          {/* Header */}
-          {/* <div className="flex items-center justify-between mb-6">
-            <button onClick={() => setMenuOpen(false)}>
-              <FiX size={22} />
-            </button>
-          </div> */}
-
           {/* Navigation */}
-          <div className="flex flex-col gap-8 mt-25">
+          <div className="flex flex-col gap-4 mt-25">
             {navItems.map((item, index) => (
               <Link
                 key={index}
