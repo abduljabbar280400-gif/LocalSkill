@@ -206,7 +206,6 @@ export default function Signup({ config }) {
                   {/* Title + DOB */}
                   <div className="form-row-split">
                     <div className="form-field">
-                      <label className="form-label">Title</label>
                       <select
                         name="title"
                         value={form.title}
@@ -224,7 +223,6 @@ export default function Signup({ config }) {
                       <p className="form-status-error">{errors.dob}</p>
                     )}
                     <div className="form-field">
-                      <label className="form-label">Date of birth</label>
                       <input
                         type="date"
                         name="dob"
@@ -339,64 +337,63 @@ export default function Signup({ config }) {
                   )}
 
                   {/* Password */}
-                  <div className="form-row-split">
-                    <div className="relative">
-                      <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
 
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        placeholder="Password"
-                        value={form.password}
-                        onChange={handleChange}
-                        className="form-input !pl-10"
-                        required
-                      />
+                  <div className="relative">
+                    <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
 
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                      >
-                        {showPassword ? <FiEyeOff /> : <FiEye />}
-                      </button>
-                    </div>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="Password"
+                      value={form.password}
+                      onChange={handleChange}
+                      className="form-input !pl-10"
+                      required
+                    />
 
-                    <div className="relative">
-                      <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    >
+                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
 
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="password_confirmation"
-                        placeholder="Confirm"
-                        value={form.password_confirmation}
-                        onChange={handleChange}
-                        onBlur={() =>
-                          setTouched((prev) => ({
-                            ...prev,
-                            password_confirmation: true,
-                          }))
-                        }
-                        className={`form-input !pl-10 ${
-                          touched.password_confirmation
-                            ? isPasswordMatch
-                              ? "border-green-500"
-                              : "border-red-500"
-                            : ""
-                        }`}
-                        required
-                      />
+                  <div className="relative">
+                    <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                      >
-                        {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
-                      </button>
-                    </div>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      name="password_confirmation"
+                      placeholder="Confirm Password"
+                      value={form.password_confirmation}
+                      onChange={handleChange}
+                      onBlur={() =>
+                        setTouched((prev) => ({
+                          ...prev,
+                          password_confirmation: true,
+                        }))
+                      }
+                      className={`form-input !pl-10 ${
+                        touched.password_confirmation
+                          ? isPasswordMatch
+                            ? "border-green-500"
+                            : "border-red-500"
+                          : ""
+                      }`}
+                      required
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    >
+                      {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                    </button>
                   </div>
                 </div>
 

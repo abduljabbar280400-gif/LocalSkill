@@ -12,6 +12,7 @@ use App\Models\FreelancerProfile;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 
 class FreelancerProfileController extends Controller
@@ -85,58 +86,10 @@ class FreelancerProfileController extends Controller
         'reviews' => $reviews
     ]);
 }
-
-    /**
-     * CREATE minimal freelancer profile ------------------------------------------------------DELETE
-     */
-    // public function store(Request $request, string $username): JsonResponse
-    // {
-    //     $user = User::where('username', $username)->firstOrFail();
-    //     $this->authorizeUser($request, $user);
-
-    //     if (FreelancerProfile::where('user_id', $user->id)->exists()) {
-    //         return response()->json([
-    //             'message' => 'Freelancer profile already exists',
-    //         ], 409);
-    //     }
-
-    //     $validated = $request->validate([
-    //         'professional_title' => ['required', 'string', 'max:150'],
-    //         'primary_category_id' => ['required', 'integer', 'exists:categories,id'],
-    //         'experience_level' => ['required', Rule::in(['student', 'beginner', 'intermediate'])],
-    //     ]);
-
-    //     // Ensure category is active
-    //     if (! Category::where('id', $validated['primary_category_id'])->where('is_active', true)->exists()) {
-    //         return response()->json([
-    //             'message' => 'Invalid or inactive category',
-    //         ], 422);
-    //     }
-
-    //     $profile = FreelancerProfile::create([
-    //         'user_id' => $user->id,
-    //         'professional_title' => $validated['professional_title'],
-    //         'primary_category_id' => $validated['primary_category_id'],
-    //         'experience_level' => $validated['experience_level'],
-    //         'onboarding_completed' => false,
-    //         'profile_visibility' => 'hidden',
-    //         'availability_status' => 'available',
-    //         'average_rating' => 0,
-    //         'total_reviews' => 0,
-    //         'completed_jobs' => 0,
-    //     ]);
-
-    //     return response()->json([
-    //         'message' => 'Freelancer profile created',
-    //         'profile' => $profile,
-    //     ], 201);
-    // }
-
-    /**
-     * UPDATE editable profile fields
-     */
     public function update(Request $request, string $username): JsonResponse
     {
+// dd($request->input('languages'));
+
         $user = User::where('username', $username)->firstOrFail();
         $this->authorizeUser($request, $user);
 
@@ -152,20 +105,40 @@ class FreelancerProfileController extends Controller
             'currency' => ['nullable', 'string', 'max:10'],
             'preferred_work_type' => ['nullable', Rule::in(['remote', 'local', 'both'])],
             'availability_status' => ['nullable', Rule::in(['available', 'busy', 'unavailable'])],
-            'max_hours_per_week' => ['nullable', 'integer', 'min:1'],
             'city' => ['nullable', 'string', 'max:100'],
             'postcode' => ['nullable', 'string', 'max:20'],
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
             'search_radius_km' => ['nullable', 'integer', 'min:1'],
             'profile_visibility' => ['nullable', Rule::in(['visible', 'hidden'])],
+
+            'country' => ['nullable', 'string', 'max:100'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'street_address' => ['nullable', 'string', 'max:255'],
+            'landmark' => ['nullable', 'string', 'max:255'],
+            'languages' => ['nullable', 'array'],
+            'languages.*' => ['string', 'max:50'],
         ]);
 
-        $profile->update($validated);
+        if ($request->has('languages')) {
+    $profile->languages = $request->input('languages');
+}
 
+$profile->fill(collect($validated)->except('languages')->toArray());
+$profile->save();
+
+$result = $this->calculateCompletionWithMissing($profile);
+$completion = $result['percentage'];
+$missingFields = $result['missing'];
+
+$profile->update([
+    'onboarding_completed' => $result['percentage'] === 100
+]);
         return response()->json([
             'message' => 'Profile updated',
             'profile' => $profile,
+            'completion' => $completion,
+            'missing_fields' =>  $missingFields,
         ]);
     }
 
@@ -189,6 +162,7 @@ class FreelancerProfileController extends Controller
         $profile->update([
             'onboarding_completed' => true,
             'profile_visibility' => 'visible',
+            'languages' => $request->languages,
         ]);
 
         return response()->json([
@@ -269,13 +243,74 @@ public function myProfile(Request $request, string $username): JsonResponse
         ->orderBy('reviews.created_at', 'desc')
         ->get();
 
+
+      
+    $result = $this->calculateCompletionWithMissing($profile);
+    $completion = $result['percentage'];
+
     return response()->json([
         'profile' => $profile,
+        // ?? new \stdClass(),
+        'user' => [
+         'title' => $authUser->title,
+         'first_name' => $authUser->first_name,
+            'last_name' => $authUser->last_name,
+            'username' => $authUser->username,
+            'email' => $authUser->email,
+            'phone' => $authUser->phone,
+            'dob' => $authUser->dob,
+        ],
         'category' => $category,
         'skills' => $skills,
         'reviews' => $reviews,
+        'completion' => $completion,
+        'missing_fields' => $result['missing'],
     ]);
 }
 
+private function calculateCompletionWithMissing($profile)
+{
+    $fields = [
+        'professional_title' => 'Add professional title',
+        'primary_category_id' => 'Select category',
+        'experience_level' => 'Select experience level',
+        'bio' => 'Add bio',
+        'hourly_rate' => 'Set hourly rate',
+        'currency' => 'Select currency',
+        'country' => 'Add country',
+        'state' => 'Add state',
+        'city' => 'Add city',
+        'postcode' => 'Add pincode',
+        'street_address' => 'Add street address',
+        'languages' => 'Add at least one language',
+    ];
 
+    $total = count($fields);
+    $completed = 0;
+    $missing = [];
+
+    foreach ($fields as $key => $message) {
+        if ($key === 'languages') {
+    if (is_array($profile->languages) && count($profile->languages) > 0) {
+        $completed++;
+    } else {
+        $missing[] = $message;
+    }
+}
+         else {
+            if (!empty($profile->$key)) {
+                $completed++;
+            } else {
+                $missing[] = $message;
+            }
+        }
+    }
+
+    $percentage = round(($completed / $total) * 100);
+
+    return [
+        'percentage' => $percentage,
+        'missing' => $missing
+    ];
+}
 }

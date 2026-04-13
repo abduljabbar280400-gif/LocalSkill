@@ -18,7 +18,6 @@ class FreelancerProfile extends Model
         'currency',
         'preferred_work_type',
         'availability_status',
-        'max_hours_per_week',
         'city',
         'postcode',
         'latitude',
@@ -30,6 +29,11 @@ class FreelancerProfile extends Model
         'average_rating',
         'total_reviews',
         'completed_jobs',
+        'country',
+        'state',
+        'street_address',
+        'landmark',
+        'languages',
     ];
 
     protected $casts = [
@@ -37,6 +41,7 @@ class FreelancerProfile extends Model
         'hourly_rate' => 'decimal:2',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'languages' => 'array',
     ];
 
     public function user()

@@ -157,10 +157,7 @@ Route::prefix('freelancer')->group(function () {
 
         // Route::get('/freelancer/{username}/profile', [FreelancerProfileController::class, 'show']);
        Route::get('/freelancer/{username}/my-profile', [FreelancerProfileController::class, 'myProfile']);
-        
        // Route::post('/freelancer/{username}/my-profile', [FreelancerProfileController::class, 'store']); -------------Delete
-
-        
         Route::put('/freelancer/{username}/edit-profile', [FreelancerProfileController::class, 'update']);
 
 

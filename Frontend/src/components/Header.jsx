@@ -297,19 +297,22 @@ export default function Header() {
               )}
 
               {/* ❤️ Save / Bookmark */}
-              {(freelancerAuthenticated || clientAuthenticated) && (
-                <Link
-                  to={
-                    freelancerAuthenticated
-                      ? `/freelancer/${freelancerUser.username}/saved-projects`
-                      : `/hire-freelancer/${clientUser.username}/saved-freelancer`
-                  }
-                >
-                  <button className={linkBase + " " + hoverStyle}>
-                    <FiHeart size={18} />
-                  </button>
-                </Link>
-              )}
+              {(freelancerAuthenticated || clientAuthenticated) &&
+                (freelancerUser || clientUser) && (
+                  <Link
+                    to={
+                      freelancerAuthenticated && freelancerUser
+                        ? `/freelancer/${freelancerUser.username}/saved-projects`
+                        : clientAuthenticated && clientUser
+                          ? `/hire-freelancer/${clientUser.username}/saved-freelancer`
+                          : "#"
+                    }
+                  >
+                    <button className={linkBase + " " + hoverStyle}>
+                      <FiHeart size={18} />
+                    </button>
+                  </Link>
+                )}
 
               {/* 🔔 Notification */}
               {(freelancerAuthenticated || clientAuthenticated) && (

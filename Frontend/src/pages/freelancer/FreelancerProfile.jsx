@@ -130,310 +130,232 @@ export default function FreelancerProfile() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      {/* COVER BANNER */}
-      <div className="h-40 w-full rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-[-60px]" />
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+      {/* COVER */}
+      <div className="h-44 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-[-60px]" />
+
       {/* HEADER */}
-
-      <div className="relative z-10 bg-white border border-gray-200 rounded-2xl shadow-xl p-6 mb-8">
-        <div className="flex items-center gap-6">
-          {/* Avatar */}
-
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-[3px]">
-              <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-gray-400 text-3xl">
-                <FaUser />
-              </div>
+      <div className="relative z-10 bg-white px-6 py-6 flex items-center gap-6 border-b">
+        {/* Avatar */}
+        <div className="relative">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-[2px]">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-gray-400 text-2xl">
+              <FaUser />
             </div>
-
-            {/* Availability Badge */}
-
-            <span className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></span>
           </div>
-
-          {/* Profile Info */}
-
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-800">
-              {profile.professional_title}
-            </h1>
-
-            <p className="text-gray-500">@{username}</p>
-
-            {profile.completed_jobs === 0 && (
-              <span className="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">
-                New Freelancer
-              </span>
-            )}
-
-            <p className="text-gray-600 mt-3 max-w-2xl">{profile.bio}</p>
-
-            {/* Rating */}
-
-            <div className="flex items-center gap-2 mt-4 text-yellow-500">
-              <FaStar />
-              <span className="font-semibold text-gray-900 text-lg">
-                {profile.average_rating}
-              </span>
-              <span className="text-gray-500 text-sm">
-                ({profile.total_reviews} reviews)
-              </span>
-            </div>
-
-            {isOwner && (
-              <div>
-                <button
-                  onClick={() =>
-                    navigate(`/freelancer/${username}/edit-profile`)
-                  }
-                  className="bg-blue-600 hover:bg-blue-700 text-white mt-4 px-4 py-2 rounded-lg transition"
-                >
-                  Edit Profile
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Highlighted Hourly Rate */}
-
-          <div className="bg-gradient-to-br from-indigo-50 via-white to-indigo-100 border border-indigo-100 rounded-2xl p-5 min-w-[160px] shadow-sm hover:shadow-md transition text-center">
-            {/* Label */}
-            <div className="flex items-center justify-center gap-2 text-indigo-500 text-sm font-medium tracking-wide">
-              <FaMoneyBillWave className="text-lg" />
-              Hourly Rate
-            </div>
-
-            {/* Price */}
-            <p className="text-3xl font-extrabold text-gray-900 mt-2">
-              {profile.hourly_rate || "0"}
-            </p>
-
-            {/* Currency */}
-            <p className="text-sm text-gray-500 mt-1">
-              {profile.currency} <span className="text-gray-400">/ hour</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* GRID SECTIONS */}
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* CATEGORY */}
-
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-5">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
-            <FaLayerGroup className="text-indigo-500" />
-            Category
-          </h2>
-
-          <p className="text-gray-700">{category ? category.name : "N/A"}</p>
+          <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
         </div>
 
-        {/* EXPERIENCE */}
+        {/* Info */}
+        <div className="flex-1">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {profile.professional_title}
+          </h1>
+          <p className="text-gray-500 text-sm">@{username}</p>
 
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-5">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
-            <FaBriefcase className="text-indigo-500" />
-            Experience
-          </h2>
-
-          <p className="text-gray-700">
-            {capitalize(profile.experience_level)}
-          </p>
-        </div>
-
-        {/* SKILLS */}
-
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-5 md:col-span-2">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
-            <FaTools className="text-indigo-500" />
-            Skills
-          </h2>
-
-          {skills.length === 0 ? (
-            <p className="text-gray-500">No skills added</p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill) => (
-                <span
-                  key={skill.id}
-                  className="px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-full font-medium hover:scale-105 transition"
-                >
-                  {skill.name}
-                </span>
-              ))}
+          <div className="flex items-center gap-2 mt-2 text-yellow-500">
+            <FaStar />
+            <span className="text-gray-900 font-medium">
+              {profile.average_rating}
+            </span>
+            <span className="text-gray-400 text-sm">
+              ({profile.total_reviews})
+            </span>
+          </div>
+          {isOwner && (
+            <div>
+              {" "}
+              <button
+                onClick={() => navigate(`/freelancer/${username}/edit-profile`)}
+                className="bg-blue-600 hover:bg-blue-700 text-white mt-4 px-4 py-2 rounded-lg transition"
+              >
+                {" "}
+                Edit Profile{" "}
+              </button>{" "}
             </div>
           )}
         </div>
+      </div>
 
-        {/* WORK DETAILS */}
+      {/* MAIN */}
+      <div className="grid lg:grid-cols-3 gap-10 mt-8">
+        {/* LEFT */}
+        <div className="lg:col-span-2">
+          {/* ABOUT */}
+          <section className="pb-6 border-b">
+            <h2 className="text-lg font-semibold mb-2">About</h2>
+            <p className="text-gray-600 leading-relaxed">{profile.bio}</p>
+          </section>
 
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-5">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
-            <FaBriefcase className="text-indigo-500" />
-            Work Details
-          </h2>
+          {/* SKILLS */}
+          <section className="py-6 border-b">
+            <h2 className="text-lg font-semibold mb-3">Skills</h2>
 
-          <div className="space-y-2 text-gray-700">
-            <p className="flex items-center gap-2">
-              <FaClock className="text-gray-400" />
-              {capitalize(profile.preferred_work_type)}
-            </p>
+            <div className="flex flex-wrap gap-2">
+              {skills.length === 0 ? (
+                <p className="text-gray-400">No skills</p>
+              ) : (
+                skills.map((skill) => (
+                  <span
+                    key={skill.id}
+                    className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition"
+                  >
+                    {skill.name}
+                  </span>
+                ))
+              )}
+            </div>
+          </section>
 
-            <p className="flex items-center gap-2">
-              <FaClock className="text-gray-400" />
-              {capitalize(profile.availability_status)}
-            </p>
+          {/* DETAILS */}
+          <section className="py-6 border-b">
+            <h2 className="text-lg font-semibold mb-4">Details</h2>
 
-            <p className="flex items-center gap-2">
-              <FaClock className="text-gray-400" />
-              Max {profile.max_hours_per_week} hrs/week
-            </p>
-          </div>
-        </div>
+            <div className="grid sm:grid-cols-2 gap-4 text-gray-700 text-sm">
+              <p>
+                <span className="text-gray-400">Category:</span>{" "}
+                {category ? category.name : "N/A"}
+              </p>
 
-        {/* LOCATION */}
+              <p>
+                <span className="text-gray-400">Experience:</span>{" "}
+                {capitalize(profile.experience_level)}
+              </p>
 
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-5">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-4">
-            <FaMapMarkerAlt className="text-indigo-500" />
-            Location
-          </h2>
+              <p>
+                <span className="text-gray-400">Work Type:</span>{" "}
+                {capitalize(profile.preferred_work_type)}
+              </p>
 
-          <div className="space-y-3 text-gray-700">
-            {/* Text Location */}
-            <p className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-red-400" />
+              <p>
+                <span className="text-gray-400">Availability:</span>{" "}
+                {capitalize(profile.availability_status)}
+              </p>
+            </div>
+          </section>
+
+          {/* LOCATION */}
+          <section className="py-6 border-b">
+            <h2 className="text-lg font-semibold mb-3">Location</h2>
+
+            <p className="text-gray-600 mb-3">
               {profile.city}, {profile.postcode}
             </p>
 
-            {/* READ-ONLY MAP */}
             {profile.latitude && profile.longitude && (
-              <div className="rounded-xl overflow-hidden">
+              <div className="rounded-xl overflow-hidden border">
                 <LocationPicker
                   postcode={profile.postcode}
                   latitude={profile.latitude}
                   longitude={profile.longitude}
-                  readonly={true} // ✅ IMPORTANT
-                  interactiveOnClick={false} // ✅ DISABLE CLICK MODE
-                  onLocationSelect={() => {}} // ✅ NO-OP (required prop)
+                  readonly={true}
+                  interactiveOnClick={false}
+                  onLocationSelect={() => {}}
                 />
               </div>
             )}
-          </div>
-        </div>
+          </section>
 
-        {/* STATS */}
+          {/* REVIEWS */}
+          <section className="py-6">
+            <h2 className="text-lg font-semibold mb-6">Reviews</h2>
 
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-6 md:col-span-2">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-800">Statistics</h2>
-            <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">
-              Overview
-            </span>
-          </div>
+            {/* Breakdown */}
+            <div className="mb-6">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = reviews.filter((r) => r.rating === star).length;
+                const percent =
+                  reviews.length === 0 ? 0 : (count / reviews.length) * 100;
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Rating */}
-            <div className="group bg-gradient-to-br from-yellow-50 to-white border border-gray-100 rounded-xl p-5 hover:shadow-md transition">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Rating</p>
-              </div>
-              <p className="text-2xl font-bold text-gray-800 mt-2">
-                {profile.average_rating || "0.0"}
-              </p>
-            </div>
+                return (
+                  <div key={star} className="flex items-center gap-3 mb-2">
+                    <span className="w-8 text-sm text-gray-600">{star}★</span>
 
-            {/* Reviews */}
-            <div className="group bg-gradient-to-br from-indigo-50 to-white border border-gray-100 rounded-xl p-5 hover:shadow-md transition">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Reviews</p>
-              </div>
-              <p className="text-2xl font-bold text-gray-800 mt-2">
-                {profile.total_reviews || 0}
-              </p>
-            </div>
-
-            {/* Completed Jobs */}
-            <div className="group bg-gradient-to-br from-green-50 to-white border border-gray-100 rounded-xl p-5 hover:shadow-md transition">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Completed</p>
-              </div>
-              <p className="text-2xl font-bold text-gray-800 mt-2">
-                {profile.completed_jobs || 0}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* REVIEWS SECTION */}
-
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-5 md:col-span-2">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-6">
-            Client Reviews
-          </h2>
-
-          {reviews.length === 0 ? (
-            <p className="text-gray-500">No reviews yet</p>
-          ) : (
-            <div className="space-y-5">
-              {reviews.map((review) => (
-                <div
-                  key={review.id}
-                  className="border border-gray-100 rounded-2xl p-5 bg-gray-50 hover:bg-white hover:shadow transition"
-                >
-                  {/* Header */}
-
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      {/* Avatar */}
-
-                      <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-sm">
-                        {review.client_name.charAt(0)}
-                      </div>
-
-                      {/* Client Name */}
-
-                      <div className="font-semibold text-gray-800">
-                        {review.client_name}
-                      </div>
+                    <div className="flex-1 h-2 bg-gray-200 rounded">
+                      <div
+                        className="h-2 bg-yellow-400 rounded"
+                        style={{ width: `${percent}%` }}
+                      />
                     </div>
 
-                    {/* Date */}
-
-                    <span className="text-xs text-gray-400">
-                      {getRelativeTime(review.created_at)} •
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
+                    <span className="text-xs text-gray-400">{count}</span>
                   </div>
-
-                  {/* Stars */}
-
-                  <div className="flex gap-1 mb-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <FaStar
-                        key={star}
-                        className={
-                          star <= review.rating
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))}
-                  </div>
-
-                  {/* Comment */}
-
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {review.review_comment}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          )}
+
+            {/* Reviews List */}
+            {reviews.length === 0 ? (
+              <p className="text-gray-400">No reviews yet</p>
+            ) : (
+              <div className="space-y-5">
+                {reviews.map((review) => (
+                  <div key={review.id}>
+                    <div className="flex justify-between mb-1">
+                      <p className="font-medium text-gray-800">
+                        {review.client_name}
+                      </p>
+                      <span className="text-xs text-gray-400">
+                        {getRelativeTime(review.created_at)}
+                      </span>
+                    </div>
+
+                    <div className="flex gap-1 mb-1">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <FaStar
+                          key={s}
+                          className={
+                            s <= review.rating
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }
+                        />
+                      ))}
+                    </div>
+
+                    <p className="text-gray-600 text-sm">
+                      {review.review_comment}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* RIGHT SIDEBAR */}
+        <div>
+          <div className="sticky top-24 border rounded-xl p-6 shadow-sm">
+            <p className="text-sm text-gray-500">Hourly Rate</p>
+            <h2 className="text-3xl font-bold text-gray-900">
+              {profile.hourly_rate || 0}
+            </h2>
+            <p className="text-gray-500 text-sm mb-4">{profile.currency}/hr</p>
+
+            {/* BUTTONS */}
+            <div className="space-y-2 mb-4">
+              <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
+                Hire Me
+              </button>
+
+              <button className="w-full border py-2 rounded-lg hover:bg-gray-50 transition">
+                Contact
+              </button>
+            </div>
+
+            {/* STATS */}
+            <div className="text-sm text-gray-600 space-y-1 border-t pt-3">
+              <p>⭐ {profile.average_rating}</p>
+              <p>{profile.total_reviews} Reviews</p>
+              <p>{profile.completed_jobs} Completed</p>
+            </div>
+
+            {/* STATUS */}
+            <div className="mt-4 text-sm">
+              <p className="text-green-600 font-medium">● Online</p>
+              <p className="text-gray-400 text-xs">Last seen recently</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

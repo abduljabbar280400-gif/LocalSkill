@@ -47,6 +47,11 @@ body {
 .form-input-phone:focus-within {
   border-color: #3b82f6;
 }
+
+.input {
+  @apply w-full border border-gray-300 rounded-xl px-4 py-3 
+  focus:ring-2 focus:ring-black focus:outline-none transition;
+}
 /* USING */
 
 

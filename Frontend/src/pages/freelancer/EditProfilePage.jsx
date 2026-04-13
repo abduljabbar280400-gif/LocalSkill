@@ -7,6 +7,15 @@ import { useAuth } from "../../context/useAuth";
 import Skills from "../../components/profile/freelancer/Skills";
 import LocationPicker from "../../components/profile/freelancer/LocationPicker";
 
+import Select from "react-select";
+
+import { languages as languageOptions } from "../../constants/languages";
+import {
+  currencies,
+  currencyOptions,
+  formatHourlyRate,
+} from "../../constants/currencies";
+
 export default function EditProfilePage() {
   const { username } = useParams();
   const { logout } = useAuth();
@@ -15,13 +24,46 @@ export default function EditProfilePage() {
   const [savingLocation, setSavingLocation] = useState(false);
 
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState(null);
+  const [form, setForm] = useState({
+    professional_title: "",
+    primary_category_id: "",
+    experience_level: "beginner",
+    bio: "",
+    hourly_rate: "",
+    city: "",
+    postcode: "",
+    latitude: null,
+    longitude: null,
+    preferred_work_type: "remote",
+    profile_visibility: "hidden",
+
+    // 🔥 REQUIRED
+    currency: "INR",
+    country: "",
+    state: "",
+    street_address: "",
+    landmark: "",
+    languages: [],
+  });
 
   const [selectedLat, setSelectedLat] = useState(null);
   const [selectedLng, setSelectedLng] = useState(null);
   const [locationTouched, setLocationTouched] = useState(false);
 
+  const [user, setUser] = useState(null);
+
+  const [progress, setProgress] = useState(0);
+  const [completion, setCompletion] = useState(0);
+  const [missingFields, setMissingFields] = useState([]);
+
+  const selectedCurrency = currencies[form?.currency];
+  const currencySymbol = selectedCurrency?.symbol || "₹";
+
   const previousPostcodeRef = useRef(null);
+
+  const formattedRate = form
+    ? formatHourlyRate(form.currency, form.hourly_rate, currencies)
+    : "";
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -31,30 +73,44 @@ export default function EditProfilePage() {
           api.get("/categories"),
         ]);
 
-        const data = profileRes.data.profile;
+        const data = profileRes.data;
 
-        setProfile(data);
+        const profileData = data.profile || {};
+        const userData = data.user || null;
+
+        setProfile(profileData);
+        setUser(userData);
         setCategories(categoryRes.data.data);
+        setProgress(profileRes.data.completion || 0);
+        setCompletion(profileRes.data.completion || 0);
+        setMissingFields(profileRes.data.missing_fields || []);
 
         setForm({
-          professional_title: data.professional_title || "",
-          primary_category_id: data.primary_category_id || "",
-          experience_level: data.experience_level || "beginner",
-          bio: data.bio || "",
-          hourly_rate: data.hourly_rate || "",
-          max_hours_per_week: data.max_hours_per_week || "",
-          city: data.city || "",
-          preferred_work_type: data.preferred_work_type || "remote",
-          profile_visibility: data.profile_visibility || "hidden",
-          postcode: data.postcode || "",
-          latitude: data.latitude ?? null,
-          longitude: data.longitude ?? null,
+          professional_title: profileData.professional_title || "",
+          primary_category_id: profileData.primary_category_id || "",
+          experience_level: profileData.experience_level || "beginner",
+          bio: profileData.bio || "",
+          hourly_rate: profileData.hourly_rate || "",
+          city: profileData.city || "",
+          preferred_work_type: profileData.preferred_work_type || "remote",
+          profile_visibility: profileData.profile_visibility || "hidden",
+          postcode: profileData.postcode || "",
+          latitude: profileData.latitude ?? null,
+          longitude: profileData.longitude ?? null,
+
+          // 🔥 FIXED
+          currency: profileData.currency || "INR",
+          country: profileData.country || "",
+          state: profileData.state || "",
+          street_address: profileData.street_address || "",
+          landmark: profileData.landmark || "",
+          languages: profileData.languages || [],
         });
 
-        setSelectedLat(data.latitude ?? null);
-        setSelectedLng(data.longitude ?? null);
+        setSelectedLat(profileData.latitude ?? null);
+        setSelectedLng(profileData.longitude ?? null);
 
-        previousPostcodeRef.current = data.postcode;
+        previousPostcodeRef.current = profileData.postcode;
       } catch (err) {
         console.error(err);
         alert("Failed to load profile");
@@ -118,6 +174,8 @@ export default function EditProfilePage() {
     try {
       const res = await api.put(`/freelancer/${username}/edit-profile`, form);
       setProfile(res.data.profile);
+      setProgress(res.data.completion);
+      setMissingFields(res.data.missing_fields);
       alert("Profile updated successfully");
     } catch (err) {
       console.error(err);
@@ -150,83 +208,169 @@ export default function EditProfilePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-10 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* HEADER */}
         <div className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900">
+          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
             Edit Your Profile
           </h1>
-          <p className="text-gray-500 mt-2">
+          <p className="text-gray-500 mt-2 text-sm">
             Keep your profile updated to attract more clients and opportunities.
           </p>
         </div>
 
+        {completion < 100 && (
+          <div className="mb-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+            {/* Progress */}
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm font-medium text-gray-700">
+                Profile Completion
+              </p>
+              <span className="text-sm font-semibold text-gray-900">
+                {progress}%
+              </span>
+            </div>
+
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  progress === 100 ? "bg-green-500" : "bg-black"
+                }`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            {/* Dynamic Message */}
+            <div className="mt-4">
+              {progress === 100 ? (
+                <p className="text-sm text-green-600 font-medium">
+                  🎉 Your profile is complete and visible to clients!
+                </p>
+              ) : (
+                <>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Complete your profile to make it visible to clients.
+                  </p>
+
+                  <ul className="space-y-1">
+                    {missingFields.slice(0, 3).map((item, index) => (
+                      <li
+                        key={index}
+                        className="text-xs text-gray-500 flex items-center gap-2"
+                      >
+                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {missingFields.length > 3 && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      +{missingFields.length - 3} more fields to complete
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-8">
           {/* MAIN FORM */}
-          <div className="lg:col-span-2 bg-white/80 backdrop-blur p-8 rounded-3xl shadow-lg border border-gray-100">
-            <form onSubmit={handleSave} className="space-y-8">
-              {/* SECTION */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* ACCOUNT INFO */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                Account Information
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {[
+                  { label: "Title", value: user?.title },
+                  { label: "First Name", value: user?.first_name },
+                  { label: "Last Name", value: user?.last_name },
+                  { label: "Username", value: user?.username },
+                  { label: "Email", value: user?.email },
+                  { label: "Phone", value: user?.phone },
+                  { label: "Date of Birth", value: user?.dob },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <label className="text-xs text-gray-500">
+                      {item.label}
+                    </label>
+                    <input
+                      value={item.value || ""}
+                      readOnly
+                      className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 border border-gray-200 cursor-not-allowed"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* FORM */}
+            <form
+              onSubmit={handleSave}
+              className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-8"
+            >
+              {/* BASIC INFO */}
               <div>
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">
                   Basic Information
                 </h2>
 
-                {/* Professional Title */}
-                <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Professional Title
-                  </label>
-                  <p className="text-xs text-gray-500 mb-2">
-                    This will appear as your headline.
-                  </p>
-                  <input
-                    type="text"
-                    name="professional_title"
-                    value={form.professional_title}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none transition"
-                  />
-                </div>
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Professional Title
+                    </label>
+                    <p className="text-xs text-gray-400 mb-1">
+                      This will appear as your headline.
+                    </p>
+                    <input
+                      type="text"
+                      name="professional_title"
+                      value={form.professional_title}
+                      onChange={handleChange}
+                      className="input"
+                    />
+                  </div>
 
-                {/* Category */}
-                <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Primary Category
-                  </label>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Choose your main expertise.
-                  </p>
-                  <select
-                    name="primary_category_id"
-                    value={form.primary_category_id}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                  >
-                    <option value="">Select category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Primary Category
+                    </label>
+                    <select
+                      name="primary_category_id"
+                      value={form.primary_category_id}
+                      onChange={handleChange}
+                      className="input"
+                    >
+                      <option value="">Select category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* Experience */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Experience Level
-                  </label>
-                  <select
-                    name="experience_level"
-                    value={form.experience_level}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                  >
-                    <option value="student">Student</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                  </select>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Experience Level
+                    </label>
+                    <select
+                      name="experience_level"
+                      value={form.experience_level}
+                      onChange={handleChange}
+                      className="input"
+                    >
+                      <option value="student">Student</option>
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -235,162 +379,184 @@ export default function EditProfilePage() {
                 <h2 className="text-lg font-semibold text-gray-800 mb-2">
                   About You
                 </h2>
-                <p className="text-xs text-gray-500 mb-2">
-                  Describe your skills, experience and strengths.
-                </p>
                 <textarea
                   name="bio"
                   value={form.bio}
                   onChange={handleChange}
                   rows={5}
+                  className="input"
                   placeholder="Write something about yourself..."
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
                 />
               </div>
 
-              {/* DETAILS */}
+              {/* LANGUAGES */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                  Languages
+                </h2>
+
+                <Select
+                  isMulti
+                  options={languageOptions}
+                  value={languageOptions.filter((opt) =>
+                    form.languages.includes(opt.value),
+                  )}
+                  onChange={(selected) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      languages: selected
+                        ? selected.map((item) => item.value)
+                        : [],
+                    }));
+                  }}
+                />
+              </div>
+
+              {/* ADDRESS */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  Location & Address
+                </h2>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <input
+                    name="street_address"
+                    value={form.street_address}
+                    onChange={handleChange}
+                    placeholder="Street Address"
+                    className="input"
+                  />
+                  <input
+                    name="landmark"
+                    value={form.landmark}
+                    onChange={handleChange}
+                    placeholder="Landmark"
+                    className="input"
+                  />
+                  <input
+                    name="city"
+                    value={form.city}
+                    onChange={handleChange}
+                    placeholder="City"
+                    className="input"
+                  />
+                  <input
+                    name="postcode"
+                    value={form.postcode}
+                    onChange={handleChange}
+                    placeholder="Pincode"
+                    className="input"
+                  />
+                  <input
+                    name="state"
+                    value={form.state}
+                    onChange={handleChange}
+                    placeholder="State"
+                    className="input"
+                  />
+                  <input
+                    name="country"
+                    value={form.country}
+                    onChange={handleChange}
+                    placeholder="Country"
+                    className="input"
+                  />
+                </div>
+              </div>
+
+              {/* WORK DETAILS */}
               <div>
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">
                   Work Details
                 </h2>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  {/* Hourly Rate */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Hourly Rate (₹)
+                    <label className="text-sm font-medium text-gray-700">
+                      Hourly Rate
                     </label>
-                    <p className="text-xs text-gray-500 mb-2">
-                      Set how much you charge per hour.
-                    </p>
-                    <input
-                      type="number"
-                      name="hourly_rate"
-                      value={form.hourly_rate}
-                      onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                    />
-                  </div>
 
-                  {/* Max Hours */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Max Hours / Week
-                    </label>
-                    <p className="text-xs text-gray-500 mb-2">
-                      Your weekly availability.
+                    <div className="flex gap-4 mt-1">
+                      <select
+                        name="currency"
+                        value={form.currency}
+                        onChange={handleChange}
+                        className="w-[170px] border border-gray-300 rounded-xl px-4 py-3 
+  focus:ring-2 focus:ring-black focus:outline-none transition"
+                      >
+                        {currencyOptions.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+
+                      <div className="relative flex-1">
+                        <span className="absolute left-4 top-3 text-gray-500">
+                          {currencySymbol}
+                        </span>
+                        <input
+                          type="number"
+                          name="hourly_rate"
+                          value={form.hourly_rate}
+                          onChange={handleChange}
+                          className="pl-12 w-[150px] border border-gray-300 rounded-xl px-4 py-3 
+  focus:ring-2 focus:ring-black focus:outline-none transition"
+                          placeholder="Enter rate"
+                        />
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-400 mt-1">
+                      {formattedRate}
                     </p>
-                    <input
-                      type="number"
-                      name="max_hours_per_week"
-                      value={form.max_hours_per_week}
-                      onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                    />
                   </div>
                 </div>
-              </div>
-
-              {/* LOCATION TEXT */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  City
-                </label>
-                <p className="text-xs text-gray-500 mb-2">
-                  Your current working location.
-                </p>
-                <input
-                  type="text"
-                  name="city"
-                  value={form.city}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Pincode / Postcode
-                </label>
-                <p className="text-xs text-gray-500 mb-2">
-                  Used to detect your location on map.
-                </p>
-                <input
-                  type="text"
-                  name="postcode"
-                  value={form.postcode}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                />
               </div>
 
               {/* PREFERENCES */}
               <div className="grid md:grid-cols-2 gap-4">
-                {/* Work Type */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Preferred Work Type
-                  </label>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Choose how you want to work.
-                  </p>
-                  <select
-                    name="preferred_work_type"
-                    value={form.preferred_work_type}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                  >
-                    <option value="remote">Remote</option>
-                    <option value="local">Local</option>
-                    <option value="both">Both</option>
-                  </select>
-                </div>
+                <select
+                  name="preferred_work_type"
+                  value={form.preferred_work_type}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="remote">Remote</option>
+                  <option value="local">Local</option>
+                  <option value="both">Both</option>
+                </select>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Profile Visibility
-                  </label>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Control who can see your profile.
-                  </p>
-                  <select
-                    name="profile_visibility"
-                    value={form.profile_visibility}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-black focus:outline-none"
-                  >
-                    <option value="visible">Public</option>
-                    <option value="hidden">Private</option>
-                  </select>
-                </div>
+                <select
+                  name="profile_visibility"
+                  value={form.profile_visibility}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="visible">Public</option>
+                  <option value="hidden">Private</option>
+                </select>
               </div>
 
-              {/* SAVE BUTTON */}
+              {/* SAVE */}
               <button className="w-full bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition font-semibold">
                 Save Changes
               </button>
-
-              {/* SKILLS BELOW BUTTON */}
-              <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                <h2 className="text-lg font-semibold mb-3">Skills</h2>
-
-                <Skills
-                  username={username}
-                  categoryId={profile.primary_category_id}
-                />
-              </div>
             </form>
+          </div>
+          {/* SKILLS */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 className="text-lg font-semibold mb-3">Skills</h2>
+            <Skills
+              username={username}
+              categoryId={profile.primary_category_id}
+            />
           </div>
 
           {/* SIDE PANEL */}
           <div className="space-y-6">
-            <div className="bg-white/80 backdrop-blur p-6 rounded-3xl shadow-lg border border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                Location
-              </h2>
-              <p className="text-sm text-gray-500 mb-4">
-                Set your exact location for better visibility.
-              </p>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+              <h2 className="text-lg font-semibold mb-2">Location</h2>
 
               <div className="rounded-xl overflow-hidden">
                 <LocationPicker
@@ -406,19 +572,12 @@ export default function EditProfilePage() {
               <button
                 onClick={handleConfirmLocation}
                 disabled={!locationTouched || savingLocation}
-                className="w-full bg-black text-white my-5 py-3 rounded-xl hover:bg-gray-800 transition font-semibold disabled:opacity-50"
+                className="w-full bg-black text-white mt-4 py-3 rounded-xl hover:bg-gray-800 transition disabled:opacity-50"
               >
                 {savingLocation ? "Saving..." : "Confirm location"}
               </button>
 
               <hr className="my-6" />
-
-              <h3 className="text-md font-semibold text-red-600 mb-1">
-                Danger zone
-              </h3>
-              <p className="text-sm text-gray-500 mb-3">
-                This action cannot be undone.
-              </p>
 
               <button
                 onClick={handleDeleteAccount}

@@ -30,7 +30,6 @@ return new class extends Migration
     $table->enum('preferred_work_type', ['remote','local','both'])->nullable();
     $table->enum('availability_status', ['available','busy','unavailable'])->default('available');
 
-    $table->integer('max_hours_per_week')->nullable();
 
     $table->string('city')->nullable();
     $table->string('postcode')->nullable();
