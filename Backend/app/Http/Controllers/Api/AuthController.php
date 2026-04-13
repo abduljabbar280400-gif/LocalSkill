@@ -57,6 +57,22 @@ class AuthController extends Controller
             ]);
         }
 
+
+// 🚫 CHECK IF SUSPENDED (ADD THIS)
+if ($user->is_suspended) {
+    return response()->json([
+        'message' => 'Account suspended: ' . ($user->suspended_reason ?? 'Contact support')
+    ], 403);
+}
+
+// 🚫 OPTIONAL: CHECK IF INACTIVE
+if (! $user->is_active) {
+    return response()->json([
+        'message' => 'Account is inactive'
+    ], 403);
+}
+
+
         // ✅ Create token
         $token = $user->createToken('api-token')->plainTextToken;
 

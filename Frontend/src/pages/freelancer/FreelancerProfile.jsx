@@ -7,17 +7,7 @@ import { useAuth } from "../../context/useAuth";
 
 import LocationPicker from "../../components/profile/freelancer/LocationPicker";
 
-import {
-  FaStar,
-  FaMapMarkerAlt,
-  FaBriefcase,
-  FaClock,
-  FaMoneyBillWave,
-  FaUser,
-  FaTools,
-  FaLayerGroup,
-  FaRegCommentDots,
-} from "react-icons/fa";
+import { FaStar, FaUser, FaCheckCircle } from "react-icons/fa";
 
 export default function FreelancerProfile() {
   const { username } = useParams();
@@ -132,118 +122,146 @@ export default function FreelancerProfile() {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
       {/* COVER */}
-      <div className="h-44 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 mb-[-60px]" />
+      {/* COVER BANNER */}
+      <div className="relative h-52 rounded-2xl overflow-hidden mb-[-70px]">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500" />
+
+        {/* subtle overlay */}
+        <div className="absolute inset-0 bg-black/10" />
+      </div>
 
       {/* HEADER */}
-      <div className="relative z-10 bg-white px-6 py-6 flex items-center gap-6 border-b">
-        {/* Avatar */}
+      <div className="relative z-10 bg-white/80 backdrop-blur-xl px-6 py-6 flex items-center gap-6 rounded-2xl shadow-lg">
+        {/* AVATAR */}
         <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-[2px]">
-            <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-gray-400 text-2xl">
-              <FaUser />
+          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[3px] shadow-lg">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-gray-400 text-3xl overflow-hidden">
+              {profile.avatar ? (
+                <img
+                  src={profile.avatar}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <FaUser />
+              )}
             </div>
           </div>
-          <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+
+          {/* ONLINE STATUS */}
+          <span className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full shadow" />
         </div>
 
-        {/* Info */}
+        {/* INFO */}
         <div className="flex-1">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            {profile.professional_title}
-          </h1>
-          <p className="text-gray-500 text-sm">@{username}</p>
+          {/* TITLE */}
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              {profile.professional_title}
+            </h1>
 
-          <div className="flex items-center gap-2 mt-2 text-yellow-500">
-            <FaStar />
-            <span className="text-gray-900 font-medium">
-              {profile.average_rating}
-            </span>
+            {profile?.profile_approved && (
+              <span className="flex items-center gap-1 text-sm font-medium text-blue-600">
+                <FaCheckCircle className="text-blue-500" /> Verified
+              </span>
+            )}
+          </div>
+
+          {/* USERNAME */}
+          <p className="text-gray-400 text-sm mt-1">@{username}</p>
+
+          {/* RATING */}
+          <div className="flex items-center gap-2 mt-3">
+            <div className="flex items-center gap-1 text-yellow-400">
+              <FaStar />
+              <span className="text-gray-900 font-semibold">
+                {profile.average_rating || "0.0"}
+              </span>
+            </div>
+
             <span className="text-gray-400 text-sm">
-              ({profile.total_reviews})
+              ({profile.total_reviews || 0} reviews)
             </span>
           </div>
+
+          {/* ACTION */}
           {isOwner && (
-            <div>
-              {" "}
-              <button
-                onClick={() => navigate(`/freelancer/${username}/edit-profile`)}
-                className="bg-blue-600 hover:bg-blue-700 text-white mt-4 px-4 py-2 rounded-lg transition"
-              >
-                {" "}
-                Edit Profile{" "}
-              </button>{" "}
-            </div>
+            <button
+              onClick={() => navigate(`/freelancer/${username}/edit-profile`)}
+              className="mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-xl shadow hover:opacity-90 transition"
+            >
+              Edit Profile
+            </button>
           )}
         </div>
       </div>
 
       {/* MAIN */}
-      <div className="grid lg:grid-cols-3 gap-10 mt-8">
+      <div className="grid lg:grid-cols-3 gap-10 mt-10">
         {/* LEFT */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-8">
           {/* ABOUT */}
-          <section className="pb-6 border-b">
-            <h2 className="text-lg font-semibold mb-2">About</h2>
+          <section className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">About</h2>
             <p className="text-gray-600 leading-relaxed">{profile.bio}</p>
           </section>
 
           {/* SKILLS */}
-          <section className="py-6 border-b">
-            <h2 className="text-lg font-semibold mb-3">Skills</h2>
+          <section className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Skills</h2>
 
-            <div className="flex flex-wrap gap-2">
-              {skills.length === 0 ? (
-                <p className="text-gray-400">No skills</p>
-              ) : (
-                skills.map((skill) => (
+            {skills.length === 0 ? (
+              <p className="text-gray-400">No skills</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill) => (
                   <span
                     key={skill.id}
-                    className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition"
+                    className="px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-full font-medium hover:scale-105 transition"
                   >
                     {skill.name}
                   </span>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* DETAILS */}
-          <section className="py-6 border-b">
-            <h2 className="text-lg font-semibold mb-4">Details</h2>
+          <section className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <h2 className="text-lg font-semibold text-gray-800 mb-5">
+              Details
+            </h2>
 
-            <div className="grid sm:grid-cols-2 gap-4 text-gray-700 text-sm">
-              <p>
-                <span className="text-gray-400">Category:</span>{" "}
-                {category ? category.name : "N/A"}
-              </p>
-
-              <p>
-                <span className="text-gray-400">Experience:</span>{" "}
-                {capitalize(profile.experience_level)}
-              </p>
-
-              <p>
-                <span className="text-gray-400">Work Type:</span>{" "}
-                {capitalize(profile.preferred_work_type)}
-              </p>
-
-              <p>
-                <span className="text-gray-400">Availability:</span>{" "}
-                {capitalize(profile.availability_status)}
-              </p>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm">
+              {[
+                ["Category", category ? category.name : "N/A"],
+                ["Experience", capitalize(profile.experience_level)],
+                ["Work Type", capitalize(profile.preferred_work_type)],
+                ["Availability", capitalize(profile.availability_status)],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="bg-gray-50 rounded-xl p-3 flex justify-between items-center"
+                >
+                  <span className="text-gray-400">{label}</span>
+                  <span className="text-gray-800 font-medium">{value}</span>
+                </div>
+              ))}
             </div>
           </section>
 
           {/* LOCATION */}
-          <section className="py-6 border-b">
-            <h2 className="text-lg font-semibold mb-3">Location</h2>
+          <section className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Location
+            </h2>
 
-            <p className="text-gray-600 mb-3">
-              {profile.city}, {profile.postcode}
+            <p className="text-gray-600 mb-4">
+              📍 {profile.city}, {profile.postcode}
             </p>
 
             {profile.latitude && profile.longitude && (
-              <div className="rounded-xl overflow-hidden border">
+              <div className="rounded-2xl overflow-hidden shadow-sm">
                 <LocationPicker
                   postcode={profile.postcode}
                   latitude={profile.latitude}
@@ -257,23 +275,25 @@ export default function FreelancerProfile() {
           </section>
 
           {/* REVIEWS */}
-          <section className="py-6">
-            <h2 className="text-lg font-semibold mb-6">Reviews</h2>
+          <section className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+            <h2 className="text-lg font-semibold text-gray-800 mb-6">
+              Reviews
+            </h2>
 
             {/* Breakdown */}
-            <div className="mb-6">
+            <div className="mb-6 space-y-2">
               {[5, 4, 3, 2, 1].map((star) => {
                 const count = reviews.filter((r) => r.rating === star).length;
                 const percent =
                   reviews.length === 0 ? 0 : (count / reviews.length) * 100;
 
                 return (
-                  <div key={star} className="flex items-center gap-3 mb-2">
+                  <div key={star} className="flex items-center gap-3">
                     <span className="w-8 text-sm text-gray-600">{star}★</span>
 
-                    <div className="flex-1 h-2 bg-gray-200 rounded">
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-2 bg-yellow-400 rounded"
+                        className="h-full bg-gradient-to-r from-yellow-400 to-orange-400"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
@@ -290,8 +310,11 @@ export default function FreelancerProfile() {
             ) : (
               <div className="space-y-5">
                 {reviews.map((review) => (
-                  <div key={review.id}>
-                    <div className="flex justify-between mb-1">
+                  <div
+                    key={review.id}
+                    className="bg-gray-50 rounded-xl p-4 hover:bg-white hover:shadow transition"
+                  >
+                    <div className="flex justify-between mb-2">
                       <p className="font-medium text-gray-800">
                         {review.client_name}
                       </p>
@@ -300,7 +323,7 @@ export default function FreelancerProfile() {
                       </span>
                     </div>
 
-                    <div className="flex gap-1 mb-1">
+                    <div className="flex gap-1 mb-2">
                       {[1, 2, 3, 4, 5].map((s) => (
                         <FaStar
                           key={s}
@@ -313,7 +336,7 @@ export default function FreelancerProfile() {
                       ))}
                     </div>
 
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                       {review.review_comment}
                     </p>
                   </div>
@@ -325,34 +348,54 @@ export default function FreelancerProfile() {
 
         {/* RIGHT SIDEBAR */}
         <div>
-          <div className="sticky top-24 border rounded-xl p-6 shadow-sm">
-            <p className="text-sm text-gray-500">Hourly Rate</p>
-            <h2 className="text-3xl font-bold text-gray-900">
-              {profile.hourly_rate || 0}
-            </h2>
-            <p className="text-gray-500 text-sm mb-4">{profile.currency}/hr</p>
+          <div className="sticky top-24 bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-md space-y-5">
+            {/* PRICE */}
+            <div className="text-center">
+              <p className="text-sm text-gray-500">Hourly Rate</p>
+              <h2 className="text-4xl font-extrabold text-gray-900">
+                {profile.hourly_rate || 0}
+              </h2>
+              <p className="text-gray-400 text-sm">{profile.currency}/hr</p>
+            </div>
 
             {/* BUTTONS */}
-            <div className="space-y-2 mb-4">
-              <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
+            <div className="space-y-3">
+              <button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2.5 rounded-xl shadow hover:opacity-90 transition">
                 Hire Me
               </button>
 
-              <button className="w-full border py-2 rounded-lg hover:bg-gray-50 transition">
+              <button className="w-full bg-gray-100 py-2.5 rounded-xl hover:bg-gray-200 transition">
                 Contact
               </button>
             </div>
 
             {/* STATS */}
-            <div className="text-sm text-gray-600 space-y-1 border-t pt-3">
-              <p>⭐ {profile.average_rating}</p>
-              <p>{profile.total_reviews} Reviews</p>
-              <p>{profile.completed_jobs} Completed</p>
+            <div className="grid grid-cols-3 text-center text-sm">
+              <div>
+                <p className="font-bold text-gray-800">
+                  {profile.average_rating}
+                </p>
+                <p className="text-gray-400 text-xs">Rating</p>
+              </div>
+
+              <div>
+                <p className="font-bold text-gray-800">
+                  {profile.total_reviews}
+                </p>
+                <p className="text-gray-400 text-xs">Reviews</p>
+              </div>
+
+              <div>
+                <p className="font-bold text-gray-800">
+                  {profile.completed_jobs}
+                </p>
+                <p className="text-gray-400 text-xs">Jobs</p>
+              </div>
             </div>
 
             {/* STATUS */}
-            <div className="mt-4 text-sm">
-              <p className="text-green-600 font-medium">● Online</p>
+            <div className="text-center">
+              <p className="text-green-600 font-medium text-sm">● Online</p>
               <p className="text-gray-400 text-xs">Last seen recently</p>
             </div>
           </div>

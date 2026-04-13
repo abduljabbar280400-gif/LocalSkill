@@ -27,7 +27,9 @@ class FreelancerProfileController extends Controller
 
     $user = User::where('username', $username)->firstOrFail();
 
-    $profile = FreelancerProfile::where('user_id', $user->id)->first();
+    $profile = FreelancerProfile::where('user_id', $user->id)
+    ->select('*')
+    ->first();
 
     if (!$profile) {
         return response()->json([
@@ -312,5 +314,17 @@ private function calculateCompletionWithMissing($profile)
         'percentage' => $percentage,
         'missing' => $missing
     ];
+}
+
+public function approveProfile($id)
+{
+    $profile = FreelancerProfile::findOrFail($id);
+
+    $profile->profile_approved = true;
+    $profile->save();
+
+    return response()->json([
+        'message' => 'Profile approved'
+    ]);
 }
 }

@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Create Axios Instance
 const api = axios.create({
-  baseURL: "https://localskill.onrender.com/api",
-  // baseURL:  import.meta.env.VITE_API_BASE_URL,
+  // baseURL: "https://localskill.onrender.com/api",
+  baseURL:  import.meta.env.VITE_API_BASE_URL,
   // withCredentials: true,
   // timeout: 10000,
   headers: {
@@ -21,6 +21,7 @@ console.log("API BASE URL:", import.meta.env.VITE_API_BASE_URL);
 api.interceptors.request.use(
   (config) => {
     const token =
+      localStorage.getItem("admin_token") ||
       localStorage.getItem("client_token") ||
       localStorage.getItem("freelancer_token");
 
@@ -53,6 +54,10 @@ api.interceptors.response.use(
         localStorage.removeItem("client_token");
         localStorage.removeItem("client_user");
       }
+      if (url.includes("/control-center")) {
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_user");
+}
     }
 
     return Promise.reject(error);

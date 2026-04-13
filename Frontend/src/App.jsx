@@ -52,6 +52,10 @@ import FindFreelancers from "./pages/FindFreelancers";
 import SavedFreelancers from "./pages/hire-freelancer/SavedFreelancers";
 import SavedProjects from "./pages/freelancer/SavedProjects";
 
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProtectedRoute from "./routes/AdminProtectedRoute";
+
 // import ClientPaymentPage from "./pages/hire-freelancer/ClientPaymentPage";
 
 function App() {
@@ -97,7 +101,21 @@ function App() {
               element={<FreelancerPublicPage />}
             />
 
+            <Route path="/cc/inter/admin/login" element={<AdminLogin />} />
+
             {/* Protected Routes */}
+
+            {/* ADMIN */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
+
+            {/* Freelacner */}
 
             <Route
               path="/freelancer/:username/edit-profile"

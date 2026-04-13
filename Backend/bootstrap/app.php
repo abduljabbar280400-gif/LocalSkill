@@ -7,6 +7,9 @@ use Illuminate\Foundation\Configuration\Routing;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 
+use App\Http\Middleware\EnsureAdminAccess;
+use App\Http\Middleware\EnsureUserIsActive;
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -30,7 +33,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'admin.secure' => EnsureAdminAccess::class,
+            'user.active' => EnsureUserIsActive::class
         ]);
+        $middleware->appendToGroup('api', [
+        \Illuminate\Routing\Middleware\ThrottleRequests::class . ':60,1',
+    ]);
         
     })
     ->withExceptions(function (Exceptions $exceptions) {

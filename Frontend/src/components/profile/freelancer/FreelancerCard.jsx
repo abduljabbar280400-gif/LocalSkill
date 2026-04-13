@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
-import { FaStar, FaRegStar, FaHeart, FaRegHeart } from "react-icons/fa";
+import {
+  FaStar,
+  FaRegStar,
+  FaHeart,
+  FaRegHeart,
+  FaCheckCircle,
+} from "react-icons/fa";
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
 
 import useSavedFreelancers from "../../../hooks/useSavedFreelancers";
@@ -80,8 +86,16 @@ export default function FreelancerCard({
 
             {/* Name + Title */}
             <div>
-              <h3 className="font-semibold text-lg">
+              <h3 className="flex items-center gap-2 font-semibold text-lg">
                 {freelancer.first_name} {freelancer.last_name}
+                {freelancer.profile_approved && (
+                  <span
+                    title="Verified Freelancer"
+                    className="flex items-center"
+                  >
+                    <FaCheckCircle className="text-blue-500 text-base relative top-[1px]" />
+                  </span>
+                )}
               </h3>
               <p className="text-sm text-gray-500">
                 {freelancer.professional_title}

@@ -207,10 +207,10 @@ export default function EditProfilePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-10 px-4">
-      <div className="max-w-7xl mx-auto">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-4 px-4">
+      <div className="max-w-3xl mx-auto">
         {/* HEADER */}
-        <div className="mb-10">
+        <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
             Edit Your Profile
           </h1>
@@ -275,125 +275,123 @@ export default function EditProfilePage() {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* MAIN FORM */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* ACCOUNT INFO */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                Account Information
-              </h2>
+        {/* ACCOUNT INFO */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+            Account Information
+          </h2>
+          <p className="text-gray-500 text-sm mb-2">
+            Your personal account details are shown here for reference. These
+            fields cannot be edited to maintain account security and identity
+            consistency.
+          </p>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                {[
-                  { label: "Title", value: user?.title },
-                  { label: "First Name", value: user?.first_name },
-                  { label: "Last Name", value: user?.last_name },
-                  { label: "Username", value: user?.username },
-                  { label: "Email", value: user?.email },
-                  { label: "Phone", value: user?.phone },
-                  { label: "Date of Birth", value: user?.dob },
-                ].map((item, i) => (
-                  <div key={i}>
-                    <label className="text-xs text-gray-500">
-                      {item.label}
-                    </label>
-                    <input
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              { label: "Title", value: user?.title },
+              { label: "First Name", value: user?.first_name },
+              { label: "Last Name", value: user?.last_name },
+              { label: "Username", value: user?.username },
+              { label: "Email", value: user?.email },
+              { label: "Phone", value: user?.phone },
+              { label: "Date of Birth", value: user?.dob },
+            ].map((item, i) => (
+              <div key={i}>
+                <label className="text-xs text-gray-500">{item.label}</label>
+                {/* <input
                       value={item.value || ""}
                       readOnly
                       className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 border border-gray-200 cursor-not-allowed"
-                    />
-                  </div>
-                ))}
+                    /> */}
+                <p className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 cursor-default">
+                  {item.value || ""}
+                </p>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            {/* FORM */}
-            <form
-              onSubmit={handleSave}
-              className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-8"
-            >
-              {/* BASIC INFO */}
+        {/* FORM */}
+        <form
+          onSubmit={handleSave}
+          className="bg-white p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 space-y-8"
+        >
+          {/* BASIC INFO */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+              Basic Information
+            </h2>
+            <p className="text-gray-500 text-sm mb-2">
+              Provide a clear and professional overview of who you are and what
+              you offer. This helps clients quickly understand your expertise
+              and services.
+            </p>
+
+            <div className="space-y-5">
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                  Basic Information
-                </h2>
-
-                <div className="space-y-5">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Professional Title
-                    </label>
-                    <p className="text-xs text-gray-400 mb-1">
-                      This will appear as your headline.
-                    </p>
-                    <input
-                      type="text"
-                      name="professional_title"
-                      value={form.professional_title}
-                      onChange={handleChange}
-                      className="input"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Primary Category
-                    </label>
-                    <select
-                      name="primary_category_id"
-                      value={form.primary_category_id}
-                      onChange={handleChange}
-                      className="input"
-                    >
-                      <option value="">Select category</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Experience Level
-                    </label>
-                    <select
-                      name="experience_level"
-                      value={form.experience_level}
-                      onChange={handleChange}
-                      className="input"
-                    >
-                      <option value="student">Student</option>
-                      <option value="beginner">Beginner</option>
-                      <option value="intermediate">Intermediate</option>
-                      <option value="advanced">Advanced</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* BIO */}
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                  About You
-                </h2>
-                <textarea
-                  name="bio"
-                  value={form.bio}
+                <label className="text-sm font-medium text-gray-700">
+                  Professional Title
+                </label>
+                <p className="text-xs text-gray-400 mb-1">
+                  This will appear as your headline.
+                </p>
+                <input
+                  type="text"
+                  name="professional_title"
+                  value={form.professional_title}
                   onChange={handleChange}
-                  rows={5}
                   className="input"
-                  placeholder="Write something about yourself..."
                 />
               </div>
 
-              {/* LANGUAGES */}
+              <label className="text-sm font-medium text-gray-700">
+                Primary Category
+              </label>
+              <select
+                name="primary_category_id"
+                value={form.primary_category_id}
+                onChange={handleChange}
+                className="input"
+              >
+                <option value="">Select category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              <label className="text-sm font-medium text-gray-700">
+                Experience Level
+              </label>
+              <select
+                name="experience_level"
+                value={form.experience_level}
+                onChange={handleChange}
+                className="input"
+              >
+                <option value="student">Student</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+
+              <label className="text-sm font-medium text-gray-700">
+                About You
+              </label>
+              <textarea
+                name="bio"
+                value={form.bio}
+                onChange={handleChange}
+                rows={5}
+                className="input"
+                placeholder="Write something about yourself..."
+              />
+
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                <label className="text-sm font-medium text-gray-700">
                   Languages
-                </h2>
+                </label>
 
                 <Select
                   isMulti
@@ -414,9 +412,9 @@ export default function EditProfilePage() {
 
               {/* ADDRESS */}
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                <label className="text-sm font-medium text-gray-700">
                   Location & Address
-                </h2>
+                </label>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <input
@@ -430,7 +428,7 @@ export default function EditProfilePage() {
                     name="landmark"
                     value={form.landmark}
                     onChange={handleChange}
-                    placeholder="Landmark"
+                    placeholder="Landmark (Optional)"
                     className="input"
                   />
                   <input
@@ -466,9 +464,13 @@ export default function EditProfilePage() {
 
               {/* WORK DETAILS */}
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                <h2 className="text-lg font-semibold text-gray-800 mb-2">
                   Work Details
                 </h2>
+                <p className="text-gray-500 text-sm mb-2">
+                  Define your hourly rate and availability so clients can easily
+                  understand your working preferences.
+                </p>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
@@ -482,7 +484,7 @@ export default function EditProfilePage() {
                         value={form.currency}
                         onChange={handleChange}
                         className="w-[170px] border border-gray-300 rounded-xl px-4 py-3 
-  focus:ring-2 focus:ring-black focus:outline-none transition"
+                              focus:ring-2 focus:ring-black focus:outline-none transition"
                       >
                         {currencyOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -501,7 +503,7 @@ export default function EditProfilePage() {
                           value={form.hourly_rate}
                           onChange={handleChange}
                           className="pl-12 w-[150px] border border-gray-300 rounded-xl px-4 py-3 
-  focus:ring-2 focus:ring-black focus:outline-none transition"
+                                focus:ring-2 focus:ring-black focus:outline-none transition"
                           placeholder="Enter rate"
                         />
                       </div>
@@ -513,7 +515,6 @@ export default function EditProfilePage() {
                   </div>
                 </div>
               </div>
-
               {/* PREFERENCES */}
               <div className="grid md:grid-cols-2 gap-4">
                 <select
@@ -537,56 +538,64 @@ export default function EditProfilePage() {
                   <option value="hidden">Private</option>
                 </select>
               </div>
-
-              {/* SAVE */}
-              <button className="w-full bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition font-semibold">
-                Save Changes
-              </button>
-            </form>
+            </div>
           </div>
-          {/* SKILLS */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 className="text-lg font-semibold mb-3">Skills</h2>
-            <Skills
-              username={username}
-              categoryId={profile.primary_category_id}
+
+          {/* SAVE */}
+          <button className="w-full btn btn-primary px-6 py-3 rounded-xl hover:bg-gray-800 transition font-semibold">
+            Save Changes
+          </button>
+        </form>
+
+        {/* SKILLS */}
+        <div className="bg-white p-6 mt-6 rounded-2xl shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold mb-3">Skills</h2>
+          <p className="text-gray-500 text-sm mb-2">
+            Showcase your strengths by adding relevant skills. Clients often
+            search based on skills, so keep them accurate and up to date.
+          </p>
+          <Skills
+            username={username}
+            categoryId={profile.primary_category_id}
+          />
+        </div>
+
+        {/* SIDE PANEL */}
+
+        <div className="bg-white p-6 mt-6 rounded-2xl shadow-sm border border-gray-200">
+          <h2 className="text-lg font-semibold mb-2">Location</h2>
+          <p className="text-gray-500 text-sm mb-2">
+            Set your location to improve visibility in local searches and help
+            clients find you for nearby opportunities.
+          </p>
+
+          <div className="rounded-xl overflow-hidden">
+            <LocationPicker
+              key={form.postcode}
+              postcode={form.postcode}
+              latitude={form.latitude}
+              longitude={form.longitude}
+              interactiveOnClick={true}
+              onLocationSelect={handleLocationSelect}
             />
           </div>
 
-          {/* SIDE PANEL */}
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-              <h2 className="text-lg font-semibold mb-2">Location</h2>
+          <button
+            onClick={handleConfirmLocation}
+            disabled={!locationTouched || savingLocation}
+            className="w-full bg-black text-white mt-4 py-3 rounded-xl hover:bg-gray-800 transition disabled:opacity-50"
+          >
+            {savingLocation ? "Saving..." : "Confirm location"}
+          </button>
 
-              <div className="rounded-xl overflow-hidden">
-                <LocationPicker
-                  key={form.postcode}
-                  postcode={form.postcode}
-                  latitude={form.latitude}
-                  longitude={form.longitude}
-                  interactiveOnClick={true}
-                  onLocationSelect={handleLocationSelect}
-                />
-              </div>
+          <hr className="my-6" />
 
-              <button
-                onClick={handleConfirmLocation}
-                disabled={!locationTouched || savingLocation}
-                className="w-full bg-black text-white mt-4 py-3 rounded-xl hover:bg-gray-800 transition disabled:opacity-50"
-              >
-                {savingLocation ? "Saving..." : "Confirm location"}
-              </button>
-
-              <hr className="my-6" />
-
-              <button
-                onClick={handleDeleteAccount}
-                className="w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 transition"
-              >
-                Delete account
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={handleDeleteAccount}
+            className="w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 transition"
+          >
+            Delete account
+          </button>
         </div>
       </div>
     </main>

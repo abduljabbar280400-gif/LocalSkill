@@ -25,6 +25,10 @@ use App\Http\Controllers\FreelancerController;
 use App\Http\Controllers\SavedFreelancerController;
 use App\Http\Controllers\SavedProjectController;
 
+use App\Http\Controllers\Api\Admin\AdminUserController;
+use App\Http\Controllers\Api\Admin\AdminFreelancerController;
+use App\Http\Controllers\Api\Admin\AdminDashboardController;
+
 
 
 
@@ -34,6 +38,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Services\GoogleMeetService;
 
 
+if (app()->environment('local')) {
 Route::get('/routes', function () {
     return collect(Route::getRoutes())->map(function ($route) {
         return [
@@ -54,6 +59,8 @@ Route::get('/run-migrate', function () {
     Artisan::call('migrate', ['--force' => true]);
     return "Migration Done";
 });
+
+}
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}/skills', [SkillController::class, 'byCategory']);
@@ -86,12 +93,12 @@ Route::prefix('hire-freelancer')->group(function () {
     Route::get('/check-phone', [UserController::class, 'checkPhone']);
 });
 
-Route::middleware(['auth:sanctum', 'role:client'])->group(function () {
+Route::middleware(['auth:sanctum','user.active', 'role:client'])->group(function () {
     Route::post('/hire-freelancer/logout', [AuthController::class, 'logout']);
 // Client Dashboard
     Route::get('/hire-freelancer/{username}/dashboard',[ClientDashboardController::class, 'index']);
     Route::get('/hire-freelancer/{username}/dashboard-extra', [ClientDashboardController::class, 'extra']);
-    Route::post('/contracts/{id}/pay', [DashboardController::class, 'payContract']);
+    // Route::post('/contracts/{id}/pay', [DashboardController::class, 'payContract']);
 
     Route::get('/hire-freelancer/{username}/profile', [ClientProfileController::class, 'show']);
     Route::put('/hire-freelancer/{username}/profile', [ClientProfileController::class, 'update']);
@@ -149,7 +156,7 @@ Route::prefix('freelancer')->group(function () {
 });
 
     // Protected
-    Route::middleware(['auth:sanctum', 'role:freelancer'])->group(function () {
+    Route::middleware(['auth:sanctum','user.active', 'role:freelancer'])->group(function () {
 
         Route::post('/freelancer/logout', [AuthController::class, 'logout']);
 
@@ -200,7 +207,7 @@ Route::prefix('freelancer')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'user.active'])->group(function () {
 
     Route::get('/contracts/{contract}/conversation', [ChatController::class, 'getConversation']);
     Route::get('/conversations/{conversation}/messages', [ChatController::class, 'getMessages']);
@@ -243,4 +250,23 @@ Route::get('/test-meet', function (GoogleMeetService $meetService) {
     return response()->json([
         'meet_link' => $link
     ]);
+});
+
+
+
+Route::middleware(['auth:sanctum','user.active', 'admin.secure'])
+    ->prefix('control-center/internal')
+    ->group(function () {
+
+        Route::get('/users', [AdminUserController::class, 'index']);
+        Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+
+        Route::patch('/users/{id}/suspend', [AdminUserController::class, 'suspend']);
+
+        Route::patch('/users/{id}/unsuspend', [AdminUserController::class, 'unsuspend']);
+
+        Route::get('/freelancers/pending', [AdminFreelancerController::class, 'pending']);
+
+        Route::patch('/freelancers/{id}/approve', [AdminFreelancerController::class, 'approve']);
+        Route::patch('/freelancers/{id}/reject', [AdminFreelancerController::class, 'reject']);
 });

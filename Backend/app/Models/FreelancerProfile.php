@@ -34,6 +34,7 @@ class FreelancerProfile extends Model
         'street_address',
         'landmark',
         'languages',
+        'profile_approved',
     ];
 
     protected $casts = [
