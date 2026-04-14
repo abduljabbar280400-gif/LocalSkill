@@ -9,16 +9,19 @@ import LocationPicker from "../../components/profile/freelancer/LocationPicker";
 
 import { FaStar, FaUser, FaCheckCircle } from "react-icons/fa";
 
+import { languages as languageOptions } from "../../constants/languages";
+
 export default function FreelancerProfile() {
   const { username } = useParams();
 
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState({});
   const [skills, setSkills] = useState([]);
   const [category, setCategory] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [userData, setUserData] = useState(null);
 
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -36,9 +39,10 @@ export default function FreelancerProfile() {
           response = await api.get(`/freelancer/${username}/profile`);
         }
 
-        const profileData = response.data.profile;
+        console.log("first", response.data.user);
 
-        setProfile(profileData);
+        setProfile(response.data.profile);
+        setUserData(response.data.user);
 
         if (response.data.category) {
           setCategory(response.data.category);
@@ -119,6 +123,15 @@ export default function FreelancerProfile() {
     return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
+  const getLanguageLabels = (codes) => {
+    if (!codes || codes.length === 0) return [];
+
+    return codes.map((code) => {
+      const match = languageOptions.find((lang) => lang.value === code);
+      return match ? match.label : code;
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
       {/* COVER */}
@@ -154,18 +167,23 @@ export default function FreelancerProfile() {
 
         {/* INFO */}
         <div className="flex-1">
-          {/* TITLE */}
-          <div className="flex items-center gap-3">
+          {/* NAME + VERIFIED */}
+          <div className="flex items-center gap-2">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              {profile.professional_title}
+              {userData?.first_name} {userData?.last_name}
             </h1>
 
             {profile?.profile_approved && (
-              <span className="flex items-center gap-1 text-sm font-medium text-blue-600">
-                <FaCheckCircle className="text-blue-500" /> Verified
+              <span title="Verified Freelancer" className="flex items-center">
+                <FaCheckCircle className="text-blue-500 text-lg" />
               </span>
             )}
           </div>
+
+          {/* TITLE */}
+          <p className="text-gray-700 text-lg font-medium mt-1">
+            {profile.professional_title}
+          </p>
 
           {/* USERNAME */}
           <p className="text-gray-400 text-sm mt-1">@{username}</p>
@@ -238,6 +256,10 @@ export default function FreelancerProfile() {
                 ["Experience", capitalize(profile.experience_level)],
                 ["Work Type", capitalize(profile.preferred_work_type)],
                 ["Availability", capitalize(profile.availability_status)],
+                [
+                  "Languages",
+                  getLanguageLabels(profile.languages).join(", ") || "N/A",
+                ],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -250,15 +272,32 @@ export default function FreelancerProfile() {
             </div>
           </section>
 
-          {/* LOCATION */}
           <section className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-sm hover:shadow-md transition">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Location
+            <h2 className="text-lg font-semibold text-gray-800 mb-5">
+              Address & Location
             </h2>
 
-            <p className="text-gray-600 mb-4">
-              📍 {profile.city}, {profile.postcode}
-            </p>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm">
+              {[
+                ["Street Address", capitalize(profile.street_address)],
+                ["City", capitalize(profile.city)],
+                ["Landmark", capitalize(profile.landmark) || "-"],
+                ["State", capitalize(profile.state)],
+                ["Postal Code", capitalize(profile.postcode)],
+                ["Country", capitalize(profile.country)],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="bg-gray-50 rounded-xl p-3 flex justify-between items-center"
+                >
+                  <span className="text-gray-400">{label}</span>
+                  <span className="text-gray-800 font-medium">{value}</span>
+                </div>
+              ))}
+            </div>
+            <h2 className="text-lg font-semibold text-gray-800 my-4">
+              Location
+            </h2>
 
             {profile.latitude && profile.longitude && (
               <div className="rounded-2xl overflow-hidden shadow-sm">
@@ -312,12 +351,22 @@ export default function FreelancerProfile() {
                 {reviews.map((review) => (
                   <div
                     key={review.id}
-                    className="bg-gray-50 rounded-xl p-4 hover:bg-white hover:shadow transition"
+                    className="bg-gray-100 rounded-xl p-4 hover:bg-white hover:shadow transition "
                   >
                     <div className="flex justify-between mb-2">
-                      <p className="font-medium text-gray-800">
-                        {review.client_name}
-                      </p>
+                      <div>
+                        <p className="font-medium text-gray-800 mb-2">
+                          {capitalize(review.client_name)}
+                        </p>
+                        {review.project_title && (
+                          <p className="text-xs text-gray-800 font-normal">
+                            Project :{" "}
+                            <span className="font-medium">
+                              {review.project_title}
+                            </span>
+                          </p>
+                        )}
+                      </div>
                       <span className="text-xs text-gray-400">
                         {getRelativeTime(review.created_at)}
                       </span>

@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Create Axios Instance
 const api = axios.create({
-  baseURL: "https://localskill.onrender.com/api",
-  // baseURL:  import.meta.env.VITE_API_BASE_URL,
+  // baseURL: "https://localskill.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   // withCredentials: true,
   // timeout: 10000,
   headers: {
@@ -57,7 +57,7 @@ api.interceptors.response.use(
       if (url.includes("/control-center")) {
         localStorage.removeItem("admin_token");
         localStorage.removeItem("admin_user");
-}
+      }
     }
 
     return Promise.reject(error);

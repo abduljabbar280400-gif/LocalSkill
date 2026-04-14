@@ -50,7 +50,7 @@ class ReviewController extends Controller
             'client_id' => $contract->client_id,
             'freelancer_id' => $contract->freelancer_id,
             'rating' => $request->rating,
-            'review_comment' => $request->review_comment
+            'review_comment' => $request->review_comment,
         ]);
 
          $averageRating = Review::where('freelancer_id', $contract->freelancer_id)

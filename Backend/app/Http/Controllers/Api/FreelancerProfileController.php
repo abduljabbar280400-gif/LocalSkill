@@ -71,11 +71,13 @@ class FreelancerProfileController extends Controller
     // Get Reviews
     $reviews = Review::where('freelancer_id', $user->id)
         ->join('users', 'reviews.client_id', '=', 'users.id')
+        ->join('projects', 'reviews.project_id', '=', 'projects.id')
         ->select(
             'reviews.id',
             'reviews.rating',
             'reviews.review_comment',
             'reviews.created_at',
+            'projects.title as project_title', 
             \DB::raw("users.first_name || ' ' || users.last_name as client_name")
         )
         ->orderBy('reviews.created_at', 'desc')
@@ -85,7 +87,12 @@ class FreelancerProfileController extends Controller
         'profile' => $profile,
         'category' => $category,
         'skills' => $skills,
-        'reviews' => $reviews
+        'reviews' => $reviews,
+        'user' => [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'username' => $user->username,
+    ]
     ]);
 }
     public function update(Request $request, string $username): JsonResponse
