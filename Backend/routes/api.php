@@ -212,8 +212,13 @@ Route::middleware(['auth:sanctum', 'user.active'])->group(function () {
     Route::get('/contracts/{contract}/conversation', [ChatController::class, 'getConversation']);
     Route::get('/conversations/{conversation}/messages', [ChatController::class, 'getMessages']);
     Route::post('/conversations/{conversation}/send', [ChatController::class, 'sendMessage']);
-    Route::post('/chat/last-seen', [ChatController::class, 'updateLastSeen']);
+    Route::post('/conversations/{id}/delivered', [ChatController::class, 'markDelivered']);
+    Route::post('/conversations/{id}/seen', [ChatController::class, 'markSeen']);
 
+    Route::post('/chat/last-seen', [ChatController::class, 'updateLastSeen']);
+    Route::post('/chat/typing', [ChatController::class, 'typing']);
+    Route::post('/chat/online', [ChatController::class, 'setOnline']);
+    Route::post('/chat/offline', [ChatController::class, 'setOffline']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);

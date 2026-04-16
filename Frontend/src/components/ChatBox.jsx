@@ -1,6 +1,15 @@
 import { useEffect, useState, useRef } from "react";
 import api from "../../src/services/api";
-import { FiSend, FiMessageCircle } from "react-icons/fi";
+import {
+  FiSend,
+  FiMessageCircle,
+  FiCheck,
+  FiClock,
+  FiAlertCircle,
+  FiArrowDown,
+} from "react-icons/fi";
+
+import echo from "../utils/echo";
 
 function ChatBox({ contractId }) {
   const [conversationId, setConversationId] = useState(null);
@@ -19,16 +28,29 @@ function ChatBox({ contractId }) {
   const [isOnline, setIsOnline] = useState(false);
   const [lastSeen, setLastSeen] = useState(null);
 
+  const [isTyping, setIsTyping] = useState(false);
+
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [newMessageCount, setNewMessageCount] = useState(0);
+
+  const typingTimeoutRef = useRef(null);
+  const isNearBottomRef = useRef(true);
+
   const messagesContainerRef = useRef(null);
 
-  // const token =
-  //   localStorage.getItem("client_token") ||
-  //   localStorage.getItem("freelancer_token");
+  /* ================= SAFE ADD FUNCTION ================= */
 
-  // const headers = {
-  //   Authorization: `Bearer ${token}`,
-  //   Accept: "application/json",
-  // };
+  const addMessageSafely = (prev, newMsg) => {
+    const newId = Number(newMsg.id);
+
+    const exists = prev.some(
+      (msg) => Number(msg.id) === newId && msg.created_at === newMsg.created_at,
+    );
+
+    if (exists) return prev;
+
+    return [...prev, { ...newMsg, id: newId }];
+  };
 
   /* ================= LOAD CONVERSATION ================= */
 
@@ -45,7 +67,7 @@ function ChatBox({ contractId }) {
     if (contractId) loadConversation();
   }, [contractId]);
 
-  /* ================= LOAD MESSAGES ================= */
+  /* ================= LOAD INITIAL MESSAGES ================= */
 
   useEffect(() => {
     if (!conversationId) return;
@@ -54,11 +76,15 @@ function ChatBox({ contractId }) {
       try {
         const res = await api.get(`/conversations/${conversationId}/messages`);
 
-        setMessages(res.data);
+        let unique = [];
 
-        const otherUser = res.data.find(
-          (msg) => msg.sender_id !== currentUserId,
-        );
+        res.data.forEach((msg) => {
+          unique = addMessageSafely(unique, msg);
+        });
+
+        setMessages(unique);
+
+        const otherUser = unique.find((msg) => msg.sender_id !== currentUserId);
 
         if (otherUser && otherUser.sender_last_seen) {
           const lastSeenDate = new Date(otherUser.sender_last_seen + "Z");
@@ -74,11 +100,107 @@ function ChatBox({ contractId }) {
     };
 
     loadMessages();
-    const interval = setInterval(loadMessages, 3000);
-    return () => clearInterval(interval);
   }, [conversationId]);
 
-  /* ================= AUTO SCROLL WHEN CHAT OPENS ================= */
+  /* ================= REALTIME LISTENER ================= */
+
+  useEffect(() => {
+    if (!conversationId) return;
+
+    const channel = echo.private(`conversation.${conversationId}`);
+
+    // ✅ MESSAGE LISTENER
+    channel.listen(".message.sent", (e) => {
+      setMessages((prev) => {
+        const updated = prev.map((msg) =>
+          msg.client_temp_id === e.client_temp_id
+            ? { ...e, is_sending: false, is_delivered: true }
+            : msg,
+        );
+
+        const exists = updated.some((msg) => msg.id === e.id);
+        if (exists) return updated;
+
+        return [...updated, e];
+      });
+
+      if (!isNearBottomRef.current) {
+        setShowScrollButton(true);
+        setNewMessageCount((prev) => prev + 1);
+      }
+    });
+
+    // ✅ TYPING
+    channel.listen(".user.typing", (e) => {
+      if (e.user_id === currentUserId) return;
+
+      setIsTyping(true);
+
+      clearTimeout(typingTimeoutRef.current);
+
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+      }, 2000);
+    });
+
+    // ✅ SEEN
+    channel.listen(".message.seen", () => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.sender_id === currentUserId ? { ...msg, is_seen: true } : msg,
+        ),
+      );
+    });
+
+    // ✅ ONLINE
+    channel.listen(".user.online", (e) => {
+      if (e.user_id === currentUserId) return;
+      setIsOnline(e.is_online);
+    });
+
+    channel.listen(".message.delivered", () => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.sender_id === currentUserId
+            ? { ...msg, is_delivered: true }
+            : msg,
+        ),
+      );
+    });
+
+    return () => {
+      echo.leave(`conversation.${conversationId}`);
+    };
+  }, [conversationId]);
+
+  // Deliverd API
+
+  const deliveredOnceRef = useRef(false);
+
+  useEffect(() => {
+    if (!conversationId || deliveredOnceRef.current) return;
+
+    api.post(`/conversations/${conversationId}/delivered`);
+    deliveredOnceRef.current = true;
+  }, [conversationId]);
+
+  /* ================= MARK SEEN ================= */
+
+  const seenTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (!conversationId) return;
+
+    if (seenTimeoutRef.current) {
+      clearTimeout(seenTimeoutRef.current);
+    }
+
+    seenTimeoutRef.current = setTimeout(() => {
+      api.post(`/conversations/${conversationId}/seen`);
+    }, 2000); // wait 2 sec
+  }, [messages]);
+
+  /* ================= AUTO SCROLL ================= */
 
   useEffect(() => {
     if (conversationId && messagesContainerRef.current) {
@@ -93,17 +215,13 @@ function ChatBox({ contractId }) {
     }
   }, [conversationId]);
 
-  /* ================= SMART AUTO SCROLL FOR NEW MESSAGES ================= */
+  /* ================= SMART SCROLL ================= */
 
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
 
-    const isNearBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight <
-      100;
-
-    if (isNearBottom) {
+    if (isNearBottomRef.current) {
       const timeout = setTimeout(() => {
         container.scrollTo({
           top: container.scrollHeight,
@@ -113,41 +231,77 @@ function ChatBox({ contractId }) {
 
       return () => clearTimeout(timeout);
     }
-  }, [messages]);
+  }, [messages, isTyping]);
+
+  const scrollToBottom = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth",
+    });
+
+    isNearBottomRef.current = true;
+
+    setShowScrollButton(false);
+    setNewMessageCount(0); // ✅ reset count
+  };
 
   /* ================= SEND MESSAGE ================= */
 
   const sendMessage = async () => {
     if (!message.trim()) return;
 
+    const tempId = Date.now();
+
+    const tempMessage = {
+      id: tempId,
+      client_temp_id: tempId,
+      conversation_id: conversationId,
+      sender_id: currentUserId,
+      message,
+      is_seen: false,
+      is_delivered: false,
+      is_sending: true,
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, tempMessage]);
+    setMessage("");
+
     try {
-      await api.post(`/conversations/${conversationId}/send`, { message });
-
-      setMessage("");
-
-      const res = await api.get(`conversations/${conversationId}/messages`);
-
-      setMessages(res.data);
+      await api.post(`/conversations/${conversationId}/send`, {
+        message,
+        client_temp_id: tempId,
+      });
     } catch (err) {
-      console.error("Send message error", err);
+      console.log(err);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.client_temp_id === tempId ? { ...msg, is_failed: true } : msg,
+        ),
+      );
     }
   };
 
-  /* ================= LAST SEEN UPDATE ================= */
+  /* ================= LAST SEEN ================= */
 
   useEffect(() => {
-    const updateLastSeen = async () => {
-      try {
-        await api.post(`/chat/last-seen`);
-      } catch (err) {
-        console.error("Last seen update error", err);
-      }
-    };
-
-    updateLastSeen();
-    const interval = setInterval(updateLastSeen, 10000);
-    return () => clearInterval(interval);
+    api.post(`/chat/last-seen`);
   }, []);
+
+  /* ================= ONLINE STATUS ================= */
+
+  useEffect(() => {
+    if (!conversationId) return;
+
+    api.post("/chat/online", { conversation_id: conversationId });
+
+    return () => {
+      api.post("/chat/offline", { conversation_id: conversationId });
+    };
+  }, [conversationId]);
 
   /* ================= FORMAT LAST SEEN ================= */
 
@@ -173,21 +327,37 @@ function ChatBox({ contractId }) {
     return `Last seen ${diffDays} days ago`;
   };
 
+  const lastTypingTime = useRef(0);
+
+  const handleTyping = (e) => {
+    setMessage(e.target.value);
+
+    const now = Date.now();
+
+    if (now - lastTypingTime.current > 2000) {
+      lastTypingTime.current = now;
+
+      api.post("/chat/typing", {
+        conversation_id: conversationId,
+      });
+    }
+  };
+
   /* ================= UI ================= */
 
   return (
-    <div className="mt-6 flex flex-col h-[520px] bg-white rounded-2xl shadow-xl border border-gray-200">
+    <div className="relative mt-6 flex flex-col h-[520px] bg-white rounded-3xl shadow-2xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white rounded-t-2xl">
+      <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-50 to-white shadow-sm">
         <div className="flex items-center gap-3">
-          <FiMessageCircle className="text-blue-300 text-2xl" />
+          <FiMessageCircle className="text-blue-500 text-2xl" />
           <div>
-            <h3 className="font-semibold text-gray-700 text-lg">
+            <h3 className="font-semibold text-gray-800 text-lg">
               Contract Chat
             </h3>
             <p
-              className={`text-xs font-medium ${
-                isOnline ? "text-green-600" : "text-gray-500"
+              className={`text-xs ${
+                isOnline ? "text-green-500" : "text-gray-400"
               }`}
             >
               {isOnline ? "Online" : formatLastSeen(lastSeen)}
@@ -199,11 +369,29 @@ function ChatBox({ contractId }) {
       {/* Messages */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-gray-50 to-gray-100"
+        onScroll={() => {
+          const container = messagesContainerRef.current;
+          if (!container) return;
+
+          const isNearBottom =
+            container.scrollHeight -
+              container.scrollTop -
+              container.clientHeight <
+            100;
+
+          isNearBottomRef.current = isNearBottom;
+
+          setShowScrollButton(!isNearBottom);
+
+          if (isNearBottom) {
+            setNewMessageCount(0);
+          }
+        }}
+        className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-gradient-to-b from-gray-50 to-gray-100"
       >
         {messages.length === 0 && (
-          <p className="text-center text-gray-400 text-sm italic">
-            Start discussing your project
+          <p className="text-center text-gray-400 text-sm italic mt-10">
+            Start conversation...
           </p>
         )}
 
@@ -212,23 +400,22 @@ function ChatBox({ contractId }) {
 
           return (
             <div
-              key={msg.id}
-              className={`flex items-end gap-3 ${
-                isMine ? "justify-end" : "justify-start"
-              }`}
+              key={`${msg.id}-${msg.created_at}`}
+              className={`flex ${isMine ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[70%] px-5 py-3 rounded-3xl text-sm shadow-md 
-                ${
-                  isMine
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-none"
-                    : "bg-white text-gray-600 border border-gray-200 rounded-bl-none"
-                }`}
+                className={`relative max-w-[75%] px-4 py-3 rounded-2xl text-sm shadow-md transition-all
+              ${
+                isMine
+                  ? "bg-blue-500 text-white rounded-br-sm"
+                  : "bg-white text-gray-700 rounded-bl-sm"
+              }`}
               >
-                <p className="wrap-break-word">{msg.message}</p>
+                <p className="break-words leading-relaxed">{msg.message}</p>
 
+                {/* Time + Status */}
                 <div
-                  className={`text-[10px] mt-1 ${
+                  className={`flex items-center justify-end gap-1 text-[10px] mt-1 ${
                     isMine ? "text-blue-100" : "text-gray-400"
                   }`}
                 >
@@ -236,29 +423,79 @@ function ChatBox({ contractId }) {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
+
+                  {/* Status Icons */}
+                  {isMine && (
+                    <>
+                      {msg.is_sending && <FiClock />}
+
+                      {msg.is_failed && (
+                        <FiAlertCircle className="text-red-400" />
+                      )}
+
+                      {!msg.is_sending && !msg.is_failed && (
+                        <>
+                          <FiCheck className="text-gray-300" />
+                          {msg.is_delivered && (
+                            <FiCheck className="text-gray-400 -ml-1" />
+                          )}
+                          {msg.is_seen && (
+                            <FiCheck className="text-blue-400 -ml-1" />
+                          )}
+                        </>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
+
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="flex items-center gap-2 text-gray-500 text-sm px-2">
+            <div className="flex gap-1">
+              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-150"></span>
+              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-300"></span>
+            </div>
+            <span>Typing...</span>
+          </div>
+        )}
       </div>
 
+      {/* Scroll Button */}
+      {showScrollButton && (
+        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-20">
+          <button
+            onClick={scrollToBottom}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+          >
+            <FiArrowDown />
+            {newMessageCount > 0
+              ? `${newMessageCount} New Message`
+              : "New messages"}
+          </button>
+        </div>
+      )}
+
       {/* Input */}
-      <div className="border-t border-gray-200 p-4 flex gap-3 bg-white rounded-b-2xl">
+      <div className="bg-white px-4 py-3 flex items-center gap-3 shadow-inner">
         <input
           type="text"
           placeholder="Type your message..."
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleTyping}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
         <button
           onClick={sendMessage}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition transform hover:scale-105 shadow-lg"
+          className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition transform hover:scale-105"
         >
-          <FiSend size={18} />
+          <FiSend size={16} />
         </button>
       </div>
     </div>
