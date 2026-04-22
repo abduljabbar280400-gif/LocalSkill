@@ -6,7 +6,7 @@ export default function ClientProtectedRoute({ children }) {
 
   const { username } = useParams();
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <div className="flex justify-center items-center h-screen"><div className="w-10 h-10 border-4 border-gray-200 dark:border-slate-700 border-t-blue-500 rounded-full animate-spin"></div></div>;
 
   if (!isAuthenticated) {
     return <Navigate to="/hire-freelancer/login" replace />;

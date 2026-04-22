@@ -43,11 +43,11 @@ export default function CreateProfileForm({ username, onCreated }) {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh] px-4 bg-gray-100 rounded-2xl">
+    <div className="flex justify-center items-center min-h-[80vh] px-4 bg-gray-100 dark:bg-slate-800 rounded-2xl">
       {/* Glass Card */}
-      <div className="w-full max-w-xl backdrop-blur-xl bg-white/40 border border-white/40 shadow-2xl rounded-2xl p-8">
+      <div className="w-full max-w-xl backdrop-blur-xl bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-slate-700/40 shadow-2xl rounded-2xl p-8">
         {/* Title */}
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-200 mb-6 text-center">
           Create Freelancer Profile
         </h2>
 
@@ -61,7 +61,7 @@ export default function CreateProfileForm({ username, onCreated }) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Professional Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Professional Title
             </label>
 
@@ -72,7 +72,7 @@ export default function CreateProfileForm({ username, onCreated }) {
               onChange={handleChange}
               required
               placeholder="e.g. Full Stack Developer"
-              className="w-full px-4 py-3 rounded-lg bg-white/70 border border-gray-300
+              className="w-full px-4 py-3 rounded-lg bg-white/70 dark:bg-slate-800/70 border border-gray-300 dark:border-slate-600
               focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
               outline-none transition duration-200"
             />
@@ -80,7 +80,7 @@ export default function CreateProfileForm({ username, onCreated }) {
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Primary Category
             </label>
 
@@ -91,9 +91,9 @@ export default function CreateProfileForm({ username, onCreated }) {
                 onChange={handleChange}
                 required
                 className="w-full appearance-none px-4 py-3 pr-10 rounded-xl
-      bg-white/60 backdrop-blur-md
-      border border-gray-300
-      text-gray-700
+      bg-white/60 dark:bg-slate-800/60 backdrop-blur-md
+      border border-gray-300 dark:border-slate-600
+      text-gray-700 dark:text-slate-300
       shadow-sm
       transition-all duration-200
       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -108,7 +108,7 @@ export default function CreateProfileForm({ username, onCreated }) {
               </select>
 
               <svg
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-slate-400 pointer-events-none"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -125,7 +125,7 @@ export default function CreateProfileForm({ username, onCreated }) {
 
           {/* Experience */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Experience Level
             </label>
 
@@ -135,9 +135,9 @@ export default function CreateProfileForm({ username, onCreated }) {
                 value={form.experience_level}
                 onChange={handleChange}
                 className="w-full appearance-none px-4 py-3 pr-10 rounded-xl
-      bg-white/60 backdrop-blur-md
-      border border-gray-300
-      text-gray-700
+      bg-white/60 dark:bg-slate-800/60 backdrop-blur-md
+      border border-gray-300 dark:border-slate-600
+      text-gray-700 dark:text-slate-300
       shadow-sm
       transition-all duration-200
       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -149,7 +149,7 @@ export default function CreateProfileForm({ username, onCreated }) {
               </select>
 
               <svg
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-slate-400 pointer-events-none"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"

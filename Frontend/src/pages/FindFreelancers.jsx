@@ -77,7 +77,7 @@ export default function FindFreelancers() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <div className="bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-900 min-h-screen">
       {/* 🔥 HERO SEARCH SECTION */}
       {/* 🔥 HERO BANNER */}
       <div className="relative w-full h-[300px] md:h-[350px] lg:h-[400px]">
@@ -123,14 +123,14 @@ export default function FindFreelancers() {
         <div className="flex-1">
           {/* 📊 RESULT HEADER */}
           <div className="flex justify-between items-center mb-4">
-            <p className="text-gray-600">
+            <div className="text-gray-600 dark:text-slate-400">
               {loading
-                ? "Loading freelancers..."
+                ? (<div className="flex justify-center"><div className="w-5 h-5 border-2 border-gray-300 dark:border-slate-600 border-t-blue-500 rounded-full animate-spin"></div></div>)
                 : `Showing ${meta.total || 0} freelancers`}
-            </p>
+            </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 hidden sm:block">
+              <span className="text-sm text-gray-500 dark:text-slate-400 hidden sm:block">
                 Sort by:
               </span>
 
@@ -142,7 +142,7 @@ export default function FindFreelancers() {
                     sort: e.target.value,
                   }))
                 }
-                className="border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm shadow-sm hover:border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none transition"
+                className="border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg px-3 py-2 text-sm shadow-sm hover:border-gray-300 dark:border-slate-600 dark:hover:border-slate-500 focus:ring-2 focus:ring-blue-400 outline-none transition"
               >
                 <option value="">Recommended</option>
                 <option value="latest">Latest</option>
@@ -155,11 +155,11 @@ export default function FindFreelancers() {
 
           {/* 💀 EMPTY STATE */}
           {!loading && freelancers.length === 0 && (
-            <div className="text-center py-20 bg-white rounded-2xl ">
+            <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl ">
               <h2 className="text-xl font-semibold mb-2">
                 No freelancers found 😕
               </h2>
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-slate-400">
                 Try adjusting your filters or search keywords
               </p>
             </div>
@@ -171,7 +171,7 @@ export default function FindFreelancers() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-32 bg-gray-200 animate-pulse rounded-xl"
+                  className="h-32 bg-gray-200 dark:bg-slate-700 animate-pulse rounded-xl"
                 />
               ))}
             </div>
@@ -185,19 +185,19 @@ export default function FindFreelancers() {
               <button
                 disabled={!meta.prev_page_url}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-300 transition"
+                className="px-4 py-2 bg-gray-200 dark:bg-slate-700 dark:text-slate-200 rounded-lg disabled:opacity-50 hover:bg-gray-300 dark:hover:bg-slate-600 transition"
               >
                 Prev
               </button>
 
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-slate-400">
                 Page {meta.current_page || 1}
               </span>
 
               <button
                 disabled={!meta.next_page_url}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-300 transition"
+                className="px-4 py-2 bg-gray-200 dark:bg-slate-700 dark:text-slate-200 rounded-lg disabled:opacity-50 hover:bg-gray-300 dark:hover:bg-slate-600 transition"
               >
                 Next
               </button>

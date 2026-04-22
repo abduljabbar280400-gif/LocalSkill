@@ -9,9 +9,9 @@ export default function DataTable({
 }) {
   return (
     <table className="table projects-table w-full text-sm backdrop-blur-md">
-      <thead className="bg-white/40 backdrop-blur-lg border-b border-white/30">
+      <thead className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border-b border-white/30 dark:border-slate-700/30">
         <tr>
-          <th className="px-4 py-3 text-center font-semibold text-gray-700">
+          <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300">
             #
           </th>
 
@@ -19,7 +19,7 @@ export default function DataTable({
             <th
               key={col.field}
               onClick={() => col.sortable && handleSort(col.field)}
-              className={`px-4 py-3 text-center font-semibold text-gray-700 ${
+              className={`px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 ${
                 col.sortable ? "cursor-pointer hover:text-indigo-600" : ""
               }`}
             >
@@ -33,7 +33,7 @@ export default function DataTable({
         {data.map((row, index) => (
           <tr
             key={row.id}
-            className="hover:bg-white/40 transition backdrop-blur-sm"
+            className="hover:bg-white/40 dark:bg-slate-800/40 transition backdrop-blur-sm"
           >
             <td>{(pagination.current_page - 1) * 10 + index + 1}</td>
 

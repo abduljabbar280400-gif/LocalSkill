@@ -22,6 +22,8 @@ export default function EditProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [savingLocation, setSavingLocation] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
@@ -125,9 +127,7 @@ export default function EditProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <p className="text-gray-600 text-lg animate-pulse">
-          Loading profile...
-        </p>
+        <p className="text-gray-600 dark:text-slate-400 text-lg animate-pulse"> Loading... </p>
       </div>
     );
   }
@@ -170,6 +170,7 @@ export default function EditProfilePage() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
 
     try {
       const res = await api.put(`/freelancer/${username}/edit-profile`, form);
@@ -180,6 +181,8 @@ export default function EditProfilePage() {
     } catch (err) {
       console.error(err);
       alert("Failed to save profile.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -189,6 +192,7 @@ export default function EditProfilePage() {
     );
 
     if (!confirmDelete) return;
+    setIsDeleting(true);
 
     try {
       await api.delete(`/freelancer/${username}`);
@@ -203,6 +207,7 @@ export default function EditProfilePage() {
         error.response?.data?.message ||
           "Failed to delete account. Please try again.",
       );
+      setIsDeleting(false);
     }
   };
 
@@ -211,27 +216,27 @@ export default function EditProfilePage() {
       <div className="max-w-3xl mx-auto">
         {/* HEADER */}
         <div className="mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-slate-100 tracking-tight">
             Edit Your Profile
           </h1>
-          <p className="text-gray-500 mt-2 text-sm">
+          <p className="text-gray-500 dark:text-slate-400 mt-2 text-sm">
             Keep your profile updated to attract more clients and opportunities.
           </p>
         </div>
 
         {completion < 100 && (
-          <div className="mb-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+          <div className="mb-6 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
             {/* Progress */}
             <div className="flex justify-between items-center mb-2">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-slate-300">
                 Profile Completion
               </p>
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
                 {progress}%
               </span>
             </div>
 
-            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
               <div
                 className={`h-2 rounded-full transition-all duration-500 ${
                   progress === 100 ? "bg-green-500" : "bg-black"
@@ -248,7 +253,7 @@ export default function EditProfilePage() {
                 </p>
               ) : (
                 <>
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-2">
                     Complete your profile to make it visible to clients.
                   </p>
 
@@ -256,7 +261,7 @@ export default function EditProfilePage() {
                     {missingFields.slice(0, 3).map((item, index) => (
                       <li
                         key={index}
-                        className="text-xs text-gray-500 flex items-center gap-2"
+                        className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-2"
                       >
                         <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
                         {item}
@@ -276,11 +281,11 @@ export default function EditProfilePage() {
         )}
 
         {/* ACCOUNT INFO */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-2">
             Account Information
           </h2>
-          <p className="text-gray-500 text-sm mb-2">
+          <p className="text-gray-500 dark:text-slate-400 text-sm mb-2">
             Your personal account details are shown here for reference. These
             fields cannot be edited to maintain account security and identity
             consistency.
@@ -297,13 +302,13 @@ export default function EditProfilePage() {
               { label: "Date of Birth", value: user?.dob },
             ].map((item, i) => (
               <div key={i}>
-                <label className="text-xs text-gray-500">{item.label}</label>
+                <label className="text-xs text-gray-500 dark:text-slate-400">{item.label}</label>
                 {/* <input
                       value={item.value || ""}
                       readOnly
-                      className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 border border-gray-200 cursor-not-allowed"
+                      className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-700 cursor-not-allowed"
                     /> */}
-                <p className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 text-gray-600 cursor-default">
+                <p className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-default">
                   {item.value || ""}
                 </p>
               </div>
@@ -314,14 +319,14 @@ export default function EditProfilePage() {
         {/* FORM */}
         <form
           onSubmit={handleSave}
-          className="bg-white p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 space-y-8"
+          className="bg-white dark:bg-slate-800 p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 space-y-8"
         >
           {/* BASIC INFO */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-2">
               Basic Information
             </h2>
-            <p className="text-gray-500 text-sm mb-2">
+            <p className="text-gray-500 dark:text-slate-400 text-sm mb-2">
               Provide a clear and professional overview of who you are and what
               you offer. This helps clients quickly understand your expertise
               and services.
@@ -329,7 +334,7 @@ export default function EditProfilePage() {
 
             <div className="space-y-5">
               <div>
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                   Professional Title
                 </label>
                 <p className="text-xs text-gray-400 mb-1">
@@ -344,7 +349,7 @@ export default function EditProfilePage() {
                 />
               </div>
 
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                 Primary Category
               </label>
               <select
@@ -361,7 +366,7 @@ export default function EditProfilePage() {
                 ))}
               </select>
 
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                 Experience Level
               </label>
               <select
@@ -376,7 +381,7 @@ export default function EditProfilePage() {
                 <option value="advanced">Advanced</option>
               </select>
 
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                 About You
               </label>
               <textarea
@@ -389,7 +394,7 @@ export default function EditProfilePage() {
               />
 
               <div>
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                   Languages
                 </label>
 
@@ -412,7 +417,7 @@ export default function EditProfilePage() {
 
               {/* ADDRESS */}
               <div>
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                   Location & Address
                 </label>
 
@@ -464,17 +469,17 @@ export default function EditProfilePage() {
 
               {/* WORK DETAILS */}
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-2">
                   Work Details
                 </h2>
-                <p className="text-gray-500 text-sm mb-2">
+                <p className="text-gray-500 dark:text-slate-400 text-sm mb-2">
                   Define your hourly rate and availability so clients can easily
                   understand your working preferences.
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                       Hourly Rate
                     </label>
 
@@ -483,7 +488,7 @@ export default function EditProfilePage() {
                         name="currency"
                         value={form.currency}
                         onChange={handleChange}
-                        className="w-[170px] border border-gray-300 rounded-xl px-4 py-3 
+                        className="w-[170px] border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-3 
                               focus:ring-2 focus:ring-black focus:outline-none transition"
                       >
                         {currencyOptions.map((opt) => (
@@ -494,7 +499,7 @@ export default function EditProfilePage() {
                       </select>
 
                       <div className="relative flex-1">
-                        <span className="absolute left-4 top-3 text-gray-500">
+                        <span className="absolute left-4 top-3 text-gray-500 dark:text-slate-400">
                           {currencySymbol}
                         </span>
                         <input
@@ -502,7 +507,7 @@ export default function EditProfilePage() {
                           name="hourly_rate"
                           value={form.hourly_rate}
                           onChange={handleChange}
-                          className="pl-12 w-[150px] border border-gray-300 rounded-xl px-4 py-3 
+                          className="pl-12 w-[150px] border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-3 
                                 focus:ring-2 focus:ring-black focus:outline-none transition"
                           placeholder="Enter rate"
                         />
@@ -542,15 +547,18 @@ export default function EditProfilePage() {
           </div>
 
           {/* SAVE */}
-          <button className="w-full btn btn-primary px-6 py-3 rounded-xl hover:bg-gray-800 transition font-semibold">
-            Save Changes
+          <button 
+            disabled={isSaving} 
+            className="w-full btn btn-primary px-6 py-3 rounded-xl hover:bg-gray-800 transition font-semibold disabled:opacity-50"
+          >
+            {isSaving ? "Saving Changes..." : "Save Changes"}
           </button>
         </form>
 
         {/* SKILLS */}
-        <div className="bg-white p-6 mt-6 rounded-2xl shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-slate-800 p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700">
           <h2 className="text-lg font-semibold mb-3">Skills</h2>
-          <p className="text-gray-500 text-sm mb-2">
+          <p className="text-gray-500 dark:text-slate-400 text-sm mb-2">
             Showcase your strengths by adding relevant skills. Clients often
             search based on skills, so keep them accurate and up to date.
           </p>
@@ -562,9 +570,9 @@ export default function EditProfilePage() {
 
         {/* SIDE PANEL */}
 
-        <div className="bg-white p-6 mt-6 rounded-2xl shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-slate-800 p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700">
           <h2 className="text-lg font-semibold mb-2">Location</h2>
-          <p className="text-gray-500 text-sm mb-2">
+          <p className="text-gray-500 dark:text-slate-400 text-sm mb-2">
             Set your location to improve visibility in local searches and help
             clients find you for nearby opportunities.
           </p>
@@ -592,9 +600,10 @@ export default function EditProfilePage() {
 
           <button
             onClick={handleDeleteAccount}
-            className="w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 transition"
+            disabled={isDeleting}
+            className="w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 transition disabled:opacity-50"
           >
-            Delete account
+            {isDeleting ? "Deleting..." : "Delete account"}
           </button>
         </div>
       </div>

@@ -52,7 +52,7 @@ export default function FreelancerCard({
   return (
     <div className="relative  group rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 hover:from-blue-300 hover:via-purple-300 hover:to-pink-300 transition-all duration-500">
       <Link to={`/freelancer/${freelancer.username}`}>
-        <div className="relative h-full w-full rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
+        <div className="relative h-full w-full rounded-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
           {isLoggedIn && !loading && (
             <button
               onClick={async (e) => {
@@ -97,7 +97,7 @@ export default function FreelancerCard({
                   </span>
                 )}
               </h3>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-slate-400">
                 {freelancer.professional_title}
               </p>
             </div>
@@ -107,7 +107,7 @@ export default function FreelancerCard({
           <div className="flex items-center justify-between mt-3">
             <div className="flex items-center gap-1 text-sm">
               {renderStars(freelancer.average_rating)}
-              <span className="text-gray-600 ml-1">
+              <span className="text-gray-600 dark:text-slate-400 ml-1">
                 ({freelancer.total_reviews})
               </span>
             </div>
@@ -116,7 +116,7 @@ export default function FreelancerCard({
               className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
                 freelancer.availability_status === "available"
                   ? "bg-green-100 text-green-600"
-                  : "bg-gray-200 text-gray-600"
+                  : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-400"
               }`}
             >
               <FiCheckCircle size={12} />
@@ -125,7 +125,7 @@ export default function FreelancerCard({
           </div>
 
           {/* Bio */}
-          <p className="text-sm text-gray-600 mt-3 line-clamp-2">
+          <p className="text-sm text-gray-600 dark:text-slate-400 mt-3 line-clamp-2">
             {freelancer.bio}
           </p>
 
@@ -140,7 +140,7 @@ export default function FreelancerCard({
                   className={`text-xs px-3 py-1 rounded-full flex items-center gap-1 ${
                     isPrimary
                       ? "bg-yellow-100 text-yellow-600 font-medium"
-                      : "bg-gray-100 text-gray-600"
+                      : "bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400"
                   }`}
                 >
                   {isPrimary && <FaStar />}

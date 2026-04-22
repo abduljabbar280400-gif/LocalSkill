@@ -32,7 +32,7 @@ export default function ContractDetails() {
 
   if (!contract)
     return (
-      <div className="p-10 text-center text-gray-500">Loading contract...</div>
+      <div className="p-10 text-center text-gray-500 dark:text-slate-400"> Loading... </div>
     );
 
   const handleProjectCompleted = () => {
@@ -45,7 +45,7 @@ export default function ContractDetails() {
 
   if (!contract)
     return (
-      <div className="p-10 text-center text-gray-500">Loading contract...</div>
+      <div className="p-10 text-center text-gray-500 dark:text-slate-400"> Loading... </div>
     );
 
   return (

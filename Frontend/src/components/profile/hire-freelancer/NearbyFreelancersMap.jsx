@@ -118,7 +118,7 @@ export default function NearbyFreelancersMap({
                     {f.first_name} {f.last_name}
                   </h3>
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-slate-400">
                     {f.professional_title}
                   </p>
 

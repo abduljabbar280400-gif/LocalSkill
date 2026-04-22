@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../services/api";
+import { toast } from "react-toastify";
 import ChatBox from "./ChatBox";
 
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,9 @@ export default function ContractDetails({
   const [paymentAmount, setPaymentAmount] = useState("");
   const [payments, setPayments] = useState([]);
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [isUpdatingAmount, setIsUpdatingAmount] = useState(false);
+  const [isSubmittingWork, setIsSubmittingWork] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
 
   const storedUser = localStorage.getItem("client_user");
   const username = storedUser ? JSON.parse(storedUser).username : null;
@@ -28,7 +32,7 @@ export default function ContractDetails({
   const navigate = useNavigate();
 
   const goToPayment = () => {
-    navigate(`/hire-freelancer/${username}/contracts/${contract.id}/payment`);
+    window.open(`/hire-freelancer/${username}/contracts/${contract.id}/payment`, '_blank');
   };
 
   // console.log("Here is the", username);
@@ -76,6 +80,7 @@ export default function ContractDetails({
   // 🔥 UPDATE AGREED AMOUNT
   // ============================
   const handleUpdateAmount = async () => {
+    setIsUpdatingAmount(true);
     try {
       await api.put(
         `/hire-freelancer/${username}/contracts/${contract.id}/amount`,
@@ -84,13 +89,15 @@ export default function ContractDetails({
         },
       );
 
-      alert("Amount updated");
+      toast.success("Amount updated successfully");
       setCurrentContract((prev) => ({
         ...prev,
         agreed_amount: editAmount,
       }));
     } catch (err) {
-      alert(err.response?.data?.message || "Update failed");
+      toast.error(err.response?.data?.message || "Update failed");
+    } finally {
+      setIsUpdatingAmount(false);
     }
   };
 
@@ -99,11 +106,11 @@ export default function ContractDetails({
   // ============================
   const handlePayment = async () => {
     if (!paymentAmount || paymentAmount <= 0) {
-      return alert("Enter valid amount");
+      return toast.error("Please enter a valid amount");
     }
 
     if (paymentAmount > remainingAmount) {
-      return alert("Amount exceeds remaining");
+      return toast.error("Amount exceeds remaining budget");
     }
 
     try {
@@ -117,13 +124,13 @@ export default function ContractDetails({
         },
       );
 
-      alert("Payment Success");
+      toast.success("Payment successful! Funds are now in escrow.");
 
       setPaymentAmount("");
       setCurrentContract(res.data.contract);
       await fetchPayments();
     } catch (err) {
-      alert(err.response?.data?.message || "Payment failed");
+      toast.error(err.response?.data?.message || "Payment failed");
     } finally {
       setLoadingPayment(false);
     }
@@ -153,11 +160,11 @@ export default function ContractDetails({
       );
 
       setCurrentContract(updatedContractRes.data.contract);
-      alert("Project completed successfully.");
+      toast.success("Project completed successfully.");
       if (onProjectCompleted) onProjectCompleted();
     } catch (error) {
       console.error("Complete project error:", error.response?.data);
-      alert("Error completing project. Try again.");
+      toast.error("Error completing project. Try again.");
     } finally {
       setUpdatingStatus(false);
     }
@@ -179,10 +186,10 @@ export default function ContractDetails({
         `/hire-freelancer/${currentContract.client_id}/contracts/${currentContract.id}`,
       );
       setCurrentContract(updatedContractRes.data.contract);
-      alert("Project sent for re-work.");
+      toast.success("Project sent for re-work.");
     } catch (error) {
       console.error("Rework project error:", error.response?.data);
-      alert("Error sending project for re-work. Try again.");
+      toast.error("Error sending project for re-work. Try again.");
     } finally {
       setUpdatingStatus(false);
     }
@@ -191,25 +198,41 @@ export default function ContractDetails({
   const handleSubmitWork = async () => {
     const trimmedNote = submissionNote.trim();
     if (!trimmedNote) {
-      alert("Please enter a submission note.");
+      toast.error("Please enter a submission note.");
       return;
     }
 
     if (onSubmitWork) {
-      await onSubmitWork(trimmedNote);
-      setSubmissionNote("");
+      setIsSubmittingWork(true);
+      try {
+        await onSubmitWork(trimmedNote);
+        setSubmissionNote("");
+      } finally {
+        setIsSubmittingWork(false);
+      }
+    }
+  };
+
+  const handleAccept = async () => {
+    if (onAccept) {
+      setIsAccepting(true);
+      try {
+        await onAccept();
+      } finally {
+        setIsAccepting(false);
+      }
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto border border-gray-200 p-8 m-5 overflow-y-auto bg-white rounded-xl shadow-2xl transform transition-all duration-300 scale-100 animate-[fadeIn_.25s_ease]">
+    <div className="max-w-5xl mx-auto border border-gray-200 dark:border-slate-700 p-8 m-5 overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl transform transition-all duration-300 scale-100 animate-[fadeIn_.25s_ease]">
       {/* Header */}
       <div className="flex items-center justify-between border-b pb-4 mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Contract Details</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Contract Details</h1>
 
         <span
           className={`px-3 py-1 text-sm rounded-full font-medium capitalize ${
-            statusColors[currentContract.status] || "bg-gray-100 text-gray-600"
+            statusColors[currentContract.status] || "bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400"
           }`}
         >
           {currentContract.status}
@@ -232,10 +255,10 @@ export default function ContractDetails({
         ].map(([label, value], idx) => (
           <div
             key={idx}
-            className="bg-gray-50 border border-gray-200 rounded-xl p-4 hover:shadow-md transition"
+            className="bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl p-4 hover:shadow-md transition"
           >
-            <p className="text-sm text-gray-500">{label}</p>
-            <p className="text-gray-900 font-semibold mt-1 capitalize">
+            <p className="text-sm text-gray-500 dark:text-slate-400">{label}</p>
+            <p className="text-gray-900 dark:text-slate-100 font-semibold mt-1 capitalize">
               {value}
             </p>
           </div>
@@ -245,92 +268,30 @@ export default function ContractDetails({
       {/* ========================= */}
       {/* 💰 PAYMENT SECTION */}
       {/* ========================= */}
+      {/* 💰 PAYMENT SECTION (REMOVED INTERNAL MODAL) */}
       {role === "client" && currentContract.status === "active" && (
-        <div className="mt-8 p-5 border rounded-xl bg-gray-50">
+        <div className="mt-8 p-5 border rounded-xl bg-gray-50 dark:bg-slate-800/50">
           <h2 className="font-bold mb-3">Payment</h2>
-
           <p>Total Paid: ₹{currentContract.total_paid || 0}</p>
           <p>Remaining: ₹{remainingAmount}</p>
           <p>Status: {currentContract.payment_status || "pending"}</p>
-
-          <button
-            onClick={() => setShowPaymentModal(true)}
-            className="mt-4 px-5 py-2 bg-green-600 text-white rounded-lg"
-          >
-            Pay Now
-          </button>
+          
+          <p className="mt-4 text-sm text-gray-500 italic">Please use the "Go to Payment" button at the bottom to fund this contract securely in a new tab.</p>
         </div>
       )}
 
-      {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
-            <h2 className="text-xl font-bold mb-4">Payment</h2>
 
-            {/* Edit Amount */}
-            <div className="mb-4">
-              <label className="text-sm">Agreed Amount</label>
-              <input
-                value={editAmount}
-                onChange={(e) => setEditAmount(e.target.value)}
-                className="w-full border p-2 rounded mt-1"
-              />
-              <button
-                onClick={handleUpdateAmount}
-                className="mt-2 px-3 py-1 bg-blue-600 text-white rounded"
-              >
-                Save
-              </button>
-            </div>
 
-            {/* Payment Input */}
-            <div className="mb-4">
-              <label>Pay Amount</label>
-              <input
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value)}
-                className="w-full border p-2 rounded mt-1"
-              />
-            </div>
-
-            <button
-              onClick={handlePayment}
-              disabled={loadingPayment}
-              className="w-full bg-green-600 text-white py-2 rounded"
-            >
-              {loadingPayment ? "Processing..." : "Pay"}
-            </button>
-
-            {/* Payment History */}
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2">History</h3>
-
-              {payments.map((p) => (
-                <div key={p.id} className="border-b py-2 flex justify-between">
-                  <span>₹{p.amount}</span>
-                  <span>{formatDate(p.paid_at)}</span>
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setShowPaymentModal(false)}
-              className="mt-4 text-red-500"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Freelancer Actions */}
       <div className="mt-10 space-y-4">
         {role === "freelancer" && contract.status === "pending" && (
           <button
-            onClick={onAccept}
-            className="w-full sm:w-auto px-6 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition shadow-sm"
+            onClick={handleAccept}
+            disabled={isAccepting}
+            className="w-full sm:w-auto px-6 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition shadow-sm disabled:opacity-50"
           >
-            Accept Contract
+            {isAccepting ? "Accepting..." : "Accept Contract"}
           </button>
         )}
 
@@ -340,15 +301,16 @@ export default function ContractDetails({
               value={submissionNote}
               onChange={(e) => setSubmissionNote(e.target.value)}
               rows={4}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              className="w-full p-3 rounded-lg border border-gray-300 dark:border-slate-600 focus:ring-2 focus:ring-blue-400 focus:outline-none"
               placeholder="Enter submission note..."
             />
 
             <button
               onClick={handleSubmitWork}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm"
+              disabled={isSubmittingWork}
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm disabled:opacity-50"
             >
-              Submit Work
+              {isSubmittingWork ? "Submitting..." : "Submit Work"}
             </button>
           </div>
         )}
@@ -360,7 +322,7 @@ export default function ContractDetails({
           <h2 className="font-semibold text-blue-800 mb-2">
             Freelancer Submission Note
           </h2>
-          <p className="text-gray-700 italic">
+          <p className="text-gray-700 dark:text-slate-300 italic">
             "{currentContract.submission_note}"
           </p>
         </div>
@@ -387,19 +349,21 @@ export default function ContractDetails({
         </div>
       )}
 
-      <button
-        onClick={goToPayment}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-      >
-        Go to Payment
-      </button>
+      {role === "client" && (
+        <button
+          onClick={goToPayment}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all"
+        >
+          Go to Payment
+        </button>
+      )}
 
       {/* Chat Section */}
       <div className="mt-12 border-t pt-6">
         {/* Chat Toggle Button */}
         <div
           className={`mb-4 overflow-hidden transition-all duration-500 ${
-            showChat ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+            showChat ? "h-[600px] opacity-100" : "h-0 opacity-0"
           }`}
         >
           {showChat && <ChatBox contractId={contract.id} />}

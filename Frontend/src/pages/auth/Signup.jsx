@@ -354,7 +354,7 @@ export default function Signup({ config }) {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400"
                     >
                       {showPassword ? <FiEyeOff /> : <FiEye />}
                     </button>
@@ -390,7 +390,7 @@ export default function Signup({ config }) {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400"
                     >
                       {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
                     </button>

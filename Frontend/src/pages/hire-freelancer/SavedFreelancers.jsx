@@ -28,9 +28,7 @@ export default function SavedFreelancers() {
   // 🔄 Loading State
   if (loading) {
     return (
-      <div className="p-6 text-center text-gray-500">
-        Loading saved freelancers...
-      </div>
+      <div className="p-6 text-center text-gray-500 dark:text-slate-400"> Loading... </div>
     );
   }
 
@@ -39,7 +37,7 @@ export default function SavedFreelancers() {
     return (
       <div className="p-6 text-center">
         <h2 className="text-xl font-semibold">No saved freelancers</h2>
-        <p className="text-gray-500 mt-2">
+        <p className="text-gray-500 dark:text-slate-400 mt-2">
           Start saving freelancers to see them here.
         </p>
       </div>

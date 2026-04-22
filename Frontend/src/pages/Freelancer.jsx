@@ -169,9 +169,9 @@ export default function FreelancerIntro() {
   const slides = [jobs.slice(0, 3), jobs.slice(3, 6)];
 
   return (
-    <main className="bg-gray-50 text-gray-800">
+    <main className="bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-slate-200">
       {/* HERO */}
-      <section className="bg-white overflow-hidden">
+      <section className="bg-white dark:bg-slate-800 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -183,12 +183,12 @@ export default function FreelancerIntro() {
               <span className="text-blue-600">near your location</span>
             </h1>
 
-            <p className="mt-5 text-lg text-gray-600">
+            <p className="mt-5 text-lg text-gray-600 dark:text-slate-400">
               Connect with nearby clients and get real work without bidding
               wars.
             </p>
 
-            <p className="mt-3 text-sm text-gray-500 flex items-center gap-2">
+            <p className="mt-3 text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2">
               <FaMapMarkerAlt className="text-blue-500" />
               Jobs within 10–15 km radius
             </p>
@@ -241,19 +241,19 @@ export default function FreelancerIntro() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2 }}
               viewport={{ once: true }}
-              className="bg-white p-6 rounded-xl shadow hover:shadow-lg text-center"
+              className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow hover:shadow-lg text-center"
             >
               <div className="text-blue-600 text-2xl mb-3 flex justify-center">
                 {step.icon}
               </div>
-              <p className="text-gray-600">{step.text}</p>
+              <p className="text-gray-600 dark:text-slate-400">{step.text}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* BENEFITS */}
-      <section className="bg-white py-16">
+      <section className="bg-white dark:bg-slate-800 py-16">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
           {[
             {
@@ -282,14 +282,14 @@ export default function FreelancerIntro() {
             >
               <img src={item.img} className="rounded-lg mb-4" />
               <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-              <p className="text-gray-600">{item.desc}</p>
+              <p className="text-gray-600 dark:text-slate-400">{item.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* JOBS */}
-      <section className="bg-gray-100 py-16">
+      <section className="bg-gray-100 dark:bg-slate-900 py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-semibold">Jobs near you</h2>
@@ -319,7 +319,7 @@ export default function FreelancerIntro() {
                       {group.map((job) => (
                         <div
                           key={job.id}
-                          className="bg-white p-6 rounded-xl shadow hover:shadow-md transition flex flex-col justify-between h-full w-full max-w-sm"
+                          className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow hover:shadow-md transition flex flex-col justify-between h-full w-full max-w-sm"
                         >
                           {/* TOP CONTENT */}
                           <div>
@@ -327,12 +327,12 @@ export default function FreelancerIntro() {
                               {job.title}
                             </h3>
 
-                            <p className="text-sm text-gray-500 flex items-center gap-2 mb-2">
+                             <p className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 mb-2">
                               <FaMapMarkerAlt className="text-blue-500" />
                               {city || job.postal_code}
                             </p>
 
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-gray-400 dark:text-slate-500">
                               📏 {Number(job.distance).toFixed(1)} km away
                             </p>
                           </div>
@@ -384,7 +384,7 @@ export default function FreelancerIntro() {
       </section>
 
       {/* Top Freelancer */}
-      <section className="bg-white py-20">
+      <section className="bg-white dark:bg-slate-800 py-20">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-semibold mb-16 flex justify-center items-center gap-2">
             <FaTrophy className="text-yellow-500" />
@@ -397,7 +397,7 @@ export default function FreelancerIntro() {
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                className="bg-gray-100 p-6 rounded-2xl shadow-md w-56 text-center"
+                className="bg-gray-100 dark:bg-slate-700 p-6 rounded-2xl shadow-md w-56 text-center"
               >
                 <div className="text-gray-400 text-xl mb-2 flex justify-center">
                   <FaMedal />
@@ -418,7 +418,7 @@ export default function FreelancerIntro() {
                   ))}
                 </div>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   {topFreelancers[1].completed_jobs} jobs
                 </p>
               </motion.div>
@@ -451,11 +451,11 @@ export default function FreelancerIntro() {
                   ))}
                 </div>
 
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-slate-400">
                   ⭐ {Number(topFreelancers[0].average_rating).toFixed(1)}
                 </p>
 
-                <div className="flex justify-center items-center gap-2 mt-2 text-sm text-gray-600">
+                <div className="flex justify-center items-center gap-2 mt-2 text-sm text-gray-600 dark:text-slate-400">
                   <FaBriefcase />
                   {topFreelancers[0].completed_jobs} jobs
                 </div>
@@ -488,7 +488,7 @@ export default function FreelancerIntro() {
                   ))}
                 </div>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   {topFreelancers[2].completed_jobs} jobs
                 </p>
               </motion.div>

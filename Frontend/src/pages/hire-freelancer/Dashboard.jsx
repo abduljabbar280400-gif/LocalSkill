@@ -81,7 +81,7 @@ export default function Dashboard() {
         return "bg-yellow-100 text-yellow-700";
 
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300";
     }
   };
 
@@ -136,7 +136,7 @@ export default function Dashboard() {
             <div className="dashboard-panel">
               <div className="loading-page">
                 <div className="loading-spinner" />
-                <p className="loading-text">Loading your dashboard...</p>
+                <p className="loading-text"> Loading... </p>
                 <div
                   className="loading-skeleton-row"
                   style={{ width: "100%", maxWidth: 360 }}
@@ -231,9 +231,7 @@ export default function Dashboard() {
 
             {extraLoading ? (
               <div className="dashboard-panel">
-                <p className="dashboard-panel-muted">
-                  Loading ongoing projects...
-                </p>
+                <p className="dashboard-panel-muted"> Loading... </p>
               </div>
             ) : ongoingContracts.length === 0 ? (
               <div className="dashboard-panel">
@@ -251,12 +249,9 @@ export default function Dashboard() {
                   <div
                     key={contract.id}
                     style={{
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "14px",
                       padding: "1.4rem",
-                      background: "#fff",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                     }}
+                    className="border border-gray-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 shadow-sm"
                   >
                     <h3 style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
                       {contract.project?.title}
@@ -314,7 +309,7 @@ export default function Dashboard() {
 
             {extraLoading ? (
               <div className="dashboard-panel">
-                <p className="dashboard-panel-muted">Loading payments...</p>
+                <p className="dashboard-panel-muted"> Loading... </p>
               </div>
             ) : pendingPayments.length === 0 ? (
               <div className="dashboard-panel">
@@ -332,12 +327,9 @@ export default function Dashboard() {
                   <div
                     key={contract.id}
                     style={{
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "14px",
                       padding: "1.4rem",
-                      background: "#fff",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                     }}
+                    className="border border-gray-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 shadow-sm"
                   >
                     <h3 style={{ fontWeight: 600 }}>
                       {contract.project?.title}
@@ -401,7 +393,7 @@ export default function Dashboard() {
 
             {contractsLoading ? (
               <div className="dashboard-panel">
-                <p className="dashboard-panel-muted">Loading contracts...</p>
+                <p className="dashboard-panel-muted"> Loading... </p>
               </div>
             ) : contracts.length === 0 ? (
               <div className="dashboard-panel">
@@ -422,13 +414,10 @@ export default function Dashboard() {
                   <div
                     key={contract.id}
                     style={{
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "14px",
                       padding: "1.4rem",
-                      background: "#fff",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                       transition: "0.2s",
                     }}
+                    className="border border-gray-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 shadow-sm hover:shadow-md"
                   >
                     <div
                       style={{
@@ -514,12 +503,11 @@ export default function Dashboard() {
         >
           <div
             style={{
-              background: "#fff",
               padding: "2rem",
-              borderRadius: "12px",
               width: "100%",
               maxWidth: "400px",
             }}
+            className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700"
           >
             <h3 style={{ marginBottom: "1rem" }}>Add Payment</h3>
 
@@ -532,13 +520,7 @@ export default function Dashboard() {
               placeholder="Enter amount"
               value={paymentAmount}
               onChange={(e) => setPaymentAmount(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.6rem",
-                marginTop: "1rem",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-              }}
+              className="w-full mt-4 p-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
             />
 
             <div

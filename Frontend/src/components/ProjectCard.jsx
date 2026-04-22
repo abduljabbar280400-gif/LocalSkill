@@ -27,7 +27,7 @@ const ProjectCard = React.memo(
         to={`/projects/${project.slug}`}
         className="group relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 hover:from-blue-300 hover:via-purple-300 hover:to-pink-300 transition-all duration-500"
       >
-        <div className="relative h-full w-full rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
+        <div className="relative h-full w-full rounded-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
           {/* ❤️ SAVE BUTTON (Top Right) */}
           <button
             onClick={handleSaveClick}
@@ -42,12 +42,12 @@ const ProjectCard = React.memo(
           </span>
 
           {/* Title */}
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 leading-snug">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-4 leading-snug">
             {project.title}
           </h3>
 
           {/* Client + Time */}
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-slate-400 mb-3">
             <div className="flex items-center gap-2">
               <FaUser className="text-gray-400" />
               <span>
@@ -63,7 +63,7 @@ const ProjectCard = React.memo(
 
           {/* Experience + Budget */}
           <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
               <FaBullseye className="text-gray-400" />
               <span>{project.experience_level}</span>
             </div>

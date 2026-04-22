@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 import {
   FaFacebookF,
   FaTwitter,
@@ -6,121 +6,99 @@ import {
   FaInstagram,
 } from "react-icons/fa";
 
-const Footer = () => {
+const SOCIAL_LINKS = [
+  { icon: FaFacebookF,  href: "https://facebook.com",  label: "Facebook",  hoverClass: "hover:text-blue-500"  },
+  { icon: FaTwitter,    href: "https://twitter.com",   label: "Twitter",   hoverClass: "hover:text-blue-400"  },
+  { icon: FaLinkedinIn, href: "https://linkedin.com",  label: "LinkedIn",  hoverClass: "hover:text-blue-700"  },
+  { icon: FaInstagram,  href: "https://instagram.com", label: "Instagram", hoverClass: "hover:text-pink-500"  },
+];
+
+export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-gray-900 text-white" role="contentinfo">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Top Section */}
+
+        {/* Top section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          {/* About / Brand */}
+
+          {/* Brand */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">HireConnect</h2>
+            <p className="text-2xl font-bold mb-4">LocalSkill</p>
             <p className="text-gray-300">
               Connecting freelancers with top projects worldwide. Build, grow,
               and achieve your dreams.
             </p>
-            <div className="flex space-x-4 mt-4">
-              <a href="#" className="hover:text-blue-500 transition-colors">
-                <FaFacebookF />
-              </a>
-              <a href="#" className="hover:text-blue-400 transition-colors">
-                <FaTwitter />
-              </a>
-              <a href="#" className="hover:text-blue-700 transition-colors">
-                <FaLinkedinIn />
-              </a>
-              <a href="#" className="hover:text-pink-500 transition-colors">
-                <FaInstagram />
-              </a>
-            </div>
+            <nav aria-label="Social media links" className="flex space-x-4 mt-4">
+              {SOCIAL_LINKS.map(({ icon: Icon, href, label, hoverClass }) => (
+                <a
+                  key={label}
+                  href={href}
+                  className={`${hoverClass} transition-colors`}
+                  aria-label={label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon aria-hidden="true" />
+                </a>
+              ))}
+            </nav>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+          <nav aria-label="Quick links">
+            <h2 className="text-xl font-semibold mb-4">Quick Links</h2>
             <ul className="space-y-2 text-gray-300">
-              <li>
-                <a href="/" className="hover:text-blue-400 transition-colors">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/projects"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Projects
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/dashboard"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Dashboard
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/profile"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Profile
-                </a>
-              </li>
+              {[
+                { to: "/",               label: "Home" },
+                { to: "/projects",       label: "Projects" },
+                { to: "/find-freelancers", label: "Find Freelancers" },
+              ].map(({ to, label }) => (
+                <li key={to}>
+                  <Link to={to} className="hover:text-blue-400 transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Services / Resources */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Services</h3>
+          {/* Services */}
+          <nav aria-label="Services links">
+            <h2 className="text-xl font-semibold mb-4">Services</h2>
             <ul className="space-y-2 text-gray-300">
-              <li>
-                <a
-                  href="/hire-freelancer"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Hire Freelancer
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/post-project"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Post a Project
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/blog"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Blog
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/faq"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  FAQ
-                </a>
-              </li>
+              {[
+                { to: "/hire-freelancer", label: "Hire Freelancer" },
+                { to: "/freelancer",      label: "Become a Freelancer" },
+              ].map(({ to, label }) => (
+                <li key={to}>
+                  <Link to={to} className="hover:text-blue-400 transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Newsletter */}
           <div>
-            <h3 className="text-xl font-semibold mb-4">Newsletter</h3>
+            <h2 className="text-xl font-semibold mb-4">Newsletter</h2>
             <p className="text-gray-300 mb-4">
-              Subscribe for latest project updates and tips.
+              Subscribe for the latest project updates and tips.
             </p>
-            <form className="flex flex-col sm:flex-row gap-3">
+            <form
+              className="flex flex-col sm:flex-row gap-3"
+              onSubmit={(e) => e.preventDefault()}
+              aria-label="Newsletter signup"
+            >
+              <label htmlFor="newsletter-email" className="sr-only">
+                Email address
+              </label>
               <input
+                id="newsletter-email"
                 type="email"
                 placeholder="Enter your email"
-                className="w-full px-5 py-3 rounded-lg text-gray-900 border border-white/20 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                autoComplete="email"
+              className="w-full px-5 py-3 rounded-lg text-gray-900 dark:text-slate-100 dark:bg-slate-700 border border-white/20 dark:border-slate-600 placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
               <button
                 type="submit"
@@ -132,20 +110,19 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Section */}
+        {/* Bottom bar */}
         <div className="mt-12 border-t border-gray-700 pt-6 text-center text-gray-400 text-sm">
-          &copy; {new Date().getFullYear()} HireConnect. All rights reserved. |
-          <a href="/terms" className="hover:text-blue-400 mx-1">
+          &copy; {new Date().getFullYear()} LocalSkill. All rights reserved.{" "}
+          |{" "}
+          <Link to="/terms" className="hover:text-blue-400 mx-1">
             Terms
-          </a>{" "}
-          |
-          <a href="/privacy" className="hover:text-blue-400 mx-1">
+          </Link>
+          |{" "}
+          <Link to="/privacy" className="hover:text-blue-400 mx-1">
             Privacy Policy
-          </a>
+          </Link>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

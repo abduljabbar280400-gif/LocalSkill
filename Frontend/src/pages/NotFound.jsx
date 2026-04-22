@@ -67,13 +67,13 @@ export default function NotFound() {
       <div
         className="relative z-10 text-center max-w-md w-full 
                       bg-white/10 backdrop-blur-xl 
-                      border border-white/20 
+                      border border-white/20 dark:border-slate-700/20 
                       rounded-2xl shadow-2xl 
                       p-10 transition-all duration-500
                       hover:scale-105"
       >
         <div className="flex justify-center mb-6">
-          <div className="bg-white/10 p-6 rounded-full border border-white/20 animate-bounce">
+          <div className="bg-white/10 p-6 rounded-full border border-white/20 dark:border-slate-700/20 animate-bounce">
             <FaExclamationTriangle className="text-yellow-400 text-5xl" />
           </div>
         </div>

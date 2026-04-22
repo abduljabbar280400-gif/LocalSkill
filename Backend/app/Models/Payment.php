@@ -18,6 +18,8 @@ class Payment extends Model
         'platform_fee',
         'platform_fee_percent',
         'freelancer_earnings',
+        'escrow_status',
+        'freelancer_payout_status',
     ];
 
     protected $casts = [

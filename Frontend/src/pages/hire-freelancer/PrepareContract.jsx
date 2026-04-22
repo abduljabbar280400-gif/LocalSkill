@@ -8,6 +8,7 @@ function PrepareContract() {
 
   const [proposal, setProposal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     contract_title: "",
@@ -68,6 +69,7 @@ function PrepareContract() {
   // ===============================
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const payload = {
@@ -91,6 +93,7 @@ function PrepareContract() {
       }
     } catch (error) {
       console.error("Error creating contract:", error);
+      setIsSubmitting(false);
     }
   };
 
@@ -98,7 +101,7 @@ function PrepareContract() {
   // Loading State
   // ===============================
   if (loading) {
-    return <div>Loading...</div>;
+    return <div> Loading... </div>;
   }
 
   if (!proposal) {
@@ -178,7 +181,9 @@ function PrepareContract() {
           />
         </div>
 
-        <button type="submit">Create Contract</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Creating..." : "Create Contract"}
+        </button>
       </form>
     </div>
   );

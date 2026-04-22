@@ -200,9 +200,7 @@ export default function Projects() {
 
   <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
     {loadingProjects ? (
-      <div className="col-span-full text-center text-gray-600 py-20">
-        Loading projects...
-      </div>
+      <div className="col-span-full text-center text-gray-600 dark:text-slate-400 py-20"> Loading... </div>
     ) : (
       projects.map((project, index) => (
         <ProjectCard
@@ -218,7 +216,7 @@ export default function Projects() {
   </div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-12 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="relative w-full h-[420px] md:h-[480px] overflow-hidden rounded-3xl mb-12">
           {/* Background Image */}
@@ -245,17 +243,17 @@ export default function Projects() {
         </div>
 
         <div className="sticky top-25 z-20 mb-10">
-          <div className="mx-auto max-w-7xl backdrop-blur-xl bg-white/70 border border-white/40 shadow-xl rounded-2xl p-4">
+          <div className="mx-auto max-w-7xl backdrop-blur-xl bg-white/70 dark:bg-slate-800/70 border border-white/40 dark:border-slate-700/40 shadow-xl rounded-2xl p-4">
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               {/* Search Box */}
-              <div className="flex items-center gap-3 flex-1 md:flex-[2] bg-white/90 rounded-xl px-4 py-3 border border-gray-200 shadow-sm focus-within:ring-2 focus-within:ring-blue-400 transition">
+              <div className="flex items-center gap-3 flex-1 md:flex-[2] bg-white/90 dark:bg-slate-700/90 rounded-xl px-4 py-3 border border-gray-200 dark:border-slate-600 shadow-sm focus-within:ring-2 focus-within:ring-blue-400 transition">
                 <FiSearch className="text-gray-400 text-lg" />
                 <input
                   type="text"
                   placeholder="Search projects,Skills..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full outline-none bg-transparent placeholder-gray-400 text-gray-700"
+                  className="w-full outline-none bg-transparent placeholder-gray-400 text-gray-700 dark:text-slate-300"
                 />
               </div>
 
@@ -290,14 +288,14 @@ export default function Projects() {
                   placeholder="Min ₹"
                   value={minBudget}
                   onChange={(e) => setMinBudget(e.target.value)}
-                  className="w-1/2 md:w-auto px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-1/2 md:w-auto px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 shadow-sm focus:ring-2 focus:ring-blue-400 transition"
                 />
                 <input
                   type="number"
                   placeholder="Max ₹"
                   value={maxBudget}
                   onChange={(e) => setMaxBudget(e.target.value)}
-                  className="w-1/2 md:w-auto px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-400 transition"
+                  className="w-1/2 md:w-auto px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 shadow-sm focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
             </div>
@@ -310,9 +308,9 @@ export default function Projects() {
             Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className="animate-pulse group relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200"
+                  className="animate-pulse group relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900"
               >
-                <div className="h-full w-full rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-6 flex flex-col gap-4">
+                <div className="h-full w-full rounded-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-6 flex flex-col gap-4">
                   <div className="h-4 w-1/3 bg-gray-300 rounded-full"></div>
                   <div className="h-6 w-3/4 bg-gray-300 rounded"></div>
                   <div className="flex justify-between gap-2">
@@ -330,10 +328,10 @@ export default function Projects() {
             // ✅ EMPTY STATE UI
             <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
               <FaBriefcase className="text-5xl text-gray-300 mb-4" />
-              <h2 className="text-xl font-semibold text-gray-700">
+              <h2 className="text-xl font-semibold text-gray-700 dark:text-slate-300">
                 No Projects Found
               </h2>
-              <p className="text-gray-500 mt-2">
+              <p className="text-gray-500 dark:text-slate-400 mt-2">
                 Try adjusting your search or filters
               </p>
             </div>
@@ -352,13 +350,11 @@ export default function Projects() {
         </div>
 
         {loadingMore && (
-          <div className="text-center text-gray-600 mt-10">
-            Loading more projects...
-          </div>
+          <div className="text-center text-gray-600 dark:text-slate-400 mt-10"> Loading... </div>
         )}
 
         {!hasMore && !loadingProjects && projects.length > 0 && (
-          <div className="text-center text-gray-500 mt-10">
+          <div className="text-center text-gray-500 dark:text-slate-500 mt-10">
             You have reached the end
           </div>
         )}

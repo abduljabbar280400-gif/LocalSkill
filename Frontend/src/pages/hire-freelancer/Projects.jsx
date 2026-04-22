@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import api from "../../services/api";
 import Select from "react-select";
 import { useClientAuth } from "../../context/client/useClientAuth";
@@ -12,6 +12,7 @@ import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 export default function Projects() {
   const { username } = useParams();
+  const location = useLocation();
   const { user } = useClientAuth();
 
   const [projects, setProjects] = useState([]);
@@ -25,6 +26,7 @@ export default function Projects() {
 
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [deletingProjectId, setDeletingProjectId] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -92,13 +94,26 @@ export default function Projects() {
           last_page: res.data.last_page,
           total: res.data.total,
         });
+
+        // ✅ CHECK FOR AUTO-OPEN PROPOSALS
+        const queryParams = new URLSearchParams(location.search);
+        const viewProposalsId = queryParams.get("view_proposals");
+
+        if (viewProposalsId) {
+          const projectToOpen = sorted.find((p) => String(p.id) === String(viewProposalsId));
+          if (projectToOpen) {
+            setSelectedProjectId(projectToOpen.id);
+            setSelectedProjectTitle(projectToOpen.title);
+            setIsProposalOpen(true);
+          }
+        }
       } catch (error) {
         console.error("❌ Fetch Error:", error.response?.data || error);
       } finally {
         setLoading(false);
       }
     },
-    [username],
+    [username, location.search],
   );
 
   useEffect(() => {
@@ -137,14 +152,17 @@ export default function Projects() {
     );
 
     if (!confirmDelete) return;
+    setDeletingProjectId(projectId);
 
     try {
       await api.delete(`/hire-freelancer/${username}/projects/${projectId}`);
 
       // Refresh after delete
-      fetchProjects(pagination.current_page);
+      await fetchProjects(pagination.current_page);
     } catch (error) {
       console.error("❌ Delete Error:", error.response?.data || error);
+    } finally {
+      setDeletingProjectId(null);
     }
   };
   // const categoryOptions = categories.map((cat) => ({
@@ -307,7 +325,7 @@ export default function Projects() {
             <div className="dashboard-panel">
               <div className="loading-page">
                 <div className="loading-spinner" />
-                <p className="loading-text">Loading your projects...</p>
+                <p className="loading-text"> Loading your projects... </p>
                 <div className="loading-skeleton-row" style={{ width: "100%" }}>
                   <div className="loading-skeleton-strip" />
                   <div className="loading-skeleton-strip" />
@@ -381,62 +399,62 @@ export default function Projects() {
           </div>
 
           <div
-            className="dashboard-panel backdrop-blur-xl bg-gradient-to-br from-white/60 via-blue-50/40 to-green-50/40 border border-white/30 shadow-xl rounded-2xl"
+            className="dashboard-panel backdrop-blur-xl bg-gradient-to-br from-white/60 via-blue-50/40 to-green-50/40 border border-white/30 dark:border-slate-700/30 shadow-xl rounded-2xl"
             style={{ overflowX: "auto" }}
           >
             {projects.length === 0 ? (
               <p className="dashboard-panel-muted">No projects found.</p>
             ) : (
               <table className="table projects-table w-full text-sm backdrop-blur-md">
-                <thead className="bg-white/40 backdrop-blur-lg border-b border-white/30">
+                <thead className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border-b border-white/30 dark:border-slate-700/30">
                   <tr>
-                    <th className="px-4 py-3 text-center font-semibold text-gray-700">
+                    <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300">
                       #
                     </th>
 
                     <th
                       onClick={() => handleSort("title")}
-                      className="group px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                      className="group px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
                     >
                       Title {renderSortIcon("title")}
                     </th>
 
                     <th
                       onClick={() => handleSort("category_id")}
-                      className="group px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                      className="group px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
                     >
                       Category {renderSortIcon("category_id")}
                     </th>
 
                     <th
                       onClick={() => handleSort("experience_level")}
-                      className="group px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                      className="group px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
                     >
                       Experience {renderSortIcon("experience_level")}
                     </th>
 
                     <th
                       onClick={() => handleSort("duration")}
-                      className="group px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                      className="group px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
                     >
                       Duration {renderSortIcon("duration")}
                     </th>
 
                     <th
                       onClick={() => handleSort("status")}
-                      className="group px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                      className="group px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
                     >
                       Status {renderSortIcon("status")}
                     </th>
 
                     <th
                       onClick={() => handleSort("deadline")}
-                      className="group px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                      className="group px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
                     >
                       Deadline {renderSortIcon("deadline")}
                     </th>
 
-                    <th className="px-4 py-3 text-center font-semibold text-gray-700">
+                    <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300">
                       Action
                     </th>
                   </tr>
@@ -445,7 +463,7 @@ export default function Projects() {
                   {projects.map((project, index) => (
                     <tr
                       key={project.id}
-                      className="hover:bg-white/40 transition backdrop-blur-sm"
+                      className="hover:bg-white/40 dark:bg-slate-800/40 transition backdrop-blur-sm"
                     >
                       <td>{(pagination.current_page - 1) * 10 + index + 1}</td>
                       <td>{project.title}</td>
@@ -483,10 +501,11 @@ export default function Projects() {
                           </button>
                           <button
                             type="button"
-                            className="btn btn-danger"
+                            className="btn btn-danger disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={deletingProjectId === project.id}
                             onClick={() => handleDelete(project.id)}
                           >
-                            Delete
+                            {deletingProjectId === project.id ? "Deleting..." : "Delete"}
                           </button>
                           <button
                             onClick={() => {

@@ -27,9 +27,7 @@ class FreelancerProfileController extends Controller
 
     $user = User::where('username', $username)->firstOrFail();
 
-    $profile = FreelancerProfile::where('user_id', $user->id)
-    ->select('*')
-    ->first();
+    $profile = FreelancerProfile::where('user_id', $user->id)->first();
 
     if (!$profile) {
         return response()->json([
@@ -53,20 +51,16 @@ class FreelancerProfileController extends Controller
         }
     }
 
-    // Get Category
-    $category = null;
-    if ($profile && $profile->primary_category_id) {
-        $category = Category::where('id', $profile->primary_category_id)->first();
-    }
+    // Category
+    $category = $profile->primary_category_id
+        ? Category::find($profile->primary_category_id)
+        : null;
 
-    // Get Skills
-    $skills = [];
-    if ($profile) {
-        $skills = FreelancerSkill::where('freelancer_profile_id', $profile->id)
-            ->join('skills', 'freelancer_skills.skill_id', '=', 'skills.id')
-            ->select('skills.id', 'skills.name')
-            ->get();
-    }
+    // Skills
+    $skills = FreelancerSkill::where('freelancer_profile_id', $profile->id)
+        ->join('skills', 'freelancer_skills.skill_id', '=', 'skills.id')
+        ->select('skills.id', 'skills.name')
+        ->get();
 
     // Get Reviews
     $reviews = Review::where('freelancer_id', $user->id)
@@ -89,10 +83,12 @@ class FreelancerProfileController extends Controller
         'skills' => $skills,
         'reviews' => $reviews,
         'user' => [
-        'first_name' => $user->first_name,
-        'last_name' => $user->last_name,
-        'username' => $user->username,
-    ]
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'username' => $user->username,
+            'is_online' => (bool)$user->is_online,
+            'last_seen' => $user->last_seen ? $user->last_seen->toIso8601String() : null,
+        ]
     ]);
 }
     public function update(Request $request, string $username): JsonResponse
@@ -259,15 +255,16 @@ public function myProfile(Request $request, string $username): JsonResponse
 
     return response()->json([
         'profile' => $profile,
-        // ?? new \stdClass(),
         'user' => [
-         'title' => $authUser->title,
-         'first_name' => $authUser->first_name,
+            'title' => $authUser->title,
+            'first_name' => $authUser->first_name,
             'last_name' => $authUser->last_name,
             'username' => $authUser->username,
             'email' => $authUser->email,
             'phone' => $authUser->phone,
             'dob' => $authUser->dob,
+            'is_online' => (bool)$authUser->is_online,
+            'last_seen' => $authUser->last_seen ? $authUser->last_seen->toIso8601String() : null,
         ],
         'category' => $category,
         'skills' => $skills,

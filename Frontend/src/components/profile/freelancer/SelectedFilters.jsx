@@ -37,7 +37,7 @@ export default function SelectedFilters({ filters, setFilters }) {
   if (!hasFilters) return null;
 
   return (
-    <div className="mb-4 bg-white p-3 rounded-lg shadow flex flex-wrap gap-2 items-center">
+    <div className="mb-4 bg-white dark:bg-slate-800 p-3 rounded-lg shadow flex flex-wrap gap-2 items-center">
       {/* Experience */}
       {filters.experience && (
         <Chip
@@ -79,7 +79,7 @@ export default function SelectedFilters({ filters, setFilters }) {
  */
 function Chip({ label, onRemove }) {
   return (
-    <div className="flex items-center gap-2 bg-gray-200 px-3 py-1 rounded-full text-sm">
+    <div className="flex items-center gap-2 bg-gray-200 dark:bg-slate-700 px-3 py-1 rounded-full text-sm">
       {label}
       <button onClick={onRemove} className="text-red-500 font-bold">
         ✕

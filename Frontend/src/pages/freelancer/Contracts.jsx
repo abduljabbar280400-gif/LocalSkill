@@ -86,19 +86,19 @@ const Contracts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-10">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-800/50 p-10">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-semibold mb-8">My Contracts</h1>
 
         {contracts.length === 0 && (
-          <p className="text-gray-500">No contracts yet.</p>
+          <p className="text-gray-500 dark:text-slate-400">No contracts yet.</p>
         )}
 
         <div className="space-y-6">
           {contracts.map((contract) => (
             <div
               key={contract.id}
-              className="bg-white shadow-lg rounded-2xl p-6 border"
+              className="bg-white dark:bg-slate-800 shadow-lg rounded-2xl p-6 border"
             >
               <div className="flex justify-between items-center">
                 <div>
@@ -106,11 +106,11 @@ const Contracts = () => {
                     {contract.project_title}
                   </h2>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
                     Client: {contract.client_name}
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
                     Contract #: {contract.contract_number}
                   </p>
                 </div>

@@ -25,6 +25,7 @@ const ProposalModal = ({
 
   const [activeFilter, setActiveFilter] = useState("all");
   const [contractLoading, setContractLoading] = useState(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
 
   const [contracts, setContracts] = useState([]);
 
@@ -99,20 +100,21 @@ const ProposalModal = ({
   }) => {
     const isActive = proposal.status === value;
     const isLocked = proposal.status === "accepted" && value !== "accepted";
+    const isUpdating = updatingStatusId === proposal.id;
 
     return (
       <button
         type="button"
-        disabled={isLocked}
+        disabled={isLocked || isUpdating}
         onClick={() => updateStatus(proposal.id, value)}
         className={`
         px-4 py-1.5 text-sm rounded-full border transition-all duration-200
         ${
           isActive
             ? `${activeColor} text-white border-transparent`
-            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+            : "bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:bg-slate-800"
         }
-        ${isLocked ? "opacity-40 cursor-not-allowed hover:bg-white" : ""}
+        ${isLocked ? "opacity-40 cursor-not-allowed hover:bg-white dark:bg-slate-800" : ""}
       `}
       >
         {label}
@@ -122,6 +124,7 @@ const ProposalModal = ({
 
   const updateStatus = async (proposalId, newStatus) => {
     try {
+      setUpdatingStatusId(proposalId);
       await api.put(`/proposals/${proposalId}`, {
         status: newStatus,
       });
@@ -134,6 +137,8 @@ const ProposalModal = ({
       );
     } catch (error) {
       console.error(error);
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
@@ -148,7 +153,7 @@ const ProposalModal = ({
       case "shortlisted":
         return "bg-orange-100 text-orange-700";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300";
     }
   };
 
@@ -227,12 +232,12 @@ const ProposalModal = ({
       <div className="proposal-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="mb-2">
-          <h2 className="text-2xl font-semibold text-gray-800">
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-200">
             Proposals for:
             <span className="ml-2 text-blue-600">{projectTitle}</span>
           </h2>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
             {proposals.length} Applications
           </p>
 
@@ -245,7 +250,7 @@ const ProposalModal = ({
           </button>
         </div>
 
-        <div className="sticky top-0 z-20 my-5 flex  backdrop-blur-2xl bg-white/60 border-b border-white/20 rounded-2xl shadow-sm">
+        <div className="sticky top-0 z-20 my-5 flex  backdrop-blur-2xl bg-white/60 dark:bg-slate-800/60 border-b border-white/20 dark:border-slate-700/20 rounded-2xl shadow-sm">
           <div className="flex justify-between w-full gap-3 overflow-x-auto px-4 py-4 scrollbar-hide">
             {[
               { key: "all", label: "All" },
@@ -267,7 +272,7 @@ const ProposalModal = ({
                     transition-all duration-300 border overflow-hidden${
                       activeFilter === tab.key
                         ? "text-white border-transparent shadow-lg scale-105 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 btn-proposal"
-                        : "bg-white/60 backdrop-blur-md text-gray-700 border-gray-200 hover:bg-white"
+                        : "bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-white dark:bg-slate-800"
                     }`}
                 >
                   {tab.label}
@@ -311,7 +316,7 @@ const ProposalModal = ({
 
         {/* Empty */}
         {!loading && filteredProposals.length === 0 && (
-          <div className="text-center py-6 text-gray-500">
+          <div className="text-center py-6 text-gray-500 dark:text-slate-400">
             No {activeFilter !== "all" ? activeFilter : ""} proposals found.
           </div>
         )}
@@ -321,8 +326,8 @@ const ProposalModal = ({
           <div className="space-y-8">
             {/* Section Title */}
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Proposals</h2>
-              <span className="text-sm text-gray-500">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Proposals</h2>
+              <span className="text-sm text-gray-500 dark:text-slate-400">
                 {filteredProposals.length} total
               </span>
             </div>
@@ -335,21 +340,21 @@ const ProposalModal = ({
                   className={`relative rounded-3xl p-7 border transition-all duration-300
           ${
             proposal.status === "accepted"
-              ? "border-green-500 bg-gradient-to-br from-green-50 to-white shadow-lg"
-              : "border-gray-200 bg-white hover:shadow-xl hover:-translate-y-1"
+              ? "border-green-500 dark:border-green-600 bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-slate-800 shadow-lg"
+              : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-xl hover:-translate-y-1"
           }`}
                 >
                   {/* Header */}
                   <div className="flex justify-between items-start mb-6 ">
                     <div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 pl-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 pl-1">
                           {proposal.freelancer.first_name}{" "}
                           {proposal.freelancer.last_name}
                         </h3>
                       </div>
 
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                         {/* View Profile Button */}
                         <Link
                           to={`/freelancer/${proposal.freelancer.username}`}
@@ -357,7 +362,7 @@ const ProposalModal = ({
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 mt-2 px-4 py-1.5
   text-xs font-medium rounded-xl
-  border border-gray-300 text-gray-700
+  border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300
   hover:border-blue-600 hover:text-blue-600
   hover:bg-blue-50
   transition-all duration-200"
@@ -381,21 +386,21 @@ const ProposalModal = ({
 
                   {/* Info Grid */}
                   <div className="grid grid-cols-2 gap-6 mb-6">
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 border border-gray-100 dark:border-slate-700">
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
                         Estimated Duration
                       </p>
-                      <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                      <div className="text-sm font-semibold text-gray-800 dark:text-slate-200 flex items-center gap-2">
                         <FiClock size={16} />
                         {proposal.estimated_duration} days
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 border border-gray-100 dark:border-slate-700">
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
                         Applied On
                       </p>
-                      <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                      <div className="text-sm font-semibold text-gray-800 dark:text-slate-200 flex items-center gap-2">
                         <FiCalendar size={16} />
                         {new Date(proposal.created_at).toLocaleDateString()}
                       </div>
@@ -403,7 +408,7 @@ const ProposalModal = ({
 
                     {/* Attachments */}
                     {/* Attachments */}
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 col-span-2">
+                    <div className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 border border-gray-100 dark:border-slate-700 col-span-2">
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
                         Attachments
                       </p>
@@ -417,13 +422,13 @@ const ProposalModal = ({
                           const fileUrl = `http://localhost:8000/storage/${proposal.attachment_file}`;
 
                           return (
-                            <div className="flex items-center justify-between bg-white border rounded-xl p-3">
+                            <div className="flex items-center justify-between bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
                               {/* File Info */}
                               <div className="flex items-center gap-3">
-                                <div className="text-gray-700">{file.icon}</div>
+                                <div className="text-gray-700 dark:text-slate-300">{file.icon}</div>
 
                                 <div>
-                                  <p className="text-sm font-semibold text-gray-800">
+                                  <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                                     {fileName}
                                   </p>
                                   <p className="text-xs text-gray-400">
@@ -455,7 +460,7 @@ const ProposalModal = ({
                                   href={fileUrl}
                                   download
                                   className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg
-              bg-gray-200 text-white hover:bg-gray-300 transition"
+              bg-gray-200 dark:bg-slate-700 text-white hover:bg-gray-300 transition"
                                 >
                                   <FiDownload size={14} />
                                   Download
@@ -490,13 +495,13 @@ const ProposalModal = ({
                     <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
                       Cover Letter
                     </p>
-                    <p className="text-sm text-gray-700 leading-relaxed line-clamp-3">
+                    <p className="text-sm text-gray-700 dark:text-slate-300 leading-relaxed line-clamp-3">
                       {proposal.cover_letter}
                     </p>
                   </div>
 
                   {/* Bottom Actions */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-slate-700">
                     {/* Status Buttons */}
                     <div className="flex flex-wrap gap-3">
                       <StatusButton

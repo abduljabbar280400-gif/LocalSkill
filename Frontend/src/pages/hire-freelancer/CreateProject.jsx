@@ -216,9 +216,7 @@ export default function ProjectModal({
             )}
 
             {skillsLoading && (
-              <p className="form-status form-status-neutral">
-                Loading skills...
-              </p>
+              <p className="form-status form-status-neutral"> Loading... </p>
             )}
 
             {formData.category_id &&

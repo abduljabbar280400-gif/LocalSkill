@@ -11,14 +11,14 @@ import NearbyFreelancers from "../components/profile/hire-freelancer/NearbyFreel
 
 export default function HireFreelancer() {
   return (
-    <main className="app-main bg-gray-50 text-gray-800">
+    <main className="app-main bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-slate-200">
       {/* ================= HERO ================= */}
-      <section className="py-20 bg-white border-b">
+      <section className="py-20 bg-white dark:bg-slate-800 border-b dark:border-slate-700">
         <div className="container max-w-6xl mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Hire Trusted Freelancers Near You
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto mb-8">
             Post your project and instantly connect with skilled local
             freelancers. Faster hiring. Better trust. Real results.
           </p>
@@ -32,7 +32,7 @@ export default function HireFreelancer() {
             </Link>
             <Link
               to="/hire-freelancer/login"
-              className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-100"
+              className="px-6 py-3 border border-gray-300 dark:border-slate-600 rounded-lg font-medium hover:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200"
             >
               Login
             </Link>
@@ -43,9 +43,9 @@ export default function HireFreelancer() {
       {/* ================= QUICK PANEL ================= */}
       <section className="py-12">
         <div className="container max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border dark:border-slate-700 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">Start a Project</h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-slate-400 mb-4">
               Create a client account and manage your projects, freelancers, and
               communication in one place.
             </p>
@@ -58,9 +58,9 @@ export default function HireFreelancer() {
             </Link>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border dark:border-slate-700 shadow-sm">
             <h2 className="text-xl font-semibold mb-3">What You Get</h2>
-            <ul className="text-gray-600 space-y-2 text-sm">
+            <ul className="text-gray-600 dark:text-slate-400 space-y-2 text-sm">
               <li>✔ Verified freelancer profiles</li>
               <li>✔ Ratings & completed work history</li>
               <li>✔ Easy communication & tracking</li>
@@ -71,7 +71,7 @@ export default function HireFreelancer() {
       </section>
 
       {/* ================= HOW IT WORKS ================= */}
-      <section className="py-16 bg-white border-t">
+      <section className="py-16 bg-white dark:bg-slate-800 border-t dark:border-slate-700">
         <div className="container max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-semibold mb-10">How It Works</h2>
 
@@ -79,7 +79,7 @@ export default function HireFreelancer() {
             <div className="flex flex-col items-center">
               <FaClipboardList className="text-3xl text-blue-600 mb-3" />
               <h3 className="font-semibold mb-2">Post Your Project</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 dark:text-slate-400 text-sm">
                 Describe your task and requirements in minutes.
               </p>
             </div>
@@ -87,7 +87,7 @@ export default function HireFreelancer() {
             <div className="flex flex-col items-center">
               <FaMapMarkerAlt className="text-3xl text-blue-600 mb-3" />
               <h3 className="font-semibold mb-2">Get Local Matches</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 dark:text-slate-400 text-sm">
                 Receive proposals from nearby skilled freelancers.
               </p>
             </div>
@@ -95,7 +95,7 @@ export default function HireFreelancer() {
             <div className="flex flex-col items-center">
               <FaHandshake className="text-3xl text-blue-600 mb-3" />
               <h3 className="font-semibold mb-2">Hire & Work</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 dark:text-slate-400 text-sm">
                 Choose the best freelancer and get your work done fast.
               </p>
             </div>
@@ -123,7 +123,7 @@ export default function HireFreelancer() {
             ].map((item, i) => (
               <div
                 key={i}
-                className="bg-white border rounded-xl p-5 hover:shadow-sm"
+                className="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-5 hover:shadow-sm"
               >
                 <p className="font-medium">{item}</p>
               </div>
@@ -135,16 +135,16 @@ export default function HireFreelancer() {
       <NearbyFreelancers />
 
       {/* ================= USP SECTION ================= */}
-      <section className="py-16 bg-white border-t">
+      <section className="py-16 bg-white dark:bg-slate-800 border-t dark:border-slate-700">
         <div className="container max-w-5xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-semibold mb-6">
             Why Choose Our Platform?
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8 text-sm text-gray-600">
+          <div className="grid md:grid-cols-3 gap-8 text-sm text-gray-600 dark:text-slate-400">
             <div className="text-center">
               <FaMapMarkerAlt className="text-2xl text-blue-600 mb-2 mx-auto" />
-              <h3 className="font-semibold text-black mb-2">
+              <h3 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">
                 Location-Based Hiring
               </h3>
               <p>
@@ -154,13 +154,13 @@ export default function HireFreelancer() {
 
             <div className="text-center">
               <FaBolt className="text-2xl text-blue-600 mb-2 mx-auto" />
-              <h3 className="font-semibold text-black mb-2">Faster Hiring</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">Faster Hiring</h3>
               <p>Get responses quickly and hire within minutes, not days.</p>
             </div>
 
             <div className="text-center">
               <FaUserTie className="text-2xl text-blue-600 mb-2 mx-auto" />
-              <h3 className="font-semibold text-black mb-2">
+              <h3 className="font-semibold text-gray-900 dark:text-slate-100 mb-2">
                 Skilled Professionals
               </h3>
               <p>
@@ -184,7 +184,7 @@ export default function HireFreelancer() {
 
           <Link
             to="/hire-freelancer/signup"
-            className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium"
+            className="px-6 py-3 bg-white dark:bg-slate-800 text-blue-600 rounded-lg font-medium"
           >
             Post a Project
           </Link>

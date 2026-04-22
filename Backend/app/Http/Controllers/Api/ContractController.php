@@ -82,10 +82,7 @@ class ContractController extends Controller
             'contract_number'  => Contract::generateContractNumber(),
         ]);
 
-//         $freelancer->notify(
-//     new ProposalAcceptedNotification($proposal->load('contract'))
-// );
-
+        // TODO: Notify freelancer via ProposalAcceptedNotification once notifications are set up
         Conversation::create([
             'contract_id' => $contract->id,
             'client_id' => $contract->client_id,

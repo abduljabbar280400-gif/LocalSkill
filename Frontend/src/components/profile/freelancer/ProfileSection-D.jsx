@@ -20,6 +20,7 @@ export default function ProfileSection({ profile, username, onUpdated }) {
   const [selectedLng, setSelectedLng] = useState(form.longitude);
   const [locationTouched, setLocationTouched] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   const previousPostcodeRef = useRef(profile.postcode);
 
@@ -34,6 +35,7 @@ export default function ProfileSection({ profile, username, onUpdated }) {
 
   // 🔹 Save profile
   const handleSave = async () => {
+    setIsSavingProfile(true);
     try {
       if (form.postcode !== previousPostcodeRef.current) {
         const {
@@ -80,6 +82,8 @@ export default function ProfileSection({ profile, username, onUpdated }) {
     } catch (error) {
       console.error(error);
       alert("Failed to save profile");
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -267,8 +271,8 @@ export default function ProfileSection({ profile, username, onUpdated }) {
       </div>
 
       <div className="form-actions">
-        <button className="btn btn-primary" type="button" onClick={handleSave}>
-          Save profile
+        <button className="btn btn-primary" type="button" onClick={handleSave} disabled={isSavingProfile}>
+          {isSavingProfile ? "Saving..." : "Save profile"}
         </button>
       </div>
 

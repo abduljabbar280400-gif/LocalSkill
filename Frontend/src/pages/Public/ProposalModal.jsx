@@ -7,9 +7,11 @@ export default function ProposalModal({ projectId, onClose }) {
     proposed_amount: "",
     estimated_duration: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       await api.post(`/projects/${projectId}/proposals`, form);
@@ -18,6 +20,8 @@ export default function ProposalModal({ projectId, onClose }) {
       onClose();
     } catch (error) {
       alert(error.response?.data?.message || "Error submitting proposal");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -47,7 +51,9 @@ export default function ProposalModal({ projectId, onClose }) {
             setForm({ ...form, estimated_duration: e.target.value })
           }
         />
-        <button type="submit">Submit Proposal</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit Proposal"}
+        </button>
         <button type="button" onClick={onClose}>
           Cancel
         </button>

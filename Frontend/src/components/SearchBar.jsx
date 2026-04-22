@@ -15,8 +15,8 @@ export default function SearchBar({ filters, setFilters }) {
   return (
     <div className="mb-6 flex flex-col md:flex-row gap-3">
       {/* 🔍 SEARCH INPUT */}
-      <div className="flex items-center flex-1 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl px-6 py-4 shadow-sm focus-within:ring-2 focus-within:ring-blue-400 transition">
-        <FiSearch className="text-gray-500 mr-2" />
+      <div className="flex items-center flex-1 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-gray-200 dark:border-slate-700 rounded-xl px-6 py-4 shadow-sm focus-within:ring-2 focus-within:ring-blue-400 transition">
+        <FiSearch className="text-gray-500 dark:text-slate-400 mr-2" />
 
         <input
           type="text"

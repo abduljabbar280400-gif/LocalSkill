@@ -25,6 +25,7 @@ export default function ProjectDetail() {
     attachment_file: null,
     attachment_link: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [alreadyApplied, setAlreadyApplied] = useState(false);
 
@@ -194,6 +195,7 @@ export default function ProjectDetail() {
       navigate("/freelancer/login");
       return;
     }
+    setIsSubmitting(true);
 
     try {
       const formData = new FormData();
@@ -236,6 +238,8 @@ export default function ProjectDetail() {
       }
 
       alert(err.response?.data?.message || "Failed to submit proposal");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -251,89 +255,89 @@ export default function ProjectDetail() {
     });
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading) return <p className="text-center mt-10"> Loading... </p>;
   if (notFound)
     return (
       <div className="text-center mt-20">
-        <h2 className="text-2xl font-semibold text-gray-700">
+        <h2 className="text-2xl font-semibold text-gray-700 dark:text-slate-300">
           Project not found
         </h2>
-        <p className="text-gray-500 mt-2">
+        <p className="text-gray-500 dark:text-slate-400 mt-2">
           This project may have been removed or is no longer available.
         </p>
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-12 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
         {/* LEFT COLUMN */}
         <div className="md:col-span-2 relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200">
-          <div className="h-full w-full rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-8">
-            <h2 className="text-2xl font-semibold text-gray-800">
+          <div className="h-full w-full rounded-2xl bg-white dark:bg-slate-800/70 dark:bg-slate-800/80 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-8">
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-slate-100">
               {project.title}
             </h2>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
               <div className="p-3">
-                <p className="text-xs text-gray-500">Category</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Category</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {project.category?.name}
                 </p>
               </div>
 
               <div className="p-3">
-                <p className="text-xs text-gray-500">Experience</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Experience</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {project.experience_level}
                 </p>
               </div>
 
               <div className="p-3">
-                <p className="text-xs text-gray-500">Client</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Client</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {project.user.first_name} {project.user.last_name}
                 </p>
               </div>
 
               <div className="p-3">
-                <p className="text-xs text-gray-500">Budget Type</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Budget Type</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {project.budget_type}
                 </p>
               </div>
 
               <div className="p-3">
-                <p className="text-xs text-gray-500">Duration</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Duration</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {project.duration}
                 </p>
               </div>
 
               <div className="p-3">
-                <p className="text-xs text-gray-500">Preferred Work Type</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Preferred Work Type</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {project.preferred_work_type}
                 </p>
               </div>
 
               <div className="p-3">
-                <p className="text-xs text-gray-500">Deadline</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Deadline</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {formatDate(project.deadline)}
                 </p>
               </div>
 
               <div className="p-3">
-                <p className="text-xs text-gray-500">Proposals</p>
-                <p className="font-semibold text-gray-800">
+                <p className="text-xs text-gray-500 dark:text-slate-400">Proposals</p>
+                <p className="font-semibold text-gray-800 dark:text-slate-100">
                   {project.proposals_count}
                 </p>
               </div>
             </div>
 
             <div className="p-3 col-span-2">
-              <p className="text-xs text-gray-500 mb-2">Location</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mb-2">Location</p>
 
               {project.latitude && project.longitude ? (
                 <LocationPicker
@@ -344,23 +348,23 @@ export default function ProjectDetail() {
                   onLocationSelect={() => {}}
                 />
               ) : (
-                <p className="text-gray-500">Location not available</p>
+                <p className="text-gray-500 dark:text-slate-400">Location not available</p>
               )}
 
-              <p className="text-sm text-gray-600 mt-2">{project.location}</p>
+              <p className="text-sm text-gray-600 dark:text-slate-400 mt-2">{project.location}</p>
             </div>
 
-            <hr className="my-6 border-gray-200" />
+            <hr className="my-6 border-gray-200 dark:border-slate-700" />
 
-            <h3 className="font-semibold text-lg text-gray-800">Description</h3>
+            <h3 className="font-semibold text-lg text-gray-800 dark:text-slate-100">Description</h3>
 
-            <p className="mt-3 text-gray-600 leading-relaxed">
+            <p className="mt-3 text-gray-600 dark:text-slate-400 leading-relaxed">
               {project.description}
             </p>
 
             {project.skills?.length > 0 && (
               <>
-                <h4 className="mt-6 font-semibold text-gray-800">
+                <h4 className="mt-6 font-semibold text-gray-800 dark:text-slate-100 dark:text-slate-100">
                   Skills Required
                 </h4>
 
@@ -385,10 +389,10 @@ export default function ProjectDetail() {
 
         {/* RIGHT COLUMN */}
         <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 h-fit sticky top-24">
-          <div className="rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-6">
+          <div className="rounded-2xl bg-white dark:bg-slate-800/70 dark:bg-slate-800/80 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-6">
             {!isAuthenticated ? (
               <div className="text-center">
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-slate-400 dark:text-slate-400">
                   You must login to submit proposal.
                 </p>
 
@@ -407,13 +411,13 @@ export default function ProjectDetail() {
                   Proposal Submitted Successfully
                 </p>
 
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-gray-500 dark:text-slate-400 dark:text-slate-400 text-sm mt-1">
                   You have already applied to this project.
                 </p>
               </div>
             ) : (
               <>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100 dark:text-slate-100 mb-4">
                   Submit Proposal
                 </h3>
 
@@ -425,7 +429,7 @@ export default function ProjectDetail() {
                       setForm({ ...form, cover_letter: e.target.value })
                     }
                     required
-                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-400 outline-none"
                     rows="4"
                   />
 
@@ -437,7 +441,7 @@ export default function ProjectDetail() {
                       setForm({ ...form, proposed_amount: e.target.value })
                     }
                     required
-                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-400 outline-none"
                   />
 
                   <input
@@ -448,13 +452,13 @@ export default function ProjectDetail() {
                       setForm({ ...form, estimated_duration: e.target.value })
                     }
                     required
-                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-400 outline-none"
                   />
 
                   {/* Attachment File (Optional) */}
                   {/* Attachment File (Optional) */}
                   <div className="space-y-2">
-                    <label className="text-sm text-gray-600 font-medium">
+                    <label className="text-sm text-gray-600 dark:text-slate-400 font-medium">
                       Attachment (Optional)
                     </label>
 
@@ -467,14 +471,14 @@ export default function ProjectDetail() {
                         onDragLeave={() => setDragActive(false)}
                         onDrop={handleDrop}
                         className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition
-      ${dragActive ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white"}`}
+      ${dragActive ? "border-blue-400 bg-blue-50" : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800"}`}
                       >
                         <FiUploadCloud
                           size={28}
                           className="text-gray-400 mb-2"
                         />
 
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-slate-400 dark:text-slate-400">
                           Drag & Drop file here or
                         </p>
 
@@ -489,8 +493,8 @@ export default function ProjectDetail() {
                         </label>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 bg-gray-50">
-                        <span className="text-sm text-gray-700 truncate">
+                      <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+                        <span className="text-sm text-gray-700 dark:text-slate-300 truncate">
                           {form.attachment_file.name}
                         </span>
 
@@ -517,14 +521,15 @@ export default function ProjectDetail() {
                     onChange={(e) =>
                       setForm({ ...form, attachment_link: e.target.value })
                     }
-                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-400 outline-none"
                   />
 
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-3 rounded-xl font-medium transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-[1px]"
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-3 rounded-xl font-medium transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-[1px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Submit Proposal
+                    {isSubmitting ? "Submitting..." : "Submit Proposal"}
                   </button>
                 </form>
               </>
@@ -535,7 +540,7 @@ export default function ProjectDetail() {
       {/* RELATED PROJECTS BOX */}
       {relatedProjects.length > 0 && (
         <div className="max-w-7xl mx-auto mt-16">
-          <h2 className="text-2xl font-bold text-gray-800 mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-8">
             Similar Projects You May Like
           </h2>
 
@@ -546,12 +551,12 @@ export default function ProjectDetail() {
                 onClick={() => navigate(`/projects/${rp.slug}`)}
                 className="relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 cursor-pointer"
               >
-                <div className="h-full w-full rounded-2xl bg-white/70 backdrop-blur-lg border border-white/40 shadow-lg p-6 transition hover:shadow-xl hover:-translate-y-[2px]">
-                  <h3 className="font-semibold text-gray-800 mb-2">
+                <div className="h-full w-full rounded-2xl bg-white dark:bg-slate-800/70 dark:bg-slate-800/80 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-6 transition hover:shadow-xl hover:-translate-y-[2px]">
+                  <h3 className="font-semibold text-gray-800 dark:text-slate-100 mb-2">
                     {rp.title}
                   </h3>
 
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-slate-400">
                     {rp.description?.slice(0, 90)}...
                   </p>
 

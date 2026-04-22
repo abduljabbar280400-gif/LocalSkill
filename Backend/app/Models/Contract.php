@@ -41,6 +41,12 @@ class Contract extends Model
     'freelancer_accepted_at',
     'submitted_at',
     'contract_number',
+    'platform_fee_percent',
+    'total_paid',
+    'total_platform_fee',
+    'total_freelancer_earnings',
+    'payment_status',
+    'total_contract_fee',
 ];
 
     /*
@@ -130,9 +136,9 @@ class Contract extends Model
     return 'CNT-' . $year . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 }
 
-// public function payments()
-// {
-//     return $this->hasMany(Payment::class);
-// }
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 
 }

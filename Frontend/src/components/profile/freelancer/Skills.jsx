@@ -15,6 +15,8 @@ export default function Skills({ username }) {
   const [isPrimary, setIsPrimary] = useState(false);
 
   const [loading, setLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   /* ---------------- FETCH DATA ---------------- */
 
@@ -63,26 +65,36 @@ export default function Skills({ username }) {
 
   const handleAddSkill = async () => {
     if (!selectedSkillId) return;
+    setIsAdding(true);
 
-    await api.post(`/freelancer/${username}/skills`, {
-      skill_id: selectedSkillId,
-      experience_years: experienceYears || 0,
-      is_primary: isPrimary,
-    });
+    try {
+      await api.post(`/freelancer/${username}/skills`, {
+        skill_id: selectedSkillId,
+        experience_years: experienceYears || 0,
+        is_primary: isPrimary,
+      });
 
-    // Reset
-    setSelectedSkillId("");
-    setExperienceYears("");
-    setIsPrimary(false);
+      // Reset
+      setSelectedSkillId("");
+      setExperienceYears("");
+      setIsPrimary(false);
 
-    fetchMySkills();
+      await fetchMySkills();
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   /* ---------------- REMOVE SKILL ---------------- */
 
   const handleDeleteSkill = async (skillId) => {
-    await api.delete(`/freelancer/${username}/skills/${skillId}`);
-    fetchMySkills();
+    setDeletingId(skillId);
+    try {
+      await api.delete(`/freelancer/${username}/skills/${skillId}`);
+      await fetchMySkills();
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   /* ---------------- RENDER ---------------- */
@@ -91,7 +103,7 @@ export default function Skills({ username }) {
     return (
       <div className="loading-page" style={{ minHeight: "120px" }}>
         <div className="loading-spinner" />
-        <p className="loading-text">Loading your skills...</p>
+        <p className="loading-text"> Loading... </p>
       </div>
     );
   }
@@ -103,7 +115,7 @@ export default function Skills({ username }) {
       <div className="grid md:grid-cols-2 gap-5 mb-4">
         {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">
+          <label className="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
             Category
           </label>
           <select
@@ -113,7 +125,7 @@ export default function Skills({ username }) {
               setSelectedCategoryId(e.target.value);
               setSelectedSkillId("");
             }}
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-black focus:outline-none"
+            className="w-full border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-black focus:outline-none"
           >
             <option value="">Select category</option>
             {categories.map((cat) => (
@@ -126,7 +138,7 @@ export default function Skills({ username }) {
 
         {/* Skill */}
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">
+          <label className="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
             Skill
           </label>
           <select
@@ -134,7 +146,7 @@ export default function Skills({ username }) {
             value={selectedSkillId}
             onChange={(e) => setSelectedSkillId(e.target.value)}
             disabled={!selectedCategoryId}
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-black focus:outline-none disabled:bg-gray-100"
+            className="w-full border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-black focus:outline-none disabled:bg-gray-100 dark:bg-slate-800"
           >
             <option value="">Select skill</option>
             {filteredSkills.map((skill) => (
@@ -148,7 +160,7 @@ export default function Skills({ username }) {
         <div className="grid md:grid-cols-2 gap-5 mb-4">
           {/* Experience */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
+            <label className="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
               Experience (years)
             </label>
             <input
@@ -158,7 +170,7 @@ export default function Skills({ username }) {
               value={experienceYears}
               min="0"
               onChange={(e) => setExperienceYears(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-black focus:outline-none"
+              className="w-full border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-black focus:outline-none"
             />
           </div>
 
@@ -170,7 +182,7 @@ export default function Skills({ username }) {
               onChange={(e) => setIsPrimary(e.target.checked)}
               className="w-4 h-4 accent-black"
             />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-600 dark:text-slate-400">
               Mark as <span className="font-semibold">Primary Skill</span>
             </span>
           </div>
@@ -179,23 +191,23 @@ export default function Skills({ username }) {
         <button
           type="button"
           onClick={handleAddSkill}
-          disabled={!selectedSkillId}
+          disabled={!selectedSkillId || isAdding}
           className="btn btn-outline"
         >
-          <FiPlus /> Add Skill
+          {isAdding ? "Adding..." : <><FiPlus /> Add Skill</>}
         </button>
       </div>
       {/* MY SKILLS */}
 
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 ">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">My Skills</h3>
+      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 ">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-4">My Skills</h3>
 
         {mySkills.length === 0 ? (
-          <p className="text-sm text-gray-500">No skills added yet.</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400">No skills added yet.</p>
         ) : (
           <div className="overflow-x-auto">
             {/* HEADER */}
-            <div className="grid grid-cols-4 gap-4 px-4 py-2 text-xs font-semibold text-gray-500 border-b">
+            <div className="grid grid-cols-4 gap-4 px-4 py-2 text-xs font-semibold text-gray-500 dark:text-slate-400 border-b">
               <span>Skill</span>
               <span>Experience</span>
               <span>Primary</span>
@@ -206,15 +218,15 @@ export default function Skills({ username }) {
             {mySkills.map((item) => (
               <div
                 key={item.skill_id}
-                className="grid grid-cols-4 gap-4 items-center px-4 py-3 border-b hover:bg-gray-50 transition"
+                className="grid grid-cols-4 gap-4 items-center px-4 py-3 border-b hover:bg-gray-50 dark:bg-slate-800/50 transition"
               >
                 {/* Skill Name */}
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-sm font-medium text-gray-800 dark:text-slate-200">
                   {item.skill?.name}
                 </span>
 
                 {/* Experience */}
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-slate-400">
                   {item.experience_years} yrs
                 </span>
 
@@ -234,10 +246,11 @@ export default function Skills({ username }) {
                 <button
                   type="button"
                   onClick={() => handleDeleteSkill(item.skill_id)}
-                  className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition w-fit"
+                  disabled={deletingId === item.skill_id}
+                  className="flex items-center gap-1 text-sm px-3 py-1.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition w-fit disabled:opacity-50"
                 >
                   <FiTrash2 />
-                  Remove
+                  {deletingId === item.skill_id ? "Removing..." : "Remove"}
                 </button>
               </div>
             ))}

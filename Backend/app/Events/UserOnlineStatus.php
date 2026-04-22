@@ -4,7 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -12,32 +11,29 @@ use Illuminate\Queue\SerializesModels;
 
 class UserOnlineStatus implements ShouldBroadcastNow
 {
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
     public $userId;
     public $isOnline;
-    public $conversationId;
+    public $lastSeen;
 
-    public function __construct($userId, $isOnline, $conversationId)
+    public function __construct(int $userId, bool $isOnline, $lastSeen = null)
     {
         $this->userId = $userId;
         $this->isOnline = $isOnline;
-        $this->conversationId = $conversationId;
+        $this->lastSeen = $lastSeen ? (is_string($lastSeen) ? $lastSeen : $lastSeen->toIso8601String()) : null;
     }
 
-    public function broadcastOn()
-    {
-        return new PrivateChannel('conversation.' . $this->conversationId);
-    }
-
-    public function broadcastAs()
-    {
-        return 'user.online';
-    }
-
-    public function broadcastWith()
+    public function broadcastOn(): array
     {
         return [
-            'user_id' => $this->userId,
-            'is_online' => $this->isOnline,
+            new PrivateChannel('user.' . $this->userId),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'user.status';
+    }
 }
+

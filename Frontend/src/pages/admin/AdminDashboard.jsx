@@ -54,11 +54,11 @@ export default function AdminDashboard() {
   };
 
   if (loading || !stats) {
-    return <div className="p-10 text-center">Loading...</div>;
+    return <div className="p-10 text-center"> Loading... </div>;
   }
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-100 dark:bg-slate-800 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
       <div className="flex items-center gap-4">
         <button
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       {view === "overview" && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
           {/* TOTAL USERS */}
-          <div className="bg-white p-6 rounded-xl shadow">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow">
             <div className="flex items-center gap-3 mb-3">
               <FaUsers className="text-indigo-500 text-xl" />
               <h2 className="font-semibold text-lg">Total Users</h2>
@@ -183,13 +183,13 @@ function Table({ title, data, onBack, type }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">{title}</h2>
 
         <button
           onClick={onBack}
-          className="text-sm text-gray-500 hover:underline"
+          className="text-sm text-gray-500 dark:text-slate-400 hover:underline"
         >
           ← Back
         </button>
@@ -198,7 +198,7 @@ function Table({ title, data, onBack, type }) {
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b text-gray-600 text-sm">
+            <tr className="border-b text-gray-600 dark:text-slate-400 text-sm">
               <th className="py-2">Username</th>
               <th>Email</th>
 
@@ -214,7 +214,7 @@ function Table({ title, data, onBack, type }) {
 
           <tbody>
             {rows.map((user) => (
-              <tr key={user.id} className="border-b hover:bg-gray-50">
+              <tr key={user.id} className="border-b hover:bg-gray-50 dark:bg-slate-800/50">
                 <td className="py-3 font-medium">
                   {user.user?.username || user.username}
                 </td>
@@ -245,7 +245,7 @@ function Table({ title, data, onBack, type }) {
                   )}
                 </td>
 
-                <td className="text-sm text-gray-500">
+                <td className="text-sm text-gray-500 dark:text-slate-400">
                   {new Date(
                     user.user?.created_at || user.created_at,
                   ).toLocaleDateString()}

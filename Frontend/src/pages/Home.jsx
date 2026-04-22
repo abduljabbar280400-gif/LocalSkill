@@ -141,7 +141,7 @@ export default function Home() {
   const visibleTestimonials = getVisibleTestimonials();
 
   return (
-    <main className="app-main bg-gray-50 min-h-screen relative overflow-hidden">
+    <main className="app-main bg-gray-50 dark:bg-slate-900 min-h-screen relative overflow-hidden">
       {/* Hero Section */}
       <motion.section className="page relative py-20" style={{ y: heroY }}>
         {/* Floating background icons */}
@@ -182,7 +182,7 @@ export default function Home() {
               in minutes
             </motion.h1>
             <motion.p
-              className="text-gray-700 text-lg md:text-xl"
+              className="text-gray-700 dark:text-slate-300 text-lg md:text-xl"
               variants={heroVariant}
               initial="hidden"
               whileInView="visible"
@@ -217,7 +217,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              className="flex flex-wrap gap-4 mt-6 justify-center md:justify-start text-gray-600"
+              className="flex flex-wrap gap-4 mt-6 justify-center md:justify-start text-gray-600 dark:text-slate-400"
               variants={heroVariant}
               initial="hidden"
               whileInView="visible"
@@ -237,20 +237,20 @@ export default function Home() {
           </div>
 
           {/* Right Stats Panel */}
-          <aside className="flex-1 max-w-md bg-white p-6 rounded-xl shadow-lg relative z-10">
-            <p className="text-gray-500 mb-6">
+          <aside className="flex-1 max-w-md bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg relative z-10">
+            <p className="text-gray-500 dark:text-slate-400 mb-6">
               A quick snapshot of what your dashboards can look like.
             </p>
             <div className="grid grid-cols-3 gap-4 text-center">
               <motion.div
-                className="stat-card bg-gray-50 p-4 rounded-lg shadow-sm"
+                className="stat-card bg-gray-50 dark:bg-slate-700 p-4 rounded-lg shadow-sm"
                 variants={cardVariant}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.5 }}
                 transition={{ duration: 0.6 }}
               >
-                <div className="text-gray-500 text-sm font-medium">
+                <div className="text-gray-500 dark:text-slate-400 text-sm font-medium">
                   Completed Jobs
                 </div>
                 <div className="text-2xl font-bold text-primary">
@@ -258,14 +258,14 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div
-                className="stat-card bg-gray-50 p-4 rounded-lg shadow-sm"
+                className="stat-card bg-gray-50 dark:bg-slate-700 p-4 rounded-lg shadow-sm"
                 variants={cardVariant}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.5 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                <div className="text-gray-500 text-sm font-medium">
+                <div className="text-gray-500 dark:text-slate-400 text-sm font-medium">
                   Avg. Rating
                 </div>
                 <div className="text-2xl font-bold text-primary">
@@ -273,14 +273,14 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div
-                className="stat-card bg-gray-50 p-4 rounded-lg shadow-sm"
+                className="stat-card bg-gray-50 dark:bg-slate-700 p-4 rounded-lg shadow-sm"
                 variants={cardVariant}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.5 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
-                <div className="text-gray-500 text-sm font-medium">
+                <div className="text-gray-500 dark:text-slate-400 text-sm font-medium">
                   Open Projects
                 </div>
                 <div className="text-2xl font-bold text-primary">
@@ -311,12 +311,12 @@ export default function Home() {
         </motion.div>
 
         <div className="container mx-auto px-4 text-center space-y-12 relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-slate-100">
             Why choose our platform?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <motion.div
-              className="feature-card bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
+              className="feature-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
               variants={cardVariant}
               initial="hidden"
               whileInView="visible"
@@ -325,12 +325,12 @@ export default function Home() {
             >
               <FiZap className="text-3xl mb-4 text-primary mx-auto" />
               <h3 className="text-xl font-semibold mb-2">Fast & Reliable</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-slate-400">
                 Get local freelancers quickly for urgent tasks.
               </p>
             </motion.div>
             <motion.div
-              className="feature-card bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
+              className="feature-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
               variants={cardVariant}
               initial="hidden"
               whileInView="visible"
@@ -339,12 +339,12 @@ export default function Home() {
             >
               <FiLock className="text-3xl mb-4 text-primary mx-auto" />
               <h3 className="text-xl font-semibold mb-2">Verified Talent</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-slate-400">
                 Profiles are checked for authenticity and skill.
               </p>
             </motion.div>
             <motion.div
-              className="feature-card bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
+              className="feature-card bg-white dark:bg-slate-800 p-6 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
               variants={cardVariant}
               initial="hidden"
               whileInView="visible"
@@ -353,7 +353,7 @@ export default function Home() {
             >
               <FiMap className="text-3xl mb-4 text-primary mx-auto" />
               <h3 className="text-xl font-semibold mb-2">Location Aware</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-slate-400">
                 Easily find freelancers near you for on-site work.
               </p>
             </motion.div>
@@ -363,7 +363,7 @@ export default function Home() {
 
       {/* How It Works Section */}
       <motion.section
-        className="py-16 bg-white relative"
+        className="py-16 bg-white dark:bg-slate-800 relative"
         style={{ y: howItWorksY }}
       >
         <motion.div
@@ -372,12 +372,12 @@ export default function Home() {
           animate="animate"
         />
         <div className="container mx-auto px-4 text-center space-y-12 relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-slate-100">
             How it works
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <motion.div
-              className="p-6 bg-gray-50 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
+              className="p-6 bg-gray-50 dark:bg-slate-700 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
               variants={cardVariant}
               initial="hidden"
               whileInView="visible"
@@ -385,12 +385,12 @@ export default function Home() {
             >
               <FiUser className="text-3xl mb-4 text-primary mx-auto" />
               <h3 className="text-xl font-semibold mb-2">Sign Up</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-slate-400">
                 Create an account as client or freelancer quickly.
               </p>
             </motion.div>
             <motion.div
-              className="p-6 bg-gray-50 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
+              className="p-6 bg-gray-50 dark:bg-slate-700 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
               variants={cardVariant}
               initial="hidden"
               whileInView="visible"
@@ -401,12 +401,12 @@ export default function Home() {
               <h3 className="text-xl font-semibold mb-2">
                 Find or Post Projects
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-slate-400">
                 Clients post jobs, freelancers browse and apply.
               </p>
             </motion.div>
             <motion.div
-              className="p-6 bg-gray-50 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
+              className="p-6 bg-gray-50 dark:bg-slate-700 rounded-xl shadow hover:shadow-lg transition-shadow duration-300"
               variants={cardVariant}
               initial="hidden"
               whileInView="visible"
@@ -415,7 +415,7 @@ export default function Home() {
             >
               <FiCheckCircle className="text-3xl mb-4 text-primary mx-auto" />
               <h3 className="text-xl font-semibold mb-2">Work & Get Paid</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-slate-400">
                 Complete projects and track payments securely.
               </p>
             </motion.div>
@@ -454,12 +454,12 @@ export default function Home() {
                     }}
                     exit={{ opacity: 0, scale: 0.8, x: idx === 0 ? -160 : 160 }}
                     transition={{ duration: 1 }}
-                    className="w-80 bg-white p-6 rounded-xl shadow-lg text-center flex-shrink-0 absolute left-1/2 -translate-x-1/2"
+                    className="w-80 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg text-center flex-shrink-0 absolute left-1/2 -translate-x-1/2"
                     style={{ zIndex: isCenter ? 10 : 5 }}
                   >
                     <FiUser className="text-4xl text-primary mx-auto mb-4" />
-                    <p className="text-gray-700">{card.text}</p>
-                    <h4 className="mt-4 font-semibold text-gray-900">
+                    <p className="text-gray-700 dark:text-slate-300">{card.text}</p>
+                    <h4 className="mt-4 font-semibold text-gray-900 dark:text-slate-100">
                       {card.name}
                     </h4>
                   </motion.div>
@@ -472,7 +472,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <motion.section
-        className="py-16 bg-white text-center relative"
+        className="py-16 bg-white dark:bg-slate-900 text-center relative"
         style={{ y: ctaY }}
       >
         <motion.div

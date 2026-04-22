@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import api from "../../services/api";
+import { toast } from "react-toastify";
 
 import ContractDetailsComponent from "../../components/ContractDetails";
 
@@ -9,6 +10,7 @@ import { AiOutlineClose } from "react-icons/ai";
 
 export default function MyProjects() {
   const { username } = useParams();
+  const location = useLocation();
 
   const [stats, setStats] = useState({
     proposal_count: 0,
@@ -58,7 +60,17 @@ export default function MyProjects() {
         active_contracts: res.data.active_contracts,
         completed_contracts: res.data.completed_contracts,
       });
-      setProjects(res.data.projects || []);
+      const projectList = res.data.projects || [];
+      setProjects(projectList);
+
+      // ✅ CHECK FOR AUTO-OPEN CONTRACT
+      const queryParams = new URLSearchParams(location.search);
+      const previewContractId = queryParams.get("preview_contract");
+
+      if (previewContractId) {
+        // If contract exists in list, open it
+        previewContract(previewContractId);
+      }
     } catch (error) {
       console.error("Failed to fetch my projects", error);
     } finally {
@@ -101,18 +113,19 @@ export default function MyProjects() {
       await api.post(
         `/freelancer/${username}/contracts/${selectedContractId}/accept`,
       );
-      alert("Contract accepted");
+      toast.success("Contract accepted");
       closeModal();
       fetchMyProjects();
     } catch (error) {
       console.error("Accept failed", error);
+      toast.error(error.response?.data?.message || "Failed to accept contract");
     }
   };
 
   const submitWork = async (note) => {
     const trimmedNote = note.trim();
     if (!trimmedNote) {
-      alert("Please enter a submission note.");
+      toast.error("Please enter a submission note.");
       return;
     }
 
@@ -123,16 +136,16 @@ export default function MyProjects() {
           submission_note: trimmedNote,
         },
       );
-      alert("Work submitted successfully.");
+      toast.success("Work submitted successfully.");
       closeModal();
       fetchMyProjects();
     } catch (error) {
       console.error("Submit work failed", error);
-      alert(error.response?.data?.message || "Submit failed");
+      toast.error(error.response?.data?.message || "Submit failed");
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p> Loading... </p>;
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
@@ -169,61 +182,61 @@ export default function MyProjects() {
           ].map((stat) => (
             <div
               key={stat.label}
-              className="bg-white/30 backdrop-blur-xl border border-white/40 shadow-lg rounded-2xl p-6 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300"
+              className="bg-white/30 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 shadow-lg rounded-2xl p-6 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300"
             >
-              <p className="text-gray-800 text-sm font-medium mb-2">
+              <p className="text-gray-800 dark:text-slate-200 text-sm font-medium mb-2">
                 {stat.label}
               </p>
-              <p className="text-gray-900 text-2xl font-bold">{stat.value}</p>
+              <p className="text-gray-900 dark:text-slate-100 text-2xl font-bold">{stat.value}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="dashboard-panel backdrop-blur-xl bg-gradient-to-br from-white/60 via-blue-50/40 to-green-50/40 border border-white/30 shadow-xl rounded-2xl overflow-x-auto">
+      <div className="dashboard-panel backdrop-blur-xl bg-gradient-to-br from-white/60 via-blue-50/40 to-green-50/40 border border-white/30 dark:border-slate-700/30 shadow-xl rounded-2xl overflow-x-auto">
         <table className="table projects-table w-full text-sm backdrop-blur-md">
-          <thead className="bg-white/40 backdrop-blur-lg border-b border-white/30">
+          <thead className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border-b border-white/30 dark:border-slate-700/30">
             <tr>
               <th
                 onClick={() => handleSort("title")}
-                className=" px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                className=" px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
               >
                 Project {renderSortIcon("title")}
               </th>
 
               <th
                 onClick={() => handleSort("client")}
-                className="px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
               >
                 Client {renderSortIcon("client")}
               </th>
 
-              <th className="px-4 py-3 text-center font-semibold text-gray-700">
+              <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300">
                 Budget
               </th>
 
               <th
                 onClick={() => handleSort("proposal_status")}
-                className="px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
               >
                 Proposal Status {renderSortIcon("proposal_status")}
               </th>
 
               <th
                 onClick={() => handleSort("contract_status")}
-                className="px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
               >
                 Contract Status {renderSortIcon("contract_status")}
               </th>
 
               <th
                 onClick={() => handleSort("created_at")}
-                className="px-4 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:text-indigo-600"
+                className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300 cursor-pointer hover:text-indigo-600"
               >
                 Created At {renderSortIcon("created_at")}
               </th>
 
-              <th className="px-4 py-3 text-center font-semibold text-gray-700">
+              <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-slate-300">
                 Action
               </th>
             </tr>
@@ -232,7 +245,7 @@ export default function MyProjects() {
           <tbody>
             {projects.length === 0 && (
               <tr>
-                <td className="px-4 py-3 text-gray-700" colSpan="7">
+                <td className="px-4 py-3 text-gray-700 dark:text-slate-300" colSpan="7">
                   No projects found
                 </td>
               </tr>
@@ -240,15 +253,15 @@ export default function MyProjects() {
 
             {projects.map((project) => (
               <tr key={project.project_id} className="">
-                <td className="px-4 py-3 text-center text-gray-700">
+                <td className="px-4 py-3 text-center text-gray-700 dark:text-slate-300">
                   {project.title}
                 </td>
 
-                <td className="px-4 py-3 text-center text-gray-700">
+                <td className="px-4 py-3 text-center text-gray-700 dark:text-slate-300">
                   {capitalizeFirst(project.client)}
                 </td>
 
-                <td className="px-4 py-3 text-gray-700 font-medium">
+                <td className="px-4 py-3 text-gray-700 dark:text-slate-300 font-medium">
                   ₹{project.budget_min?.toLocaleString()} - ₹
                   {project.budget_max?.toLocaleString()}
                 </td>
@@ -279,7 +292,7 @@ export default function MyProjects() {
                   </span>
                 </td>
 
-                <td className="px-4 py-3 text-gray-700">
+                <td className="px-4 py-3 text-gray-700 dark:text-slate-300">
                   {project.created_at
                     ? new Date(project.created_at).toLocaleDateString("en-IN", {
                         day: "2-digit",
@@ -312,7 +325,7 @@ export default function MyProjects() {
           {/* Modal Container */}
           <div
             ref={modalRef}
-            className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden bg-white shadow-xl"
+            className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-slate-800 shadow-xl"
           >
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-6">
@@ -327,11 +340,11 @@ export default function MyProjects() {
             {/* Close Button */}
             <button
               onClick={closeModal}
-              className="group absolute top-6 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-md border hover:bg-white hover:scale-110 transition-all shadow-md"
+              className="group absolute top-6 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border hover:bg-white dark:bg-slate-800 hover:scale-110 transition-all shadow-md"
             >
               <AiOutlineClose
                 size={22}
-                className="text-gray-700 group-hover:text-red-600 transition-colors"
+                className="text-gray-700 dark:text-slate-300 group-hover:text-red-600 transition-colors"
               />
             </button>
           </div>

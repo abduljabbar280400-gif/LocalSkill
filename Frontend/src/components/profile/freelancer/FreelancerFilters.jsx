@@ -91,17 +91,17 @@ export default function FreelancerFilters({ filters, setFilters }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-5">
         <div className="flex items-center gap-2">
-          <FiFilter className="text-gray-600" />
+          <FiFilter className="text-gray-600 dark:text-slate-400" />
           <h2 className="font-semibold text-lg">Filters</h2>
         </div>
 
         <button
           onClick={clearFilters}
-          className="text-sm flex items-center gap-1 text-gray-500 hover:text-red-500"
+          className="text-sm flex items-center gap-1 text-gray-500 dark:text-slate-400 hover:text-red-500"
         >
           <FiRefreshCw size={14} />
           Clear
@@ -110,13 +110,13 @@ export default function FreelancerFilters({ filters, setFilters }) {
 
       {/* EXPERIENCE */}
       <div className="mb-5">
-        <h3 className="text-sm font-medium mb-2 text-gray-700">
+        <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-slate-300">
           Experience Level
         </h3>
 
         <select
           value={filters.experience}
-          className="w-full bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
           onChange={(e) =>
             setFilters((prev) => ({
               ...prev,
@@ -134,14 +134,14 @@ export default function FreelancerFilters({ filters, setFilters }) {
 
       {/* RATE */}
       <div className="mb-5">
-        <h3 className="text-sm font-medium mb-2 text-gray-700">Hourly Rate</h3>
+        <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-slate-300">Hourly Rate</h3>
 
         <div className="flex gap-2">
           <input
             type="number"
             value={filters.min_rate}
             placeholder="Min"
-            className="w-1/2 bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            className="w-1/2 bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
             onChange={(e) =>
               setFilters((prev) => ({
                 ...prev,
@@ -154,7 +154,7 @@ export default function FreelancerFilters({ filters, setFilters }) {
             type="number"
             value={filters.max_rate}
             placeholder="Max"
-            className="w-1/2 bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            className="w-1/2 bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
             onChange={(e) =>
               setFilters((prev) => ({
                 ...prev,
@@ -167,11 +167,11 @@ export default function FreelancerFilters({ filters, setFilters }) {
 
       {/* CATEGORY */}
       <div className="mb-5">
-        <h3 className="text-sm font-medium mb-2 text-gray-700">Category</h3>
+        <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-slate-300">Category</h3>
 
         <select
           value={selectedCategory}
-          className="w-full bg-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
           onChange={(e) => {
             const value = e.target.value;
 
@@ -200,10 +200,10 @@ export default function FreelancerFilters({ filters, setFilters }) {
       {/* SKILLS */}
       {selectedCategory && (
         <div>
-          <h3 className="text-sm font-medium mb-2 text-gray-700">Skills</h3>
+          <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-slate-300">Skills</h3>
 
           {skills.length === 0 ? (
-            <p className="text-xs text-gray-400">Loading skills...</p>
+            <p className="text-xs text-gray-400"> Loading... </p>
           ) : (
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
               {skills.map((skill) => {
@@ -216,7 +216,7 @@ export default function FreelancerFilters({ filters, setFilters }) {
                     className={`text-xs px-3 py-1.5 rounded-full border transition ${
                       isSelected
                         ? "bg-blue-500 text-white border-blue-500"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:bg-slate-700"
                     }`}
                   >
                     {skill.name}

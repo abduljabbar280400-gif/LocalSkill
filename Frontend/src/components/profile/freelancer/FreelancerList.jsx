@@ -7,7 +7,7 @@ export default function FreelancerList({ freelancers, loading }) {
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="bg-white p-5 rounded-xl shadow animate-pulse h-32"
+            className="bg-white dark:bg-slate-800 p-5 rounded-xl shadow animate-pulse h-32"
           />
         ))}
       </div>
@@ -16,7 +16,7 @@ export default function FreelancerList({ freelancers, loading }) {
 
   if (!freelancers.length) {
     return (
-      <p className="text-center text-gray-500 mt-10">No freelancers found 😔</p>
+      <p className="text-center text-gray-500 dark:text-slate-400 mt-10">No freelancers found 😔</p>
     );
   }
 

@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 import ClientAuthContext from "./clientAuthContext";
+import { resetEcho } from "../../utils/echo";
 
 export default function ClientAuthProvider({ children }) {
-  const storedUser = localStorage.getItem("client_user");
-  const storedProfile = localStorage.getItem("client_profile");
+  const storedUser       = localStorage.getItem("client_user");
+  const storedProfile    = localStorage.getItem("client_profile");
   const storedCompletion = localStorage.getItem("client_profile_completed");
 
   const [user, setUser] = useState(
@@ -21,41 +22,59 @@ export default function ClientAuthProvider({ children }) {
     storedCompletion === "true",
   );
 
-  const [token, setToken] = useState(localStorage.getItem("client_token"));
+  const [token,   setToken  ] = useState(localStorage.getItem("client_token"));
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!token && !!user;
 
-  // 🔹 Logout
+  // ── Clear all auth state ─────────────────────────────────────────────────
+  const clearAuth = () => {
+    localStorage.removeItem("client_token");
+    localStorage.removeItem("client_user");
+    localStorage.removeItem("client_profile");
+    localStorage.removeItem("client_profile_completed");
+    setUser(null);
+    setProfile(null);
+    setIsProfileCompleted(false);
+    setToken(null);
+    // Reconnect Echo without the old token
+    resetEcho();
+  };
+
+  // ── Logout ───────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
     try {
-      await api.post("/chat/last-seen");
+      // Prioritize the actual logout call which updates the DB status
       await api.post("/hire-freelancer/logout");
     } catch (error) {
-      console.log("FETCH ME FAILED:", error.response?.data || error);
+      console.warn("Client logout API error:", error.response?.data ?? error);
     } finally {
       clearAuth();
     }
   }, []);
 
-  // 🔹 Fetch Logged-in Client
+  // ── Fetch logged-in client ───────────────────────────────────────────────
   const fetchMe = useCallback(async () => {
     try {
-      const response = await api.get("/hire-freelancer/me");
+      const response                           = await api.get("/hire-freelancer/me");
       const { user, profile, is_profile_completed } = response.data;
+
       setUser(user);
       setProfile(profile);
       setIsProfileCompleted(is_profile_completed);
 
-      localStorage.setItem("client_user", JSON.stringify(user));
-      localStorage.setItem("client_profile", JSON.stringify(profile));
+      localStorage.setItem("client_user",              JSON.stringify(user));
+      localStorage.setItem("client_profile",           JSON.stringify(profile));
       localStorage.setItem("client_profile_completed", is_profile_completed);
     } catch (error) {
-      console.log(error);
-      clearAuth();
+      console.error("fetchMe (client):", error);
+      if (error.response?.status === 401) {
+        clearAuth();
+      }
     }
   }, []);
 
+  // ── Bootstrap on mount ───────────────────────────────────────────────────
   useEffect(() => {
     if (token) {
       fetchMe().finally(() => setLoading(false));
@@ -64,40 +83,42 @@ export default function ClientAuthProvider({ children }) {
     }
   }, [token, fetchMe]);
 
-  // 🔹 Login
+  // ── Login ────────────────────────────────────────────────────────────────
   const login = async (credentials) => {
     const response = await api.post("/hire-freelancer/login", credentials);
 
-    const token = response.data.access_token;
+    const accessToken = response.data.access_token;
+    localStorage.setItem("client_token", accessToken);
+    setToken(accessToken);
 
-    localStorage.setItem("client_token", token);
-    setToken(token);
+    // Re-create Echo so WebSocket auth uses the new token
+    resetEcho();
 
-    // 🔥 Attach token directly for this request
-    const meResponse = await api.get("/hire-freelancer/me");
-
-    const { user, profile, is_profile_completed } = meResponse.data;
+    const meResponse                                   = await api.get("/hire-freelancer/me");
+    const { user, profile, is_profile_completed }      = meResponse.data;
 
     setUser(user);
     setProfile(profile);
     setIsProfileCompleted(is_profile_completed);
 
-    localStorage.setItem("client_user", JSON.stringify(user));
-    localStorage.setItem("client_profile", JSON.stringify(profile));
+    localStorage.setItem("client_user",              JSON.stringify(user));
+    localStorage.setItem("client_profile",           JSON.stringify(profile));
     localStorage.setItem("client_profile_completed", is_profile_completed);
 
-    // ✅ RETURN USER
     return user;
   };
 
-  // 🔹 Register
+  // ── Register ─────────────────────────────────────────────────────────────
   const register = async (data) => {
     try {
-      const response = await api.post("/hire-freelancer/register", data);
+      const response    = await api.post("/hire-freelancer/register", data);
+      const accessToken = response.data.access_token;
 
-      const token = response.data.access_token;
-      localStorage.setItem("client_token", token);
-      setToken(token);
+      localStorage.setItem("client_token", accessToken);
+      setToken(accessToken);
+
+      // Re-create Echo so WebSocket auth uses the new token
+      resetEcho();
 
       const user = response.data.user;
       localStorage.setItem("client_user", JSON.stringify(user));
@@ -105,45 +126,27 @@ export default function ClientAuthProvider({ children }) {
 
       return user;
     } catch (error) {
-      console.log("Register failed:", error);
+      console.error("Register failed:", error);
       throw error;
     }
   };
 
-  const clearAuth = () => {
-    localStorage.removeItem("client_token");
-    localStorage.removeItem("client_user");
-    localStorage.removeItem("client_profile");
-    localStorage.removeItem("client_profile_completed");
-
-    setUser(null);
-    setProfile(null);
-    setIsProfileCompleted(false);
-    setToken(null);
-  };
-
-  // 🔹 Refresh user/profile from /me
+  // ── Refresh user/profile ─────────────────────────────────────────────────
   const refreshUser = async () => {
     if (!token) return;
-
     try {
-      const response = await api.get("/hire-freelancer/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const response                                = await api.get("/hire-freelancer/me");
       const { user, profile, is_profile_completed } = response.data;
 
       setUser(user);
       setProfile(profile);
       setIsProfileCompleted(is_profile_completed);
 
-      localStorage.setItem("client_user", JSON.stringify(user));
-      localStorage.setItem("client_profile", JSON.stringify(profile));
+      localStorage.setItem("client_user",              JSON.stringify(user));
+      localStorage.setItem("client_profile",           JSON.stringify(profile));
       localStorage.setItem("client_profile_completed", is_profile_completed);
     } catch (error) {
-      console.error("Failed to refresh user:", error);
+      console.error("refreshUser failed:", error);
       clearAuth();
     }
   };

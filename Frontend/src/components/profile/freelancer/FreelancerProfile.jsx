@@ -51,7 +51,7 @@ export default function FreelancerProfile() {
       <div className="dashboard-panel">
         <div className="loading-page">
           <div className="loading-spinner" />
-          <p className="loading-text">Loading your profile...</p>
+          <p className="loading-text"> Loading... </p>
           <div
             className="loading-skeleton-row"
             style={{ width: "100%", maxWidth: 360 }}

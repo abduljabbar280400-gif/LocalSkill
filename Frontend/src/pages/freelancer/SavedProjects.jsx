@@ -21,27 +21,25 @@ export default function SavedProjects() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-slate-200">
             Saved Projects
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-500 dark:text-slate-400 mt-1">
             Projects you bookmarked for later
           </p>
         </div>
 
         {/* Loading */}
         {loading ? (
-          <div className="text-center py-20 text-gray-600">
-            Loading saved projects...
-          </div>
+          <div className="text-center py-20 text-gray-600 dark:text-slate-400"> Loading... </div>
         ) : savedProjects.length === 0 ? (
           // ✅ Empty State
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <FaBriefcase className="text-5xl text-gray-300 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-700">
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-slate-300">
               No Saved Projects
             </h2>
-            <p className="text-gray-500 mt-2">
+            <p className="text-gray-500 dark:text-slate-400 mt-2">
               Save projects to view them here later
             </p>
           </div>

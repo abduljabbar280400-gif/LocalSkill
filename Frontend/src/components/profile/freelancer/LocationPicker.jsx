@@ -114,7 +114,7 @@ export default function LocationPicker({
       <div style={{ height: "220px", width: "100%" }} className="relative z-0">
         <div className="loading-page" style={{ minHeight: "100%" }}>
           <div className="loading-spinner" />
-          <p className="loading-text">Loading map…</p>
+          <p className="loading-text"> Loading... </p>
           <div
             className="loading-skeleton-row"
             style={{ width: "100%", maxWidth: 260 }}
@@ -175,7 +175,7 @@ export default function LocationPicker({
           className="absolute inset-0 z-[1000] flex items-center justify-center cursor-pointer"
           style={{ background: "rgba(0,0,0,0.15)" }}
         >
-          <div className="bg-white px-4 py-2 rounded-lg shadow text-sm font-medium">
+          <div className="bg-white dark:bg-slate-800 px-4 py-2 rounded-lg shadow text-sm font-medium">
             Click to explore map
           </div>
         </div>
