@@ -1,9 +1,46 @@
+# FROM php:8.2-cli
+
+# # Install system dependencies
+# RUN apt-get update && apt-get install -y \
+#     git unzip curl libpq-dev libzip-dev zip \
+#     && docker-php-ext-install pdo pdo_pgsql zip
+
+# # Install Composer
+# COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# # Set working directory
+# WORKDIR /var/www
+
+# # Copy project files
+# COPY . .
+
+# # Install Laravel dependencies
+# RUN composer install --no-dev --optimize-autoloader
+
+# # Set permissions
+# RUN chmod -R 777 storage bootstrap/cache
+
+# # Expose port
+# EXPOSE 10000
+
+# # Start Laravel server
+# # CMD php artisan migrate --force && php artisan config:clear && php artisan serve --host=0.0.0.0 --port=$PORT
+# # CMD php artisan migrate --force && php artisan config:clear && php -S 0.0.0.0:$PORT -t public
+# CMD php artisan config:clear && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=$PORT
+
+
+
+
+# ____________________FROM AI________________________
+
+# Use PHP 8.2 CLI
 FROM php:8.2-cli
 
-# Install system dependencies
+# Install system dependencies and PHP extensions
+# Added 'pcntl' to fix the SIGINT error
 RUN apt-get update && apt-get install -y \
-    git unzip curl libpq-dev libzip-dev zip \
-    && docker-php-ext-install pdo pdo_pgsql zip
+    git unzip curl libpq-dev libzip-dev zip libpng-dev libicu-dev \
+    && docker-php-ext-install pdo pdo_pgsql zip bcmath gd intl pcntl
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -17,13 +54,15 @@ COPY . .
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions
-RUN chmod -R 777 storage bootstrap/cache
+# Set permissions for Laravel
+RUN chmod -R 775 storage bootstrap/cache \
+    && chown -R www-data:www-data /var/www
 
 # Expose port
 EXPOSE 10000
 
-# Start Laravel server
-# CMD php artisan migrate --force && php artisan config:clear && php artisan serve --host=0.0.0.0 --port=$PORT
-# CMD php artisan migrate --force && php artisan config:clear && php -S 0.0.0.0:$PORT -t public
-CMD php artisan config:clear && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=$PORT
+# Copy and prepare the start script
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+CMD ["/usr/local/bin/start.sh"]
