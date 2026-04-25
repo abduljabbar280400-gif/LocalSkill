@@ -255,4 +255,5 @@ Route::middleware(['auth:sanctum', 'user.active', 'admin.secure'])
         Route::get('/freelancers/pending',    [AdminFreelancerController::class, 'pending']);
         Route::patch('/freelancers/{id}/approve', [AdminFreelancerController::class, 'approve']);
         Route::patch('/freelancers/{id}/reject',  [AdminFreelancerController::class, 'reject']);
+        Route::patch('/freelancers/{id}/unverify', [AdminFreelancerController::class, 'unverify']);
     });

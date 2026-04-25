@@ -22,8 +22,8 @@ class FreelancerProfileController extends Controller
      */
     public function show(Request $request, string $username): JsonResponse
 {
-    // Use sanctum guard explicitly
-    $authUser = $request->user('sanctum');
+    // Retrieve auth user even on public route
+    $authUser = \Auth::guard('sanctum')->user();
 
     $user = User::where('username', $username)->firstOrFail();
 
@@ -43,8 +43,11 @@ class FreelancerProfileController extends Controller
 
     if ($profile->profile_visibility === 'hidden') {
 
-        // Allow only the owner to view hidden profile
-        if (!$authUser || $authUser->id !== $user->id) {
+        // Allow owner and admins to view hidden profile
+        $isAdmin = $authUser && $authUser->role === 'admin';
+        $isOwner = $authUser && $authUser->id === $user->id;
+
+        if (!$isAdmin && !$isOwner) {
             return response()->json([
                 'message' => 'This profile is private'
             ], 403);
@@ -99,6 +102,13 @@ class FreelancerProfileController extends Controller
         $this->authorizeUser($request, $user);
 
         $profile = FreelancerProfile::where('user_id', $user->id)->firstOrFail();
+
+        // 🛡️ Restriction: Suspended users cannot change profile visibility
+        if ($user->is_suspended && $request->has('profile_visibility')) {
+            return response()->json([
+                'message' => 'You cannot change profile visibility while your account is restricted.'
+            ], 403);
+        }
 
         $validated = $request->validate([
             'professional_title' => ['sometimes', 'string', 'max:150'],
@@ -264,6 +274,7 @@ public function myProfile(Request $request, string $username): JsonResponse
             'phone' => $authUser->phone,
             'dob' => $authUser->dob,
             'is_online' => (bool)$authUser->is_online,
+            'is_suspended' => (bool)$authUser->is_suspended,
             'last_seen' => $authUser->last_seen ? $authUser->last_seen->toIso8601String() : null,
         ],
         'category' => $category,

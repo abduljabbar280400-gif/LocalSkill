@@ -35,6 +35,7 @@ class FreelancerProfile extends Model
         'landmark',
         'languages',
         'profile_approved',
+        'profile_approved_at',
     ];
 
     protected $casts = [
@@ -43,6 +44,7 @@ class FreelancerProfile extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'languages' => 'array',
+        'profile_approved_at' => 'datetime',
     ];
 
     public function user()

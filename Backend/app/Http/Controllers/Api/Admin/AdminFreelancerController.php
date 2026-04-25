@@ -51,4 +51,17 @@ public function reject($id)
         'message' => 'Freelancer rejected successfully'
     ]);
 }
+public function unverify($id)
+{
+    $profile = FreelancerProfile::findOrFail($id);
+
+    $profile->update([
+        'profile_approved' => false,
+        'profile_approved_at' => null,
+    ]);
+
+    return response()->json([
+        'message' => 'Freelancer unverified successfully'
+    ]);
+}
 }

@@ -533,15 +533,24 @@ export default function EditProfilePage() {
                   <option value="both">Both</option>
                 </select>
 
-                <select
-                  name="profile_visibility"
-                  value={form.profile_visibility}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  <option value="visible">Public</option>
-                  <option value="hidden">Private</option>
-                </select>
+                <div className="space-y-2">
+                  <select
+                    name="profile_visibility"
+                    value={form.profile_visibility}
+                    onChange={handleChange}
+                    disabled={user?.is_suspended}
+                    className={`input ${user?.is_suspended ? "bg-gray-50 dark:bg-slate-800/50 cursor-not-allowed opacity-75" : ""}`}
+                  >
+                    <option value="visible">Public</option>
+                    <option value="hidden">Private</option>
+                  </select>
+                  {user?.is_suspended && (
+                    <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                      Visibility Locked by Administration
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -71,11 +71,14 @@ function PageLoader() {
 }
 
 function App() {
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith("/admin") || location.pathname.startsWith("/cc/inter/admin");
+
   return (
     <>
       <OnlineTracker />
       <div className="min-h-screen flex flex-col">
-        <Header />
+        {!isAdminPath && <Header />}
         <ToastContainer
           position="bottom-right"
           autoClose={3000}
@@ -277,7 +280,7 @@ function App() {
             </Routes>
           </React.Suspense>
         </main>
-        <Footer />
+        {!isAdminPath && <Footer />}
       </div>
     </>
   );
