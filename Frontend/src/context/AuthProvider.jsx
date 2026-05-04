@@ -2,7 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import api from "../services/api";
 import AuthContext from "./authContext";
-import { resetEcho } from "../utils/echo";
+
+// Lazy-load echo to keep pusher-js (~100KB) off the critical path
+const lazyResetEcho = () => import("../utils/echo").then((m) => m.resetEcho());
 
 export default function AuthProvider({ children }) {
   const storedUser  = localStorage.getItem("freelancer_user");
@@ -30,7 +32,7 @@ export default function AuthProvider({ children }) {
     setUser(null);
     setToken(null);
     // Reconnect Echo with no token so stale auth is dropped
-    resetEcho();
+    lazyResetEcho();
   };
 
   const logout = useCallback(async () => {
@@ -80,7 +82,7 @@ export default function AuthProvider({ children }) {
       api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
       // Re-create Echo so WebSocket auth uses the new token
-      resetEcho();
+      lazyResetEcho();
 
       const userData = await fetchMe();
       return { userData };
@@ -102,7 +104,7 @@ export default function AuthProvider({ children }) {
       api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
 
       // Re-create Echo so WebSocket auth uses the new token
-      resetEcho();
+      lazyResetEcho();
 
       const userData = await fetchMe();
       return userData;

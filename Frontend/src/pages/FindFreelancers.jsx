@@ -4,7 +4,7 @@ import FreelancerList from "../components/profile/freelancer/FreelancerList";
 import FreelancerFilters from "../components/profile/freelancer/FreelancerFilters";
 import SelectedFilters from "../components/profile/freelancer/SelectedFilters";
 import SearchBar from "../components/SearchBar";
-import heroImage from "../assets/image/Freelancer-Hero.jpg";
+import heroImage from "../assets/image/Freelancer-Hero.webp";
 
 import { FiSliders, FiX } from "react-icons/fi";
 

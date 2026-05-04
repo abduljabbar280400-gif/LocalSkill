@@ -5,8 +5,10 @@ import AuthProvider from "./context/AuthProvider";
 import ClientAuthProvider from "./context/client/ClientAuthProvider";
 import ThemeProvider from "./context/ThemeProvider";
 import App from "./App";
-import "leaflet/dist/leaflet.css";
-import "./utils/leafletIconFix";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/outfit/600.css";
+import "@fontsource/outfit/700.css";
 import "./styles.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -109,17 +109,18 @@ export default function NearbyFreelancers() {
   };
 
   return (
-    <section className="py-16 bg-white dark:bg-slate-800 border-t">
+    <section className="py-16 bg-white dark:bg-slate-800 border-t" aria-labelledby="nearby-freelancers-heading">
       <div className="max-w-6xl mx-auto px-6">
         {/* HEADER */}
         <div className="mb-8">
-          <h2 className="text-3xl font-semibold">
+          <h2 id="nearby-freelancers-heading" className="text-3xl font-semibold">
             Freelancers Near {city || "You"}
           </h2>
 
           <div className="flex items-center gap-3 mt-3">
-            <span className="text-sm text-gray-500 dark:text-slate-400">Radius:</span>
+            <label htmlFor="radius-select" className="text-sm text-gray-500 dark:text-slate-400">Radius:</label>
             <select
+              id="radius-select"
               value={radius}
               onChange={(e) => setRadius(Number(e.target.value))}
               className="bg-gray-100 dark:bg-slate-800 rounded px-3 py-1"
@@ -132,8 +133,8 @@ export default function NearbyFreelancers() {
         </div>
 
         {/* STATES */}
-        {loading && <p> Loading... </p>}
-        {!loading && freelancers.length === 0 && <p>No freelancers found</p>}
+        {loading && <p role="status"> Loading... </p>}
+        {!loading && freelancers.length === 0 && <p>No freelancers found nearby.</p>}
 
         {/* LIST */}
         {/* <div className="grid md:grid-cols-3 gap-6">

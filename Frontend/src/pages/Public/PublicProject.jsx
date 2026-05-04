@@ -10,7 +10,7 @@ import { FaBriefcase } from "react-icons/fa";
 
 import { FiSearch } from "react-icons/fi";
 
-import herobanner from "../../assets/image/top-laptop-comp.jpg";
+import herobanner from "../../assets/image/top-laptop-comp.webp";
 
 import ProjectCard from "../../components/ProjectCard";
 import useSavedProjects from "../../hooks/useSavedProjects";

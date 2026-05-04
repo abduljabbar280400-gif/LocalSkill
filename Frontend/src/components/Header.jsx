@@ -187,10 +187,10 @@ export default function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-[5000] transition-all duration-300 ${
+        className={`sticky top-0 z-[5000] transition-shadow duration-300 ${
           scrolled
-            ? "backdrop-blur-xl bg-white/70 dark:bg-slate-900/80 border-b border-white/30 dark:border-slate-700/50 shadow-md py-2"
-            : "backdrop-blur-md bg-white/40 dark:bg-slate-900/60 py-3"
+            ? "bg-white dark:bg-slate-900 md:backdrop-blur-xl md:bg-white/70 md:dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700/50 shadow-md py-2"
+            : "bg-white dark:bg-slate-900 md:backdrop-blur-md md:bg-white/40 md:dark:bg-slate-900/60 py-2"
         }`}
         role="banner"
       >

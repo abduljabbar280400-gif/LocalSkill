@@ -24,8 +24,14 @@ export default defineConfig({
           // Routing
           'vendor-router': ['react-router-dom'],
 
-          // UI / icon libraries
-          'vendor-ui': ['react-icons', 'react-toastify', 'framer-motion'],
+          // Icon library (tree-shaken, lightweight)
+          'vendor-icons': ['react-icons'],
+
+          // Animation library (heavy, only for pages that need it)
+          'vendor-motion': ['framer-motion'],
+
+          // Toast notifications
+          'vendor-toast': ['react-toastify'],
 
           // Chart library (heavy, page-specific)
           'vendor-charts': ['recharts'],
@@ -35,6 +41,9 @@ export default defineConfig({
 
           // HTTP client
           'vendor-axios': ['axios'],
+
+          // Realtime (heavy, only needed for authenticated users)
+          'vendor-realtime': ['pusher-js', 'laravel-echo'],
         },
       },
     },

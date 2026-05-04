@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 import ClientAuthContext from "./clientAuthContext";
-import { resetEcho } from "../../utils/echo";
+
+// Lazy-load echo to keep pusher-js (~100KB) off the critical path
+const lazyResetEcho = () => import("../../utils/echo").then((m) => m.resetEcho());
 
 export default function ClientAuthProvider({ children }) {
   const storedUser       = localStorage.getItem("client_user");
@@ -38,7 +40,7 @@ export default function ClientAuthProvider({ children }) {
     setIsProfileCompleted(false);
     setToken(null);
     // Reconnect Echo without the old token
-    resetEcho();
+    lazyResetEcho();
   };
 
   // ── Logout ───────────────────────────────────────────────────────────────
@@ -92,7 +94,7 @@ export default function ClientAuthProvider({ children }) {
     setToken(accessToken);
 
     // Re-create Echo so WebSocket auth uses the new token
-    resetEcho();
+    lazyResetEcho();
 
     const meResponse                                   = await api.get("/hire-freelancer/me");
     const { user, profile, is_profile_completed }      = meResponse.data;
@@ -118,7 +120,7 @@ export default function ClientAuthProvider({ children }) {
       setToken(accessToken);
 
       // Re-create Echo so WebSocket auth uses the new token
-      resetEcho();
+      lazyResetEcho();
 
       const user = response.data.user;
       localStorage.setItem("client_user", JSON.stringify(user));

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import "leaflet/dist/leaflet.css";
+import "../../../utils/leafletIconFix";
 import {
   MapContainer,
   TileLayer,

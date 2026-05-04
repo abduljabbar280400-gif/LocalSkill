@@ -3,64 +3,52 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
+import { lazy, Suspense } from "react";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ClientProtectedRoute from "./routes/ClientProtectedRoute";
-
-import Home from "./pages/Home";
-import HireFreelancer from "./pages/HireFreelancer";
-import HireFreelancerLogin from "./pages/hire-freelancer/Login";
-import HireFreelancerSignup from "./pages/hire-freelancer/Signup";
-
-import FreelancerIntro from "./pages/Freelancer";
-import FreelancerLogin from "./pages/freelancer/Login";
-import FreelancerSignup from "./pages/freelancer/Signup";
-import FreelancerDashboard from "./pages/freelancer/Dashboard";
-
-// import Profile from "./pages/freelancer/FreelancerProfile";
-// import FreelancerPublicPage from "./pages/freelancer/Profile";
-
-import Profile from "./pages/freelancer/Profile";
-import FreelancerPublicPage from "./pages/freelancer/FreelancerProfile";
-
-import EditProfilePage from "./pages/freelancer/EditProfilePage";
-
-// import ProfileSection from "./components/profile/freelancer/ProfileSection";
-
-import NotFound from "./pages/NotFound";
-
-import ClientDashboard from "./pages/hire-freelancer/Dashboard";
-import ClientProfile from "./pages/hire-freelancer/Profile";
-import Projects from "./pages/hire-freelancer/Projects";
-
-import PublicProject from "./pages/Public/PublicProject";
-import ProjectDetail from "./pages/Public/ProjectDetails";
-
-import PrepareContract from "./pages/hire-freelancer/PrepareContract";
-import ContractDetails from "./pages/hire-freelancer/ContractDetails";
-
-import FreelancerContracts from "./pages/freelancer/Contracts";
-import MyProjects from "./pages/freelancer/MyProjects";
-
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import AdminProtectedRoute from "./routes/AdminProtectedRoute";
 import OnlineTracker from "./utils/OnlineTracker";
 
-import NotificationPage from "./pages/NotificationPage";
+// Lazy-load toast to keep it off the critical render path
+const LazyToastContainer = lazy(() =>
+  import("react-toastify").then((mod) => {
+    // Dynamically import the CSS when the component loads
+    import("react-toastify/dist/ReactToastify.css");
+    return { default: mod.ToastContainer };
+  })
+);
 
-import FindFreelancers from "./pages/FindFreelancers";
-
-import SavedFreelancers from "./pages/hire-freelancer/SavedFreelancers";
-import SavedProjects from "./pages/freelancer/SavedProjects";
-
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminProtectedRoute from "./routes/AdminProtectedRoute";
-
-// import ClientPaymentPage from "./pages/hire-freelancer/ClientPaymentPage";
-import Messages from "./pages/Messages";
-import PaymentPage from "./pages/PaymentPage";
-import Earnings from "./pages/freelancer/Earnings";
+// Lazy-loaded routes for performance code-splitting
+const Home = lazy(() => import("./pages/Home"));
+const HireFreelancer = lazy(() => import("./pages/HireFreelancer"));
+const HireFreelancerLogin = lazy(() => import("./pages/hire-freelancer/Login"));
+const HireFreelancerSignup = lazy(() => import("./pages/hire-freelancer/Signup"));
+const FreelancerIntro = lazy(() => import("./pages/Freelancer"));
+const FreelancerLogin = lazy(() => import("./pages/freelancer/Login"));
+const FreelancerSignup = lazy(() => import("./pages/freelancer/Signup"));
+const FreelancerDashboard = lazy(() => import("./pages/freelancer/Dashboard"));
+const Profile = lazy(() => import("./pages/freelancer/Profile"));
+const FreelancerPublicPage = lazy(() => import("./pages/freelancer/FreelancerProfile"));
+const EditProfilePage = lazy(() => import("./pages/freelancer/EditProfilePage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ClientDashboard = lazy(() => import("./pages/hire-freelancer/Dashboard"));
+const ClientProfile = lazy(() => import("./pages/hire-freelancer/Profile"));
+const Projects = lazy(() => import("./pages/hire-freelancer/Projects"));
+const PublicProject = lazy(() => import("./pages/Public/PublicProject"));
+const ProjectDetail = lazy(() => import("./pages/Public/ProjectDetails"));
+const PrepareContract = lazy(() => import("./pages/hire-freelancer/PrepareContract"));
+const ContractDetails = lazy(() => import("./pages/hire-freelancer/ContractDetails"));
+const FreelancerContracts = lazy(() => import("./pages/freelancer/Contracts"));
+const MyProjects = lazy(() => import("./pages/freelancer/MyProjects"));
+const NotificationPage = lazy(() => import("./pages/NotificationPage"));
+const FindFreelancers = lazy(() => import("./pages/FindFreelancers"));
+const SavedFreelancers = lazy(() => import("./pages/hire-freelancer/SavedFreelancers"));
+const SavedProjects = lazy(() => import("./pages/freelancer/SavedProjects"));
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const Messages = lazy(() => import("./pages/Messages"));
+const PaymentPage = lazy(() => import("./pages/PaymentPage"));
+const Earnings = lazy(() => import("./pages/freelancer/Earnings"));
 
 function PageLoader() {
   return (
@@ -79,16 +67,18 @@ function App() {
       <OnlineTracker />
       <div className="min-h-screen flex flex-col">
         {!isAdminPath && <Header />}
-        <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          pauseOnHover
-          theme="colored"
-        />
-        <main className="flex-grow">
+        <Suspense fallback={null}>
+          <LazyToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            pauseOnHover
+            theme="colored"
+          />
+        </Suspense>
+        <main id="main-content" className="flex-grow">
           <React.Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/not-found" element={<NotFound />} />

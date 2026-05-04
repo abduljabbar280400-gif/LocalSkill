@@ -74,13 +74,9 @@ export default function Projects() {
       try {
         setLoading(true);
 
-        console.log("👤 Fetching projects for:", username);
-
         const res = await api.get(
           `/hire-freelancer/${username}/projects?page=${page}`,
         );
-
-        console.log("🔥 API Response:", res.data);
 
         // Sorted latest first (extra safety)
         const sorted = [...res.data.data].sort(
@@ -399,7 +395,7 @@ export default function Projects() {
           </div>
 
           <div
-            className="dashboard-panel backdrop-blur-xl bg-gradient-to-br from-white/60 via-blue-50/40 to-green-50/40 border border-white/30 dark:border-slate-700/30 shadow-xl rounded-2xl"
+            className="dashboard-panel backdrop-blur-xl bg-gradient-to-br from-white/60 via-blue-50/40 to-green-50/40 dark:from-slate-800/60 dark:via-slate-900/40 dark:to-slate-800/40 border border-white/30 dark:border-slate-700/30 shadow-xl rounded-2xl"
             style={{ overflowX: "auto" }}
           >
             {projects.length === 0 ? (

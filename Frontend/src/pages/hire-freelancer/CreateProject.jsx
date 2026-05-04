@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
+import { toast } from "react-toastify";
 import api from "../../services/api";
 import LocationPicker from "../../components/profile/freelancer/LocationPicker";
 
 import { useClientAuth } from "../../context/client/useClientAuth";
+import { useTheme } from "../../context/useTheme";
 
 export default function ProjectModal({
   showModal,
@@ -26,8 +28,52 @@ export default function ProjectModal({
   const [profileLocation, setProfileLocation] = useState(null);
 
   const { user } = useClientAuth();
+  const { isDark } = useTheme();
 
-  console.log("USERNAME:", user.username);
+  // Custom styles for react-select in dark mode
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      backgroundColor: isDark ? "var(--input-bg)" : "white",
+      borderColor: isDark ? "var(--input-border)" : "#d1d5db",
+      borderRadius: "12px",
+      padding: "2px",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: isDark ? "var(--input-border)" : "#d1d5db",
+      },
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: isDark ? "var(--bg-card)" : "white",
+      borderRadius: "12px",
+      overflow: "hidden",
+    }),
+    option: (base, { isFocused, isSelected }) => ({
+      ...base,
+      backgroundColor: isSelected
+        ? "#3b82f6"
+        : isFocused
+        ? isDark
+          ? "#334155"
+          : "#f3f4f6"
+        : "transparent",
+      color: isSelected ? "white" : isDark ? "var(--text-primary)" : "#111827",
+      cursor: "pointer",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: isDark ? "var(--text-primary)" : "#111827",
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: isDark ? "var(--text-muted)" : "#9ca3af",
+    }),
+    input: (base) => ({
+      ...base,
+      color: isDark ? "var(--text-primary)" : "#111827",
+    }),
+  };
 
   useEffect(() => {
     if (showModal) {
@@ -46,11 +92,7 @@ export default function ProjectModal({
       try {
         if (!user?.username) return;
 
-        console.log("👤 USER:", user.username);
-
         const res = await api.get(`/hire-freelancer/${user.username}/profile`);
-
-        console.log("✅ PROFILE RESPONSE:", res.data);
 
         const profile = res.data?.profile;
 
@@ -196,6 +238,7 @@ export default function ProjectModal({
                 }
               }}
               placeholder="Search & select category"
+              styles={selectStyles}
             />
 
             {errors?.category_id && (
@@ -350,8 +393,6 @@ export default function ProjectModal({
               <option value="">Select budget type</option>
               <option value="fixed">Fixed</option>
               <option value="hourly">Hourly</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
             </select>
 
             {errors?.budget_type && (
@@ -587,7 +628,7 @@ export default function ProjectModal({
             className="btn btn-primary"
             onClick={() => {
               if (!formData.latitude || !formData.longitude) {
-                alert("Please select a location on map");
+                toast.error("Please select a location on map");
                 return;
               }
 
@@ -596,7 +637,6 @@ export default function ProjectModal({
                 location_type:
                   formData.location_type === "profile" ? "profile" : "custom",
               };
-              console.log("🚀 FINAL SUBMIT DATA:", formData);
               // if (!latitude || !longitude) {
               //   alert("Please select a location on map");
               //   return;
