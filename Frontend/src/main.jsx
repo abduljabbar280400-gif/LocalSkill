@@ -5,6 +5,7 @@ import AuthProvider from "./context/AuthProvider";
 import ClientAuthProvider from "./context/client/ClientAuthProvider";
 import ThemeProvider from "./context/ThemeProvider";
 import App from "./App";
+import { NotificationProvider } from "./context/NotificationContext";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/700.css";
 import "@fontsource/outfit/600.css";
@@ -16,7 +17,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ThemeProvider>
       <AuthProvider>
         <ClientAuthProvider>
-          <App />
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
         </ClientAuthProvider>
       </AuthProvider>
     </ThemeProvider>

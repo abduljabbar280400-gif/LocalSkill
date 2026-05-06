@@ -42,8 +42,8 @@ function StatusIcon({ msg }) {
 /* ─────────────────────────────────────────────────────────────────────────────
    ChatBox Component (Production-Ready WebSockets & Pagination)
    ───────────────────────────────────────────────────────────────────────── */
-export default function ChatBox({ contractId }) {
-  const currentUserId = useRef(getCurrentUserId()).current;
+export default function ChatBox({ contractId, currentUserId: propUserId }) {
+  const currentUserId = propUserId || getCurrentUserId();
 
   // States
   const [conversationId, setConversationId] = useState(null);
@@ -140,24 +140,31 @@ export default function ChatBox({ contractId }) {
       .listen(".message.sent", (e) => {
         const newMsg = { ...e.message, id: Number(e.message.id) };
         setMessages(prev => {
-          if (prev.find(m => m.id === newMsg.id || (m.is_sending && m.message === newMsg.message))) {
-            return prev.map(m => (m.is_sending && m.message === newMsg.message) ? newMsg : m);
+          const alreadyExists = prev.find(m => 
+            m.id === newMsg.id || 
+            (m.is_sending && m.message === newMsg.message && Number(m.sender_id) === Number(newMsg.sender_id))
+          );
+
+          if (alreadyExists) {
+            return prev.map(m => (m.id === alreadyExists.id) ? newMsg : m);
           }
           return [...prev, newMsg];
         });
         
-        if (newMsg.sender_id !== currentUserId) {
+        if (Number(newMsg.sender_id) !== Number(currentUserId)) {
           api.post(`/conversations/${conversationId}/delivered`).catch(() => {});
         }
       })
       .listen(".message.delivered", (e) => {
-        setMessages(prev => prev.map(m => m.sender_id === currentUserId ? { ...m, is_delivered: true } : m));
+        setMessages(prev => prev.map(m => Number(m.sender_id) === Number(currentUserId) ? { ...m, is_delivered: true } : m));
       })
       .listen(".message.seen", (e) => {
-        setMessages(prev => prev.map(m => m.sender_id === currentUserId ? { ...m, is_seen: true, is_delivered: true } : m));
+        setMessages(prev => prev.map(m => Number(m.sender_id) === Number(currentUserId) ? { ...m, is_seen: true, is_delivered: true } : m));
       });
 
-    return () => echo.leave(`conversation.${conversationId}`);
+    return () => {
+      if (conversationId) echo.leave(`conversation.${conversationId}`);
+    };
   }, [conversationId, currentUserId]);
 
   useEffect(() => {
@@ -268,7 +275,7 @@ export default function ChatBox({ contractId }) {
             }`}
           />
         </div>
-        <div>
+        <div className="text-left">
           <h3 className="font-semibold text-base leading-tight">{chatName}</h3>
           <p className={`text-xs font-medium leading-tight transition-colors duration-300 ${
             isOnline === true ? "text-green-300" : isOnline === false ? "text-red-200" : "text-blue-100/70"
@@ -292,7 +299,7 @@ export default function ChatBox({ contractId }) {
         )}
 
         {messages.map((msg) => {
-          const isMine = msg.sender_id === currentUserId;
+          const isMine = Number(msg.sender_id) === Number(currentUserId);
           return (
             <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm shadow-sm ${

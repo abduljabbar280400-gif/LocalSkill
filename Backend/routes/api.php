@@ -142,6 +142,7 @@ Route::middleware(['auth:sanctum', 'user.active', 'role:client'])->group(functio
     Route::post('/hire-freelancer/{username}/contracts/{contractId}/complete',        [ContractController::class, 'complete']);
     Route::put('/hire-freelancer/{username}/contracts/{contractId}/rework',           [ContractController::class, 'rework']);
     Route::post('/hire-freelancer/{username}/contracts/{contract}/review',            [ReviewController::class, 'store']);
+    Route::get('/hire-freelancer/{username}/contracts',                               [ContractController::class, 'clientContracts']);
 
     // Payments
     Route::post('/hire-freelancer/{username}/contracts/{id}/payments', [PaymentController::class, 'store']);
@@ -248,6 +249,7 @@ Route::post('/chat/global-offline-beacon', [ChatController::class, 'setGlobalOff
 Route::middleware(['auth:sanctum', 'user.active', 'admin.secure'])
     ->prefix('control-center/internal')
     ->group(function () {
+        Route::post('/logout',                [AuthController::class,            'logout']);
         Route::get('/dashboard',              [AdminDashboardController::class,  'index']);
         Route::get('/users',                  [AdminUserController::class,       'index']);
         Route::patch('/users/{id}/suspend',   [AdminUserController::class,       'suspend']);

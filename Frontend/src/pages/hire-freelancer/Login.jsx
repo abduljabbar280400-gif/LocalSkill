@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useClientAuth } from "../../context/client/useClientAuth";
+import { FiEye, FiEyeOff, FiLock, FiMail } from "react-icons/fi";
 
 export default function ClientLogin() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function ClientLogin() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -57,32 +59,45 @@ export default function ClientLogin() {
                     <label className="form-label" htmlFor="email">
                       Email
                     </label>
-                    <input
-                      id="email"
-                      className="form-input"
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      required
-                      placeholder="you@example.com"
-                    />
+                    <div className="relative">
+                      <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        id="email"
+                        className="form-input !pl-10"
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                        placeholder="you@example.com"
+                      />
+                    </div>
                   </div>
 
                   <div className="form-field">
                     <label className="form-label" htmlFor="password">
                       Password
                     </label>
-                    <input
-                      id="password"
-                      className="form-input"
-                      type="password"
-                      name="password"
-                      value={form.password}
-                      onChange={handleChange}
-                      required
-                      placeholder="Enter your password"
-                    />
+                    <div className="relative">
+                      <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        id="password"
+                        className="form-input !pl-10"
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                        placeholder="Enter your password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-blue-500 transition-colors"
+                      >
+                        {showPassword ? <FiEyeOff /> : <FiEye />}
+                      </button>
+                    </div>
                   </div>
                 </div>
 

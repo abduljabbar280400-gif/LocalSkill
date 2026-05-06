@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import axios from "../../services/api";
 import { useClientAuth } from "../../context/client/useClientAuth";
 import LocationPicker from "../../components/profile/freelancer/LocationPicker";
@@ -14,6 +15,7 @@ export default function ClientProfile() {
     industry: "",
     company_size: "",
     description: "",
+    country: "",
     state: "",
     city: "",
     postcode: "",
@@ -23,14 +25,16 @@ export default function ClientProfile() {
 
   const [loading, setLoading] = useState(false);
   const [savingLocation, setSavingLocation] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const [selectedLat, setSelectedLat] = useState(null);
   const [selectedLng, setSelectedLng] = useState(null);
   const [locationTouched, setLocationTouched] = useState(false);
 
   const [previousPostcode, setPreviousPostcode] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   /* ------------------ PREFILL PROFILE ------------------ */
   useEffect(() => {
@@ -42,6 +46,7 @@ export default function ClientProfile() {
       industry: profile.industry || "",
       company_size: profile.company_size || "",
       description: profile.description || "",
+      country: profile.country || "",
       state: profile.state || "",
       city: profile.city || "",
       postcode: profile.postcode || "",
@@ -57,12 +62,33 @@ export default function ClientProfile() {
     setPreviousPostcode(profile.postcode || "");
   }, [profile]);
 
-  /* ------------------ AUTO CLEAR SUCCESS ------------------ */
-  useEffect(() => {
-    if (!success) return;
-    const timer = setTimeout(() => setSuccess(""), 4000);
-    return () => clearTimeout(timer);
-  }, [success]);
+
+
+  /* ------------------ VALIDATION ------------------ */
+  const validateField = (name, value) => {
+    const requiredFields = [
+      "company_name",
+      "industry",
+      "company_size",
+      "description",
+      "country",
+      "state",
+      "city",
+    ];
+    if (requiredFields.includes(name) && (!value || String(value).trim() === "")) {
+      return "This field is required";
+    }
+    if (name === "company_website" && value && !/^https?:\/\/.+/.test(value)) {
+      return "Must be a valid URL starting with http:// or https://";
+    }
+    return "";
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setFieldErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+  };
 
   /* ------------------ HANDLE INPUT CHANGE ------------------ */
   const handleChange = (e) => {
@@ -72,14 +98,33 @@ export default function ClientProfile() {
       ...prev,
       [name]: value,
     }));
+
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   /* ------------------ SAVE PROFILE ------------------ */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
+    setFieldErrors({});
+
+    const newErrors = {};
+    Object.keys(formData).forEach((key) => {
+      const err = validateField(key, formData[key]);
+      if (err) newErrors[key] = err;
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
+      setTouched(
+        Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}),
+      );
+      toast.error("Please fill in all required fields correctly.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const postcodeChanged = formData.postcode !== previousPostcode;
@@ -94,21 +139,16 @@ export default function ClientProfile() {
       await axios.put(
         `/hire-freelancer/${username}/profile`,
         payload,
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //     Accept: "application/json",
-        //   },
-        // },
       );
 
       await refreshUser();
 
-      setSuccess("Profile saved successfully!");
+      toast.success("Profile saved successfully!");
 
       if (postcodeChanged) {
-        alert(
-          'Your postcode has been updated. Please choose your company location on the map and click "Confirm location". This step is required after changing postcode.',
+        toast.info(
+          "Your postcode has been updated. Please confirm your location on the map.",
+          { autoClose: 6000 },
         );
 
         // 🔥 Clear local state too
@@ -119,7 +159,22 @@ export default function ClientProfile() {
       }
     } catch (err) {
       console.error(err);
-      setError("Failed to save profile.");
+      if (err.response?.status === 422 && err.response?.data?.errors) {
+        const backendErrors = {};
+        for (const [key, messages] of Object.entries(err.response.data.errors)) {
+          backendErrors[key] = messages[0];
+        }
+        setFieldErrors(backendErrors);
+        setTouched(
+          Object.keys(backendErrors).reduce(
+            (acc, key) => ({ ...acc, [key]: true }),
+            {},
+          ),
+        );
+        toast.error("Validation failed. Please check the highlighted fields.");
+      } else {
+        toast.error(err.response?.data?.message || "Failed to save profile.");
+      }
     } finally {
       setLoading(false);
     }
@@ -127,39 +182,24 @@ export default function ClientProfile() {
 
   /* ------------------ DELETE ACCOUNT ------------------ */
   const handleDelete = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone.",
-      )
-    ) {
-      return;
-    }
-
     try {
       setLoading(true);
 
-      await axios.delete(
-        `/hire-freelancer/${username}`,
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //     Accept: "application/json",
-        //   },
-        // },
-      );
+      await axios.delete(`/hire-freelancer/${username}`);
 
-      alert("Your account has been deleted.");
+      toast.success("Your account has been deleted.");
       logout();
     } catch (err) {
       console.error(err);
-      setError("Failed to delete account.");
+      toast.error("Failed to delete account.");
     } finally {
       setLoading(false);
+      setShowDeleteModal(false);
     }
   };
 
   /* ------------------ MAP LOCATION SELECT ------------------ */
-  const handleLocationSelect = (lat, lng) => {
+  const handleLocationSelect = (lat, lng, addressData) => {
     setSelectedLat(lat);
     setSelectedLng(lng);
     setLocationTouched(true);
@@ -169,41 +209,47 @@ export default function ClientProfile() {
       ...prev,
       latitude: lat,
       longitude: lng,
+      ...(addressData
+        ? {
+            postcode: addressData.postcode || prev.postcode,
+            country: addressData.country || prev.country,
+            city: addressData.city || prev.city,
+            state: addressData.state || prev.state,
+          }
+        : {}),
     }));
+
+    if (addressData?.postcode) {
+      setPreviousPostcode(addressData.postcode);
+    }
   };
 
   /* ------------------ CONFIRM LOCATION SAVE ------------------ */
   const handleConfirmLocation = async () => {
     console.log("Selected location:", selectedLat, selectedLng);
     if (selectedLat === null || selectedLng === null) {
-      alert("Please select your location on the map first.");
+      toast.warn("Please select your location on the map first.");
       return;
     }
 
     try {
       setSavingLocation(true);
 
-      await axios.put(
-        `/hire-freelancer/${username}/profile`,
-        {
-          latitude: selectedLat,
-          longitude: selectedLng,
-        },
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //     Accept: "application/json",
-        //   },
-        // },
-      );
+      await axios.put(`/hire-freelancer/${username}/profile`, {
+        latitude: selectedLat,
+        longitude: selectedLng,
+        state: formData.state,
+        city: formData.city,
+        postcode: formData.postcode,
+      });
 
       await refreshUser(); // 🔥 IMPORTANT
 
       setLocationTouched(false);
-      alert("Location saved successfully.");
+      toast.success("Location saved successfully.");
     } catch (error) {
       console.error(error);
-      alert("Failed to save location.");
+      toast.error("Failed to save location.");
     } finally {
       setSavingLocation(false);
     }
@@ -223,34 +269,8 @@ export default function ClientProfile() {
 
           <div className="dashboard-shell">
             <div className="dashboard-panel">
-              {(loading || savingLocation) && (
-                <div
-                  className="loading-page"
-                  style={{ minHeight: "auto", marginBottom: "0.75rem" }}
-                >
-                  <div className="loading-spinner" />
-                  <p className="loading-text">
-                    {savingLocation
-                      ? "Saving location..."
-                      : "Saving profile..."}
-                  </p>
-                </div>
-              )}
-              {error && <div className="form-error-banner">{error}</div>}
-              {success && (
-                <div
-                  className="form-error-banner"
-                  style={{
-                    borderColor: "#bbf7d0",
-                    background: "#dcfce7",
-                    color: "#166534",
-                  }}
-                >
-                  {success}
-                </div>
-              )}
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="form-grid">
                   <div className="form-field">
                     <label className="form-label" htmlFor="company_name">
@@ -258,14 +278,17 @@ export default function ClientProfile() {
                     </label>
                     <input
                       id="company_name"
-                      className="form-input"
+                      className={`form-input bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${touched.company_name && fieldErrors.company_name ? "form-input-error" : ""}`}
                       type="text"
                       name="company_name"
                       placeholder="Company name"
                       value={formData.company_name}
                       onChange={handleChange}
-                      required
+                      onBlur={handleBlur}
                     />
+                    {touched.company_name && fieldErrors.company_name && (
+                      <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.company_name}</p>
+                    )}
                   </div>
 
                   <div className="form-field">
@@ -274,14 +297,20 @@ export default function ClientProfile() {
                     </label>
                     <input
                       id="company_website"
-                      className="form-input"
+                      className={`form-input ${touched.company_website && fieldErrors.company_website ? "form-input-error" : ""}`}
                       type="text"
                       name="company_website"
                       placeholder="https://"
                       value={formData.company_website}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                     />
+                    {touched.company_website && fieldErrors.company_website && (
+                      <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.company_website}</p>
+                    )}
                   </div>
+
+
 
                   <div className="form-row-split">
                     <div className="form-field">
@@ -290,14 +319,17 @@ export default function ClientProfile() {
                       </label>
                       <input
                         id="industry"
-                        className="form-input"
+                        className={`form-input bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${touched.industry && fieldErrors.industry ? "form-input-error" : ""}`}
                         type="text"
                         name="industry"
                         placeholder="e.g. Software, Construction"
                         value={formData.industry}
                         onChange={handleChange}
-                        required
+                        onBlur={handleBlur}
                       />
+                      {touched.industry && fieldErrors.industry && (
+                        <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.industry}</p>
+                      )}
                     </div>
 
                     <div className="form-field">
@@ -306,14 +338,17 @@ export default function ClientProfile() {
                       </label>
                       <input
                         id="company_size"
-                        className="form-input"
+                        className={`form-input bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${touched.company_size && fieldErrors.company_size ? "form-input-error" : ""}`}
                         type="text"
                         name="company_size"
                         placeholder="e.g. 10–50"
                         value={formData.company_size}
                         onChange={handleChange}
-                        required
+                        onBlur={handleBlur}
                       />
+                      {touched.company_size && fieldErrors.company_size && (
+                        <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.company_size}</p>
+                      )}
                     </div>
                   </div>
 
@@ -323,14 +358,36 @@ export default function ClientProfile() {
                     </label>
                     <textarea
                       id="description"
-                      className="form-input"
+                      className={`form-input ${touched.description && fieldErrors.description ? "form-input-error" : ""}`}
                       rows={3}
                       name="description"
                       placeholder="What does your company do?"
                       value={formData.description}
                       onChange={handleChange}
-                      required
+                      onBlur={handleBlur}
                     />
+                    {touched.description && fieldErrors.description && (
+                      <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.description}</p>
+                    )}
+                  </div>
+
+                  <div className="form-field">
+                    <label className="form-label" htmlFor="country">
+                      Country
+                    </label>
+                    <input
+                      id="country"
+                      className={`form-input bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${touched.country && fieldErrors.country ? "form-input-error" : ""}`}
+                      type="text"
+                      name="country"
+                      placeholder="Country"
+                      value={formData.country}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
+                    {touched.country && fieldErrors.country && (
+                      <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.country}</p>
+                    )}
                   </div>
 
                   <div className="form-row-split">
@@ -340,14 +397,17 @@ export default function ClientProfile() {
                       </label>
                       <input
                         id="state"
-                        className="form-input"
+                        className={`form-input ${touched.state && fieldErrors.state ? "form-input-error" : ""}`}
                         type="text"
                         name="state"
                         placeholder="State"
                         value={formData.state}
                         onChange={handleChange}
-                        required
+                        onBlur={handleBlur}
                       />
+                      {touched.state && fieldErrors.state && (
+                        <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.state}</p>
+                      )}
                     </div>
 
                     <div className="form-field">
@@ -356,14 +416,17 @@ export default function ClientProfile() {
                       </label>
                       <input
                         id="city"
-                        className="form-input"
+                        className={`form-input bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 ${touched.city && fieldErrors.city ? "form-input-error" : ""}`}
                         type="text"
                         name="city"
                         placeholder="City"
                         value={formData.city}
                         onChange={handleChange}
-                        required
+                        onBlur={handleBlur}
                       />
+                      {touched.city && fieldErrors.city && (
+                        <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.city}</p>
+                      )}
                     </div>
                   </div>
 
@@ -373,13 +436,17 @@ export default function ClientProfile() {
                     </label>
                     <input
                       id="postcode"
-                      className="form-input"
+                      className={`form-input ${touched.postcode && fieldErrors.postcode ? "form-input-error" : ""}`}
                       type="text"
                       name="postcode"
                       placeholder="Postcode"
                       value={formData.postcode}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                     />
+                    {touched.postcode && fieldErrors.postcode && (
+                      <p className="form-status form-status-error" style={{ marginTop: "0.25rem" }}>{fieldErrors.postcode}</p>
+                    )}
                     <p className="form-note">
                       Changing your postcode will require you to confirm a new
                       location on the map.
@@ -436,14 +503,15 @@ export default function ClientProfile() {
                   </p>
                 )}
 
-              <button
-                className="btn btn-outline"
-                style={{ marginTop: "0.75rem" }}
-                onClick={handleConfirmLocation}
-                disabled={!locationTouched || savingLocation}
-              >
-                {savingLocation ? "Saving..." : "Confirm location"}
-              </button>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+                <button
+                  className="btn btn-outline"
+                  onClick={handleConfirmLocation}
+                  disabled={!locationTouched || savingLocation}
+                >
+                  {savingLocation ? "Saving..." : "Confirm location"}
+                </button>
+              </div>
 
               <hr style={{ margin: "1.25rem 0", borderColor: "#e5e7eb" }} />
 
@@ -453,18 +521,73 @@ export default function ClientProfile() {
                 access.
               </p>
 
-              <button
-                type="button"
-                className="btn btn-danger"
-                style={{ marginTop: "0.7rem" }}
-                onClick={handleDelete}
-              >
-                Delete account
-              </button>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  Delete account
+                </button>
+              </div>
             </aside>
           </div>
         </div>
       </section>
+
+      {/* ──────────────── DELETE CONFIRMATION MODAL ──────────────── */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setShowDeleteModal(false)}
+          />
+          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-red-600 dark:text-red-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Delete Account?
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  This action is permanent and cannot be undone. All your data
+                  will be removed.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/20 transition-all active:scale-95 disabled:opacity-50"
+                onClick={handleDelete}
+                disabled={loading}
+              >
+                {loading ? "Deleting..." : "Delete Permanently"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

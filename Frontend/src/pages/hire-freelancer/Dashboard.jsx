@@ -22,49 +22,37 @@ export default function Dashboard() {
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
-    api
-      .get(`/hire-freelancer/${username}/dashboard`)
-      .then((res) => {
-        setData(res.data);
-      })
-      .catch((error) => {
-        console.log("Dashboard fetch error:", error);
-        logout();
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [username, logout]);
-
-  useEffect(() => {
-    const fetchContracts = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const res = await api.get(`/hire-freelancer/${username}/contracts`);
-        setContracts(res.data.contracts || []);
-      } catch (err) {
-        console.log("Contracts fetch error:", err);
+        // Parallel fetch all dashboard components
+        const [dashboardRes, contractsRes, extraRes] = await Promise.all([
+          api.get(`/hire-freelancer/${username}/dashboard`),
+          api.get(`/hire-freelancer/${username}/contracts`),
+          api.get(`/hire-freelancer/${username}/dashboard-extra`)
+        ]);
+
+        setData(dashboardRes.data);
+        setContracts(contractsRes.data.contracts || []);
+        setOngoingContracts(extraRes.data.ongoing || []);
+        setPendingPayments(extraRes.data.pending_payments || []);
+
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+        // If the main dashboard fails, it might be an auth issue
+        if (error.response?.status === 401) {
+          logout();
+        }
       } finally {
+        setLoading(false);
         setContractsLoading(false);
+        setExtraLoading(false);
       }
     };
 
-    fetchContracts();
-  }, [username]);
-
-  useEffect(() => {
-    fetchExtraData().finally(() => setExtraLoading(false));
-  }, [username]);
-
-  const fetchExtraData = async () => {
-    try {
-      const res = await api.get(`/hire-freelancer/${username}/dashboard-extra`);
-
-      setOngoingContracts(res.data.ongoing || []);
-      setPendingPayments(res.data.pending_payments || []);
-    } catch (err) {
-      console.log("Extra dashboard error:", err);
+    if (username) {
+      fetchDashboardData();
     }
-  };
+  }, [username, logout]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -128,30 +116,6 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <main className="app-main">
-        <section className="page">
-          <div className="container">
-            <div className="dashboard-panel">
-              <div className="loading-page">
-                <div className="loading-spinner" />
-                <p className="loading-text"> Loading... </p>
-                <div
-                  className="loading-skeleton-row"
-                  style={{ width: "100%", maxWidth: 360 }}
-                >
-                  <div className="loading-skeleton-strip" />
-                  <div className="loading-skeleton-strip" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
   return (
     <main className="app-main">
       <section className="page">
@@ -164,8 +128,23 @@ export default function Dashboard() {
             </p>
           </header>
 
-          {/* Top Panels */}
-          <div className="dashboard-shell">
+          {loading ? (
+            <div className="dashboard-panel mt-6">
+              <div className="loading-page py-12">
+                <div className="loading-spinner mb-4" />
+                <p className="loading-text"> Loading your workspace... </p>
+                <div
+                  className="loading-skeleton-row mt-4"
+                  style={{ width: "100%", maxWidth: 360 }}
+                >
+                  <div className="loading-skeleton-strip" />
+                  <div className="loading-skeleton-strip" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="dashboard-shell">
             <div className="dashboard-panel">
               <h2 className="dashboard-panel-title">Account overview</h2>
 
@@ -483,8 +462,10 @@ export default function Dashboard() {
               </div>
             )}
           </section>
-        </div>
-      </section>
+        </>
+      )}
+    </div>
+  </section>
       {/* ✅ Payment Modal */}
       {showPaymentModal && (
         <div

@@ -266,6 +266,18 @@ public function freelancerContracts(Request $request, $username)
         ->get();
 }
 
+public function clientContracts(Request $request, $username)
+{
+    $user = $request->user();
+
+    return response()->json([
+        'contracts' => Contract::with(['project', 'freelancer'])
+            ->where('client_id', $user->id)
+            ->latest()
+            ->get()
+    ]);
+}
+
 public function approveAndComplete(Request $request, $username, $id)
 {
     $contract = Contract::findOrFail($id);

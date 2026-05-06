@@ -43,12 +43,13 @@ export default function Projects() {
     latitude: null,
     longitude: null,
     deadline: "",
-    location_type: "profile",
+    location_type: "",
     status: "",
     skills: [],
   });
 
   const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [skillsList, setSkillsList] = useState([]);
   const [skillsLoading, setSkillsLoading] = useState(false);
 
@@ -116,17 +117,19 @@ export default function Projects() {
     if (username) fetchProjects();
   }, [fetchProjects, username]);
 
+  const fetchMeta = async () => {
+    try {
+      setCategoriesLoading(true);
+      const catRes = await api.get("/categories");
+      setCategories(catRes.data.data || []);
+    } catch (error) {
+      console.error("Meta fetch error:", error);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchMeta = async () => {
-      try {
-        const catRes = await api.get("/categories");
-
-        setCategories(catRes.data.data || []);
-      } catch (error) {
-        console.error("Meta fetch error:", error);
-      }
-    };
-
     fetchMeta();
   }, []);
 
@@ -385,7 +388,7 @@ export default function Projects() {
                   deadline: "",
                   status: "open",
                   skills: [],
-                  location_type: "profile",
+                  location_type: "",
                 });
                 setShowModal(true);
               }}
@@ -536,6 +539,8 @@ export default function Projects() {
             formData={formData}
             setFormData={setFormData}
             categories={categories}
+            categoriesLoading={categoriesLoading}
+            isEditing={!!editingProject}
             skillsList={skillsList}
             setSkillsList={setSkillsList}
             skillsLoading={skillsLoading}

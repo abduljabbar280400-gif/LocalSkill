@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import api from "../../services/api";
+import api, { getCsrfToken } from "../../services/api";
 import ClientAuthContext from "./clientAuthContext";
 
 // Lazy-load echo to keep pusher-js (~100KB) off the critical path
@@ -24,22 +24,19 @@ export default function ClientAuthProvider({ children }) {
     storedCompletion === "true",
   );
 
-  const [token,   setToken  ] = useState(localStorage.getItem("client_token"));
   const [loading, setLoading] = useState(true);
 
-  const isAuthenticated = !!token && !!user;
+  const isAuthenticated = !!user;
 
   // ── Clear all auth state ─────────────────────────────────────────────────
   const clearAuth = () => {
-    localStorage.removeItem("client_token");
     localStorage.removeItem("client_user");
     localStorage.removeItem("client_profile");
     localStorage.removeItem("client_profile_completed");
     setUser(null);
     setProfile(null);
     setIsProfileCompleted(false);
-    setToken(null);
-    // Reconnect Echo without the old token
+    // Reconnect Echo without the old session
     lazyResetEcho();
   };
 
@@ -78,22 +75,18 @@ export default function ClientAuthProvider({ children }) {
 
   // ── Bootstrap on mount ───────────────────────────────────────────────────
   useEffect(() => {
-    if (token) {
-      fetchMe().finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [token, fetchMe]);
+    // Check authentication on mount
+    fetchMe().finally(() => setLoading(false));
+  }, [fetchMe]);
 
   // ── Login ────────────────────────────────────────────────────────────────
   const login = async (credentials) => {
+    // 1. Get CSRF cookie first
+    await getCsrfToken();
+
     const response = await api.post("/hire-freelancer/login", credentials);
 
-    const accessToken = response.data.access_token;
-    localStorage.setItem("client_token", accessToken);
-    setToken(accessToken);
-
-    // Re-create Echo so WebSocket auth uses the new token
+    // Re-create Echo so WebSocket auth uses the new session
     lazyResetEcho();
 
     const meResponse                                   = await api.get("/hire-freelancer/me");
@@ -113,13 +106,12 @@ export default function ClientAuthProvider({ children }) {
   // ── Register ─────────────────────────────────────────────────────────────
   const register = async (data) => {
     try {
+      // 1. Get CSRF cookie first
+      await getCsrfToken();
+
       const response    = await api.post("/hire-freelancer/register", data);
-      const accessToken = response.data.access_token;
 
-      localStorage.setItem("client_token", accessToken);
-      setToken(accessToken);
-
-      // Re-create Echo so WebSocket auth uses the new token
+      // Re-create Echo so WebSocket auth uses the new session
       lazyResetEcho();
 
       const user = response.data.user;
@@ -135,7 +127,6 @@ export default function ClientAuthProvider({ children }) {
 
   // ── Refresh user/profile ─────────────────────────────────────────────────
   const refreshUser = async () => {
-    if (!token) return;
     try {
       const response                                = await api.get("/hire-freelancer/me");
       const { user, profile, is_profile_completed } = response.data;
@@ -159,7 +150,6 @@ export default function ClientAuthProvider({ children }) {
         user,
         profile,
         isProfileCompleted,
-        token,
         isAuthenticated,
         loading,
         login,

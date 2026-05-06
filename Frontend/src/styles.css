@@ -84,12 +84,18 @@ input, select, textarea,
    ───────────────────────────────────────────── */
 .form-input, .form-select {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--input-border);
   border-radius: 12px;
   padding: 10px 12px;
   outline: none;
   background: var(--input-bg);
   color: var(--text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-input-phone input {
@@ -307,10 +313,10 @@ input, select, textarea,
 }
 
 .dashboard-panel {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 1rem;
   padding: 1.25rem 1.4rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
 }
 
 .dashboard-panel-title {
@@ -411,6 +417,23 @@ input, select, textarea,
 
 .form-status-error {
   color: #b91c1c;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.dark .form-status-error {
+  color: #f87171;
+}
+
+.form-input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444 !important;
+}
+
+.dark .form-input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444, 0 0 4px rgba(239, 68, 68, 0.3) !important;
+  background-color: rgba(239, 68, 68, 0.05);
 }
 
 .form-status-neutral {
@@ -425,6 +448,12 @@ input, select, textarea,
   background: #fee2e2;
   color: #b91c1c;
   font-size: 0.85rem;
+}
+
+.dark .form-error-banner {
+  border-color: rgba(185, 28, 28, 0.5);
+  background: rgba(127, 29, 29, 0.2);
+  color: #fca5a5;
 }
 
 .form-actions {
@@ -678,7 +707,7 @@ input, select, textarea,
 .project-title {
   font-size: 18px;
   margin-bottom: 10px;
-  text-align: center;
+  text-align: left;
 }
 
 .project-title a {

@@ -28,10 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-        // API middleware stack
-        $middleware->group('api', [
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        ]);
+        $middleware->statefulApi();
 
         // Named middleware aliases
         $middleware->alias([

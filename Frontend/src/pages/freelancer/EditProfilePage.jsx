@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../services/api";
+import { toast } from "react-toastify";
 
 import { useAuth } from "../../context/useAuth";
 
@@ -24,6 +25,7 @@ export default function EditProfilePage() {
   const [savingLocation, setSavingLocation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
@@ -115,7 +117,7 @@ export default function EditProfilePage() {
         previousPostcodeRef.current = profileData.postcode;
       } catch (err) {
         console.error(err);
-        alert("Failed to load profile");
+        toast.error("Failed to load profile.");
       } finally {
         setLoading(false);
       }
@@ -137,15 +139,26 @@ export default function EditProfilePage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLocationSelect = (lat, lng) => {
+  const handleLocationSelect = (lat, lng, addressData) => {
     setSelectedLat(lat);
     setSelectedLng(lng);
     setLocationTouched(true);
+
+    if (addressData) {
+      setForm((prev) => ({
+        ...prev,
+        city: addressData.city || prev.city,
+        postcode: addressData.postcode || prev.postcode,
+        state: addressData.state || prev.state,
+        latitude: lat,
+        longitude: lng,
+      }));
+    }
   };
 
   const handleConfirmLocation = async () => {
     if (!selectedLat || !selectedLng) {
-      alert("Please select location first.");
+      toast.warn("Please select location on the map first.");
       return;
     }
 
@@ -155,14 +168,17 @@ export default function EditProfilePage() {
       const res = await api.put(`/freelancer/${username}/edit-profile`, {
         latitude: selectedLat,
         longitude: selectedLng,
+        city: form.city,
+        postcode: form.postcode,
+        state: form.state,
       });
 
       setProfile(res.data.profile);
       setLocationTouched(false);
-      alert("Location saved successfully.");
+      toast.success("Location saved successfully.");
     } catch (err) {
       console.log(err);
-      alert("Failed to save location.");
+      toast.error("Failed to save location.");
     } finally {
       setSavingLocation(false);
     }
@@ -177,37 +193,33 @@ export default function EditProfilePage() {
       setProfile(res.data.profile);
       setProgress(res.data.completion);
       setMissingFields(res.data.missing_fields);
-      alert("Profile updated successfully");
+      toast.success("Profile updated successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to save profile.");
+      toast.error("Failed to save profile.");
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete your account? This action can be restored later but you will be logged out.",
-    );
-
-    if (!confirmDelete) return;
     setIsDeleting(true);
 
     try {
       await api.delete(`/freelancer/${username}`);
 
-      alert("Account deleted successfully. You will be logged out.");
+      toast.success("Account deleted successfully.");
 
       await logout();
       window.location.href = "/freelancer/login";
     } catch (error) {
       console.error(error);
-      alert(
-        error.response?.data?.message ||
-          "Failed to delete account. Please try again.",
+      toast.error(
+        error.response?.data?.message || "Failed to delete account.",
       );
       setIsDeleting(false);
+    } finally {
+      setShowDeleteModal(false);
     }
   };
 
@@ -608,14 +620,68 @@ export default function EditProfilePage() {
           <hr className="my-6" />
 
           <button
-            onClick={handleDeleteAccount}
-            disabled={isDeleting}
-            className="w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 transition disabled:opacity-50"
+            type="button"
+            className="px-6 py-2 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 font-medium rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+            onClick={() => setShowDeleteModal(true)}
           >
-            {isDeleting ? "Deleting..." : "Delete account"}
+            Delete Account
           </button>
         </div>
       </div>
+
+      {/* ──────────────── DELETE CONFIRMATION MODAL ──────────────── */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setShowDeleteModal(false)}
+          />
+          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-red-600 dark:text-red-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Delete Account?
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  This action is permanent and cannot be undone. All your data
+                  will be removed.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg shadow-red-600/20 transition-all active:scale-95 disabled:opacity-50"
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Permanently"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

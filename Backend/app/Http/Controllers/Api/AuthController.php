@@ -47,19 +47,24 @@ class AuthController extends Controller
             ]);
         }
 
-        if (! Hash::check($request->password, $user->password)) {
+        if (! \Illuminate\Support\Facades\Auth::attempt($request->only('email', 'password'))) {
             throw ValidationException::withMessages([
                 'email' => ['Invalid credentials'],
             ]);
         }
 
+        $request->session()->regenerate();
+        $user = \Illuminate\Support\Facades\Auth::user();
+
         if ($user->is_suspended) {
+            \Illuminate\Support\Facades\Auth::logout();
             return response()->json([
                 'message' => 'Account suspended: ' . ($user->suspended_reason ?? 'Contact support'),
             ], 403);
         }
 
         if (! $user->is_active) {
+            \Illuminate\Support\Facades\Auth::logout();
             return response()->json(['message' => 'Account is inactive'], 403);
         }
 
@@ -69,11 +74,7 @@ class AuthController extends Controller
 
         broadcast(new UserOnlineStatus($user->id, true, $user->last_seen));
 
-        $token = $user->createToken('api-token')->plainTextToken;
-
         return response()->json([
-            'access_token' => $token,
-            'token_type'   => 'Bearer',
             'user' => [
                 'id'       => $user->id,
                 'username' => $user->username,
@@ -176,12 +177,11 @@ class AuthController extends Controller
                 }
             );
 
-            $token = $user->createToken('api-token')->plainTextToken;
+            \Illuminate\Support\Facades\Auth::login($user);
+            $request->session()->regenerate();
 
             return response()->json([
                 'message'      => 'Registration successful',
-                'access_token' => $token,
-                'token_type'   => 'Bearer',
                 'user' => [
                     'public_user_code' => $user->public_user_code,
                     'username'         => $user->username,
@@ -222,13 +222,14 @@ class AuthController extends Controller
         }
         
         try {
-            // Fix: UserOnlineStatus takes (userId, isOnline, lastSeen)
             event(new UserOnlineStatus($user->id, false, $nowCarbon));
         } catch (\Throwable $e) {
             \Log::warning('[Auth] Offline broadcast failed: ' . $e->getMessage());
         }
 
-        $user->currentAccessToken()->delete();
+        \Illuminate\Support\Facades\Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json(['message' => 'Logged out']);
     }

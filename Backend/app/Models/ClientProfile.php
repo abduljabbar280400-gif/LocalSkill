@@ -18,6 +18,7 @@ class ClientProfile extends Model
         'industry',
         'company_size',
         'description',
+        'country',
         'state',
         'city',
         'postcode',

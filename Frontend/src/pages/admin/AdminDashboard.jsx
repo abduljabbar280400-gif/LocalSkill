@@ -64,7 +64,6 @@ export default function AdminDashboard() {
     } catch (err) {
       console.warn("Logout API failed", err);
     } finally {
-      localStorage.removeItem("admin_token");
       localStorage.removeItem("admin_user");
       toast.info("Session terminated securely");
       navigate("/cc/inter/admin/login");

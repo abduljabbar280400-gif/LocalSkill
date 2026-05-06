@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { toast } from "react-toastify";
 import "leaflet/dist/leaflet.css";
 import "../../../utils/leafletIconFix";
 import {
@@ -8,8 +9,10 @@ import {
   useMapEvents,
   useMap,
 } from "react-leaflet";
+import { LuLocateFixed } from "react-icons/lu";
 
 const DEFAULT_ZOOM = 15;
+const DEFAULT_CENTER = [20.5937, 78.9629]; // Default center (India)
 
 function ChangeView({ center }) {
   const map = useMap();
@@ -37,17 +40,14 @@ export default function LocationPicker({
   latitude,
   longitude,
   onLocationSelect,
-  readonly = false, // ✅ ADD THIS
+  readonly = false,
   interactiveOnClick = false,
+  showDetectButton = true, // New prop
 }) {
-  const [center, setCenter] = useState(null);
+  const [center, setCenter] = useState(DEFAULT_CENTER);
   const [marker, setMarker] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [lastPostcode, setLastPostcode] = useState(postcode);
-
-  // const [isInteractive, setIsInteractive] = useState(
-  //   readonly ? false : !interactiveOnClick,
-  // );
+  const [loading, setLoading] = useState(false);
+  const lastPostcodeRef = useRef(postcode);
 
   const [userActivated, setUserActivated] = useState(false);
 
@@ -61,57 +61,123 @@ export default function LocationPicker({
     async function resolveCenter() {
       setLoading(true);
 
-      // 🔹 If postcode changed → reset marker
-      if (postcode !== lastPostcode) {
-        setMarker(null); // clear old marker
-        setLastPostcode(postcode); // update the ref
-      }
-
-      // 🔹 If latitude & longitude exist AND postcode unchanged → show saved marker
-      if (
-        latitude !== null &&
-        longitude !== null &&
-        postcode === lastPostcode
-      ) {
-        setCenter([latitude, longitude]);
-        setMarker([latitude, longitude]); // show saved marker
-        setLoading(false);
-        return;
-      }
-
-      // 🔹 Always fetch map center based on current postcode
-      if (postcode) {
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${postcode}`,
-          );
-          const data = await res.json();
-
-          if (data.length) {
-            const lat = +data[0].lat;
-            const lng = +data[0].lon;
-            setCenter([lat, lng]);
-            // Marker remains null because user must pick a new location
-            // setMarker(null); // require user to pick new marker
-          }
-        } catch (err) {
-          console.error("Failed to resolve postcode:", err);
+      try {
+        // 🔹 If postcode changed → reset marker
+        if (postcode !== lastPostcodeRef.current) {
+          setMarker(null); // clear old marker
+          lastPostcodeRef.current = postcode; // update the ref
         }
-      }
-      // setUserActivated(false);
 
-      setLoading(false);
+        // 🔹 If latitude & longitude exist AND postcode unchanged → show saved marker
+        if (
+          latitude !== null &&
+          longitude !== null &&
+          postcode === lastPostcodeRef.current
+        ) {
+          setCenter([latitude, longitude]);
+          setMarker([latitude, longitude]); // show saved marker
+          return;
+        }
+
+        // 🔹 Always fetch map center based on current postcode
+        if (postcode) {
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${postcode}`,
+            );
+            const data = await res.json();
+
+            if (data.length) {
+              const lat = +data[0].lat;
+              const lng = +data[0].lon;
+              setCenter([lat, lng]);
+            }
+          } catch (err) {
+            console.error("Failed to resolve postcode:", err);
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
     }
 
     resolveCenter();
-  }, [postcode, latitude, longitude, lastPostcode]);
+  }, [postcode, latitude, longitude]);
 
-  const handleSelect = (lat, lng) => {
-    setMarker([lat, lng]);
-    onLocationSelect(lat, lng);
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+        {
+          headers: {
+            "Accept-Language": "en-US,en;q=0.9",
+            "User-Agent": "LocalSkill/1.0",
+          },
+        },
+      );
+      const data = await res.json();
+      if (data && data.address) {
+        const addr = data.address;
+        return {
+          postcode: addr.postcode || addr.zipcode || "",
+          city:
+            addr.city ||
+            addr.town ||
+            addr.village ||
+            addr.suburb ||
+            addr.city_district ||
+            "",
+          state: addr.state || "",
+          country: addr.country || "",
+          display_name: data.display_name,
+        };
+      }
+    } catch (err) {
+      console.error("Reverse geocoding failed:", err);
+    }
+    return null;
   };
 
-  if (loading || !center) {
+  const handleSelect = async (lat, lng, skipGeocode = false) => {
+    setMarker([lat, lng]);
+    let addressData = null;
+    if (!skipGeocode) {
+      addressData = await reverseGeocode(lat, lng);
+    }
+    onLocationSelect(lat, lng, addressData);
+  };
+
+  const handleDetect = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude: lat, longitude: lng } = position.coords;
+        setCenter([lat, lng]);
+        setMarker([lat, lng]);
+        const addressData = await reverseGeocode(lat, lng);
+        onLocationSelect(lat, lng, addressData);
+        setLoading(false);
+        setUserActivated(true);
+        toast.success("Location detected!");
+      },
+      (error) => {
+        setLoading(false);
+        let msg = "Unable to retrieve your location.";
+        if (error.code === 1) {
+          msg = "Please turn on your location to auto-detect.";
+        }
+        toast.warn(msg);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
+  if (loading) {
     return (
       <div style={{ height: "220px", width: "100%" }} className="relative z-0">
         <div className="loading-page" style={{ minHeight: "100%" }}>
@@ -170,6 +236,17 @@ export default function LocationPicker({
 
         {isInteractive && <MapClickHandler onSelect={handleSelect} />}
       </MapContainer>
+
+      {showDetectButton && !readonly && (
+        <button
+          type="button"
+          onClick={handleDetect}
+          title="Detect my location"
+          className="absolute top-3 right-3 z-[1000] p-2.5 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all group active:scale-95"
+        >
+          <LuLocateFixed className="w-5 h-5 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
+        </button>
+      )}
 
       {interactiveOnClick && !isInteractive && (
         <div

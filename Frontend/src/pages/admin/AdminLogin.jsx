@@ -25,8 +25,13 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
+      // 1. Get CSRF cookie first
+      const { getCsrfToken } = await import("../../services/api");
+      await getCsrfToken();
+
+      // 2. Perform login
       const res = await api.post("/login", form);
-      const { access_token, user } = res.data;
+      const { user } = res.data;
 
       if (user.role !== "admin") {
         toast.error("Unauthorized Access Detected");
@@ -34,7 +39,6 @@ export default function AdminLogin() {
         return;
       }
 
-      localStorage.setItem("admin_token", access_token);
       localStorage.setItem("admin_user", JSON.stringify(user));
 
       toast.success("Authentication Successful");

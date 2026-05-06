@@ -169,7 +169,7 @@ export default function Messages() {
                   </div>
 
                   {/* Text Content */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 text-left">
                     <div className="flex justify-between items-baseline mb-0.5">
                       <h3 className={`font-semibold text-sm truncate ${isActive ? "text-white" : "text-gray-900 dark:text-slate-100"}`}>
                         {conv.other_user.name}
@@ -212,7 +212,7 @@ export default function Messages() {
               >
                 <FiChevronLeft size={24} />
               </button>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-left">
                 <h2 className="font-bold text-gray-900 dark:text-white truncate">
                   {selectedConv?.other_user.name}
                 </h2>
@@ -224,7 +224,7 @@ export default function Messages() {
             
             {/* Chat Content */}
             <div className="flex-1 relative overflow-hidden">
-              <ChatBox contractId={selectedContractId} />
+              <ChatBox contractId={selectedContractId} currentUserId={userId} />
             </div>
           </div>
         ) : (

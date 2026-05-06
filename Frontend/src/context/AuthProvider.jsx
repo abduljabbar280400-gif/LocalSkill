@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import api from "../services/api";
+import api, { getCsrfToken } from "../services/api";
 import AuthContext from "./authContext";
 
 // Lazy-load echo to keep pusher-js (~100KB) off the critical path
@@ -8,7 +8,6 @@ const lazyResetEcho = () => import("../utils/echo").then((m) => m.resetEcho());
 
 export default function AuthProvider({ children }) {
   const storedUser  = localStorage.getItem("freelancer_user");
-  const storedToken = localStorage.getItem("freelancer_token");
 
   const [user, setUser] = useState(() => {
     if (!storedUser || storedUser === "undefined") return null;
@@ -20,17 +19,14 @@ export default function AuthProvider({ children }) {
     }
   });
 
-  const [token,   setToken  ] = useState(storedToken);
   const [loading, setLoading] = useState(true);
 
-  const isAuthenticated = !!token;
+  const isAuthenticated = !!user;
   const location = useLocation();
 
   const clearAuth = () => {
-    localStorage.removeItem("freelancer_token");
     localStorage.removeItem("freelancer_user");
     setUser(null);
-    setToken(null);
     // Reconnect Echo with no token so stale auth is dropped
     lazyResetEcho();
   };
@@ -65,23 +61,23 @@ export default function AuthProvider({ children }) {
   useEffect(() => {
     const isFreelancerRoute = location.pathname.startsWith("/freelancer");
 
-    if (token && isFreelancerRoute) {
+    // On mount or route change, we check if we're still authenticated via session
+    if (isFreelancerRoute) {
       fetchMe().finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
-  }, [token, fetchMe, location.pathname]);
+  }, [fetchMe, location.pathname]);
 
   const login = async (credentials) => {
     try {
+      // 1. Get CSRF cookie first
+      await getCsrfToken();
+      
+      // 2. Perform login
       const response = await api.post("/freelancer/login", credentials);
 
-      const accessToken = response.data.access_token;
-      localStorage.setItem("freelancer_token", accessToken);
-      setToken(accessToken);
-      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-
-      // Re-create Echo so WebSocket auth uses the new token
+      // Re-create Echo so WebSocket auth uses the new session
       lazyResetEcho();
 
       const userData = await fetchMe();
@@ -96,14 +92,12 @@ export default function AuthProvider({ children }) {
 
   const register = async (data) => {
     try {
+      // 1. Get CSRF cookie first
+      await getCsrfToken();
+
       const response = await api.post("/freelancer/register", data);
 
-      const accessToken = response.data.access_token;
-      localStorage.setItem("freelancer_token", accessToken);
-      setToken(accessToken);
-      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-
-      // Re-create Echo so WebSocket auth uses the new token
+      // Re-create Echo so WebSocket auth uses the new session
       lazyResetEcho();
 
       const userData = await fetchMe();
@@ -115,7 +109,7 @@ export default function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated, loading, login, register, logout }}
+      value={{ user, isAuthenticated, loading, login, register, logout }}
     >
       {children}
     </AuthContext.Provider>

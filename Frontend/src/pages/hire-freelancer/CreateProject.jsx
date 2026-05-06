@@ -14,6 +14,7 @@ export default function ProjectModal({
   formData,
   setFormData,
   categories,
+  categoriesLoading,
   skillsList,
   setSkillsList,
   skillsLoading,
@@ -110,7 +111,7 @@ export default function ProjectModal({
             latitude: profile.latitude,
             longitude: profile.longitude,
             postal_code: profile.postcode,
-            location_type: "profile",
+            location_type: "",
           }));
         }
       } catch (err) {
@@ -121,20 +122,44 @@ export default function ProjectModal({
     fetchProfileLocation();
   }, [user?.username, editingProject]);
 
-  // useEffect(() => {
-  //   if (locationType === "profile" && profileLocation) {
-  //     setLatitude(profileLocation.latitude);
-  //     setLongitude(profileLocation.longitude);
-  //     setPostalCode(profileLocation.postcode);
+  const [localErrors, setLocalErrors] = useState({});
 
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       latitude: profileLocation.latitude,
-  //       longitude: profileLocation.longitude,
-  //       postal_code: profileLocation.postcode,
-  //     }));
-  //   }
-  // }, [locationType, profileLocation]);
+  const validateField = (name, value) => {
+    let error = "";
+    const stringValue = typeof value === "string" ? value.trim() : value;
+
+    if (!stringValue || (Array.isArray(stringValue) && stringValue.length === 0)) {
+      error = `${name.replace("_", " ")} is required`;
+    } else {
+      if (name === "title" && stringValue.length < 5) {
+        error = "Title must be at least 5 characters";
+      }
+      if (name === "description" && stringValue.length < 20) {
+        error = "Description must be at least 20 characters";
+      }
+      if (name === "budget_min" && parseFloat(stringValue) <= 0) {
+        error = "Budget must be greater than 0";
+      }
+      if (name === "budget_max") {
+        const min = parseFloat(formData.budget_min);
+        const max = parseFloat(stringValue);
+        if (max < min) {
+          error = "Max budget cannot be less than min budget";
+        }
+      }
+    }
+
+    setLocalErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+    validateField(id, value);
+  };
 
   if (!showModal) return null;
 
@@ -148,7 +173,7 @@ export default function ProjectModal({
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3 className="modal-title">
-            {editingProject ? "Edit Project" : "Create Project"}
+            {editingProject ? "Edit Projectssss" : "Create Project"}
           </h3>
         </div>
 
@@ -161,17 +186,17 @@ export default function ProjectModal({
 
             <input
               id="title"
-              className="form-input"
+              className={`form-input ${localErrors.title ? "form-input-error" : ""}`}
               type="text"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={handleInputChange}
               required
             />
 
-            {errors?.title && (
-              <p className="form-status form-status-error">{errors.title[0]}</p>
+            {(localErrors.title || errors?.title) && (
+              <p className="form-status form-status-error">
+                {localErrors.title || errors.title[0]}
+              </p>
             )}
           </div>
 
@@ -183,21 +208,16 @@ export default function ProjectModal({
 
             <textarea
               id="description"
-              className="form-input"
+              className={`form-input ${localErrors.description ? "form-input-error" : ""}`}
               rows={3}
               value={formData.description}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  description: e.target.value,
-                })
-              }
+              onChange={handleInputChange}
               required
             />
 
-            {errors?.description && (
+            {(localErrors.description || errors?.description) && (
               <p className="form-status form-status-error">
-                {errors.description[0]}
+                {localErrors.description || errors.description[0]}
               </p>
             )}
           </div>
@@ -219,6 +239,7 @@ export default function ProjectModal({
                   category_id: categoryId,
                   skills: [],
                 });
+                validateField("category_id", categoryId);
 
                 if (!categoryId) {
                   setSkillsList([]);
@@ -237,13 +258,15 @@ export default function ProjectModal({
                   setSkillsLoading(false);
                 }
               }}
-              placeholder="Search & select category"
+              isLoading={categoriesLoading}
+              placeholder={categoriesLoading ? "Loading categories..." : "Search & select category"}
               styles={selectStyles}
+              noOptionsMessage={() => categoriesLoading ? "Loading..." : "No categories found"}
             />
 
-            {errors?.category_id && (
+            {(localErrors.category_id || errors?.category_id) && (
               <p className="form-status form-status-error">
-                {errors.category_id[0]}
+                {localErrors.category_id || errors.category_id[0]}
               </p>
             )}
           </div>
@@ -324,22 +347,17 @@ export default function ProjectModal({
 
               <input
                 id="budget_min"
-                className="form-input"
+                className={`form-input ${localErrors.budget_min ? "form-input-error" : ""}`}
                 type="number"
                 placeholder="e.g. 1000"
                 value={formData.budget_min}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    budget_min: e.target.value,
-                  })
-                }
+                onChange={handleInputChange}
                 required
               />
 
-              {errors?.budget_min && (
+              {(localErrors.budget_min || errors?.budget_min) && (
                 <p className="form-status form-status-error">
-                  {errors.budget_min[0]}
+                  {localErrors.budget_min || errors.budget_min[0]}
                 </p>
               )}
             </div>
@@ -351,22 +369,17 @@ export default function ProjectModal({
 
               <input
                 id="budget_max"
-                className="form-input"
+                className={`form-input ${localErrors.budget_max ? "form-input-error" : ""}`}
                 type="number"
                 placeholder="e.g. 5000"
                 value={formData.budget_max}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    budget_max: e.target.value,
-                  })
-                }
+                onChange={handleInputChange}
                 required
               />
 
-              {errors?.budget_max && (
+              {(localErrors.budget_max || errors?.budget_max) && (
                 <p className="form-status form-status-error">
-                  {errors.budget_max[0]}
+                  {localErrors.budget_max || errors.budget_max[0]}
                 </p>
               )}
             </div>
@@ -499,7 +512,7 @@ export default function ProjectModal({
 
             <select
               className="form-select"
-              value={formData.location_type || "profile"}
+              value={formData.location_type || ""}
               onChange={(e) => {
                 const type = e.target.value;
 
@@ -519,6 +532,7 @@ export default function ProjectModal({
                 }
               }}
             >
+              <option value="">Select Location Type</option>
               <option value="profile">Use Profile Location</option>
               <option value="custom">Add New Location For This Project</option>
             </select>
@@ -538,12 +552,12 @@ export default function ProjectModal({
                   latitude={formData.latitude}
                   longitude={formData.longitude}
                   interactiveOnClick={true}
-                  onLocationSelect={(lat, lng) => {
+                  onLocationSelect={(lat, lng, addressData) => {
                     setFormData((prev) => ({
                       ...prev,
                       latitude: lat,
                       longitude: lng,
-                      postal_code: profileLocation.postcode,
+                      postal_code: addressData?.postcode || profileLocation.postcode,
                     }));
                   }}
                 />
@@ -573,12 +587,12 @@ export default function ProjectModal({
                   postcode={formData.postal_code}
                   latitude={formData.latitude}
                   longitude={formData.longitude}
-                  onLocationSelect={(lat, lng) => {
+                  onLocationSelect={(lat, lng, addressData) => {
                     setFormData((prev) => ({
                       ...prev,
                       latitude: lat,
                       longitude: lng,
-                      postal_code: formData.postal_code,
+                      postal_code: addressData?.postcode || formData.postal_code,
                     }));
                   }}
                 />
@@ -627,6 +641,11 @@ export default function ProjectModal({
             type="button"
             className="btn btn-primary"
             onClick={() => {
+              if (!formData.location_type) {
+                toast.error("Please select a location type");
+                return;
+              }
+
               if (!formData.latitude || !formData.longitude) {
                 toast.error("Please select a location on map");
                 return;
@@ -634,8 +653,7 @@ export default function ProjectModal({
 
               const updatedData = {
                 ...formData,
-                location_type:
-                  formData.location_type === "profile" ? "profile" : "custom",
+                location_type: formData.location_type,
               };
               // if (!latitude || !longitude) {
               //   alert("Please select a location on map");
