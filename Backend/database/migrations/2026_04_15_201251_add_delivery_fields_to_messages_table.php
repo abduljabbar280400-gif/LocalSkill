@@ -10,12 +10,13 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('messages', function (Blueprint $table) {
-        $table->boolean('is_delivered')->default(false);
-        $table->boolean('is_seen')->default(false)->change();
-    });
-}
+    {
+        if (!Schema::hasColumn('messages', 'is_delivered')) {
+            Schema::table('messages', function (Blueprint $table) {
+                $table->boolean('is_delivered')->default(false);
+            });
+        }
+    }
 
     /**
      * Reverse the migrations.

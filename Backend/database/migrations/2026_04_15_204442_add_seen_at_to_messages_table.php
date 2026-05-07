@@ -10,11 +10,13 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('messages', function (Blueprint $table) {
-        $table->timestamp('seen_at')->nullable();
-    });
-}
+    {
+        if (!Schema::hasColumn('messages', 'seen_at')) {
+            Schema::table('messages', function (Blueprint $table) {
+                $table->timestamp('seen_at')->nullable();
+            });
+        }
+    }
 
     /**
      * Reverse the migrations.

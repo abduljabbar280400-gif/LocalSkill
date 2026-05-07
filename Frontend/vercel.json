@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://localskill.onrender.com/api/$1" },
+    { "source": "/sanctum/csrf-cookie", "destination": "https://localskill.onrender.com/sanctum/csrf-cookie" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
