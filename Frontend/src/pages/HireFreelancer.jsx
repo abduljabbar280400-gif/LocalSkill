@@ -261,7 +261,7 @@ export default function HireFreelancer() {
               <FaBolt className="text-amber-400 group-hover:animate-bounce" aria-hidden="true" />
             </Link>
             <p className="mt-6 text-sm text-slate-500 md:text-blue-200/80 dark:text-slate-400 font-medium tracking-wide uppercase">
-              No credit card required to post a project
+              No Payment required to post a project
             </p>
           </div>
         </div>
