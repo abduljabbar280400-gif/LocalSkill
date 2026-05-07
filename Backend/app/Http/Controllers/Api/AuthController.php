@@ -128,7 +128,7 @@ class AuthController extends Controller
             'password'   => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        return DB::transaction(function () use ($validated, $role) {
+        return DB::transaction(function () use ($validated, $role, $request) {
             $user = User::create([
                 'public_user_code' => PublicUserCodeGenerator::generate(),
                 'title'            => $validated['title'],
