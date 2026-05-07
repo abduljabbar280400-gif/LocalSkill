@@ -39,7 +39,6 @@ use App\Services\GoogleMeetService;
 |--------------------------------------------------------------------------
 */
 if (app()->environment('local')) {
-
     Route::get('/routes', function () {
         return collect(Route::getRoutes())->map(fn ($r) => [
             'uri'     => $r->uri(),
@@ -48,11 +47,6 @@ if (app()->environment('local')) {
     });
 
     Route::get('/ping', fn () => response()->json(['status' => 'ok', 'time' => now()]));
-
-    Route::get('/run-migrate', function () {
-        Artisan::call('migrate', ['--force' => true]);
-        return 'Migration Done';
-    });
 
     Route::get('/test-email', function () {
         Mail::raw('This is a test email from Local Skill Platform', function ($message) {
@@ -66,6 +60,12 @@ if (app()->environment('local')) {
         return response()->json(['meet_link' => $link]);
     });
 }
+
+// Production-accessible migration route (Temporary)
+Route::get('/run-migrate', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return 'Migration Done: ' . \Illuminate\Support\Facades\Artisan::output();
+});
 
 /*
 |--------------------------------------------------------------------------
