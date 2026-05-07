@@ -62,6 +62,7 @@ if (app()->environment('local')) {
 }
 
 // Production-accessible migration route (Temporary)
+
 Route::get('/run-migrate', function () {
     \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
     return 'Migration Done: ' . \Illuminate\Support\Facades\Artisan::output();
