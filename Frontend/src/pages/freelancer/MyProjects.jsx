@@ -145,7 +145,7 @@ export default function MyProjects() {
     }
   };
 
-  if (loading) return <p> Loading... </p>;
+  if (loading) return <div className="flex justify-center mt-10"><div className="common-spinner"></div></div>;
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {

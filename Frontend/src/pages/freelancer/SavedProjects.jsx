@@ -31,7 +31,7 @@ export default function SavedProjects() {
 
         {/* Loading */}
         {loading ? (
-          <div className="text-center py-20 text-gray-600 dark:text-slate-400"> Loading... </div>
+          <div className="flex justify-center py-20"><div className="common-spinner"></div></div>
         ) : savedProjects.length === 0 ? (
           // ✅ Empty State
           <div className="flex flex-col items-center justify-center py-20 text-center">

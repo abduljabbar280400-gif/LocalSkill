@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../services/api";
 import { useClientAuth } from "../../context/client/useClientAuth";
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
   const { username } = useParams();
@@ -86,7 +87,7 @@ export default function Dashboard() {
         },
       );
 
-      alert("Payment added successfully");
+      toast.success("Payment added successfully");
 
       setShowPaymentModal(false);
       setPaymentAmount("");
@@ -95,7 +96,7 @@ export default function Dashboard() {
       await fetchExtraData();
     } catch (err) {
       console.log(err);
-      alert("Payment failed");
+      toast.error("Payment failed");
     } finally {
       setPaymentLoading(false);
     }
@@ -107,12 +108,12 @@ export default function Dashboard() {
         `/hire-freelancer/${username}/contracts/${contractId}/release-payment`,
       );
 
-      alert("Payment released successfully");
+      toast.success("Payment released successfully");
 
       await fetchExtraData();
     } catch (err) {
       console.log(err);
-      alert("Release failed");
+      toast.error("Release failed");
     }
   };
 
@@ -210,7 +211,7 @@ export default function Dashboard() {
 
             {extraLoading ? (
               <div className="dashboard-panel">
-                <p className="dashboard-panel-muted"> Loading... </p>
+                <div className="flex justify-center py-4"><div className="common-spinner"></div></div>
               </div>
             ) : ongoingContracts.length === 0 ? (
               <div className="dashboard-panel">
@@ -288,7 +289,7 @@ export default function Dashboard() {
 
             {extraLoading ? (
               <div className="dashboard-panel">
-                <p className="dashboard-panel-muted"> Loading... </p>
+                <div className="flex justify-center py-4"><div className="common-spinner"></div></div>
               </div>
             ) : pendingPayments.length === 0 ? (
               <div className="dashboard-panel">
@@ -372,7 +373,7 @@ export default function Dashboard() {
 
             {contractsLoading ? (
               <div className="dashboard-panel">
-                <p className="dashboard-panel-muted"> Loading... </p>
+                <div className="flex justify-center py-4"><div className="common-spinner"></div></div>
               </div>
             ) : contracts.length === 0 ? (
               <div className="dashboard-panel">

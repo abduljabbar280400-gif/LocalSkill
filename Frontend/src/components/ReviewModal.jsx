@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import { toast } from "react-toastify";
 
 export default function ReviewModal({ contract, onClose, username }) {
   const [rating, setRating] = useState(0);
@@ -8,7 +9,7 @@ export default function ReviewModal({ contract, onClose, username }) {
 
   const submitReview = async () => {
     if (rating === 0) {
-      alert("Please select a rating");
+      toast.error("Please select a rating");
       return;
     }
     setIsSubmitting(true);
@@ -23,11 +24,11 @@ export default function ReviewModal({ contract, onClose, username }) {
         },
       );
 
-      alert("Review submitted successfully");
+      toast.success("Review submitted successfully");
       onClose();
     } catch (error) {
       console.error(error);
-      alert("Failed to submit review");
+      toast.error("Failed to submit review");
     } finally {
       setIsSubmitting(false);
     }

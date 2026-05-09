@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import { toast } from "react-toastify";
 
 export default function ProposalModal({ projectId, onClose }) {
   const [form, setForm] = useState({
@@ -16,10 +17,10 @@ export default function ProposalModal({ projectId, onClose }) {
     try {
       await api.post(`/projects/${projectId}/proposals`, form);
 
-      alert("Proposal has been submitted");
+      toast.success("Proposal has been submitted");
       onClose();
     } catch (error) {
-      alert(error.response?.data?.message || "Error submitting proposal");
+      toast.error(error.response?.data?.message || "Error submitting proposal");
     } finally {
       setIsSubmitting(false);
     }

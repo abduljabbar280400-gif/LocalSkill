@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import api from "../../../services/api";
 import Skills from "./Skills";
 import LocationPicker from "./LocationPicker";
+import { toast } from "react-toastify";
 
 export default function ProfileSection({ profile, username, onUpdated }) {
   const [form, setForm] = useState({
@@ -61,7 +62,7 @@ export default function ProfileSection({ profile, username, onUpdated }) {
         setLocationTouched(false);
         previousPostcodeRef.current = form.postcode;
 
-        alert(
+        toast.success(
           "Postal code changed. Please select your new location on the map.",
         );
         return;
@@ -81,7 +82,7 @@ export default function ProfileSection({ profile, username, onUpdated }) {
       onUpdated(res2.data.profile);
     } catch (error) {
       console.error(error);
-      alert("Failed to save profile");
+      toast.error("Failed to save profile");
     } finally {
       setIsSavingProfile(false);
     }
@@ -95,7 +96,7 @@ export default function ProfileSection({ profile, username, onUpdated }) {
 
   const handleConfirmLocation = async () => {
     if (!selectedLat || !selectedLng) {
-      alert("Please select your location on the map first.");
+      toast.error("Please select your location on the map first.");
       return;
     }
 
@@ -115,10 +116,10 @@ export default function ProfileSection({ profile, username, onUpdated }) {
       }));
 
       setLocationTouched(false);
-      alert("Location saved successfully");
+      toast.success("Location saved successfully");
     } catch (error) {
       console.error(error);
-      alert("Failed to save location");
+      toast.error("Failed to save location");
     } finally {
       setSaving(false);
     }

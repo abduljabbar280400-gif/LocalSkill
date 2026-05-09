@@ -203,7 +203,7 @@ export default function FreelancerFilters({ filters, setFilters }) {
           <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-slate-300">Skills</h3>
 
           {skills.length === 0 ? (
-            <p className="text-xs text-gray-400"> Loading... </p>
+            <div className="flex justify-center py-2"><div className="common-spinner"></div></div>
           ) : (
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
               {skills.map((skill) => {

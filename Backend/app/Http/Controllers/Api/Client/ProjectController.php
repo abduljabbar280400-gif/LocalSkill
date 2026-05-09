@@ -196,7 +196,7 @@ public function index(Request $request)
     $query->orderBy($sortField, $sortDirection);
 
 
-$projects = $query->paginate(10);
+$projects = $query->paginate(12);
 
     return response()->json($projects);
 }
@@ -370,14 +370,62 @@ public function viewProjectProposals(Request $request, $username, Project $proje
         ], 403);
     }
 
-    // 📦 Fetch proposals (Newest First)
-    $proposals = Proposal::with([
-    'freelancer:id,first_name,last_name,username',
-    'freelancer.freelancerProfile:user_id,average_rating,completed_jobs'
-])
-    ->where('project_id', $project->id)
-    ->orderBy('created_at', 'desc')
-    ->paginate(10);
+    // 📦 Fetch proposals with Filters and Sorting
+    $query = Proposal::with([
+        'freelancer:id,first_name,last_name,username',
+        'freelancer.freelancerProfile:user_id,average_rating,completed_jobs'
+    ])
+    ->where('project_id', $project->id);
+
+    // ✅ STATUS FILTER (from existing tabs)
+    if ($request->filled('status') && $request->status !== 'all') {
+        $query->where('status', $request->status);
+    }
+
+    // ✅ RATING FILTER
+    if ($request->filled('rating')) {
+        $query->whereHas('freelancer.freelancerProfile', function ($q) use ($request) {
+            $q->where('average_rating', '>=', (float) $request->rating);
+        });
+    }
+
+    // ✅ DATE FILTER
+    if ($request->filled('date_filter')) {
+        switch ($request->date_filter) {
+            case 'today':
+                $query->whereDate('created_at', now()->toDateString());
+                break;
+            case 'yesterday':
+                $query->whereDate('created_at', now()->subDay()->toDateString());
+                break;
+            case 'last_7_days':
+                $query->where('created_at', '>=', now()->subDays(7));
+                break;
+            case 'this_month':
+                $query->where('created_at', '>=', now()->startOfMonth());
+                break;
+        }
+    }
+
+    // ✅ SORTING
+    $sortBy = $request->input('sort_by', 'created_at');
+    $sortDir = $request->input('sort_direction', 'desc');
+
+    if ($sortBy === 'proposed_amount') {
+        $query->orderBy('proposed_amount', $sortDir);
+    } elseif ($sortBy === 'completed_jobs') {
+        $query->leftJoin('freelancer_profiles', 'proposals.freelancer_id', '=', 'freelancer_profiles.user_id')
+              ->orderBy('freelancer_profiles.completed_jobs', $sortDir)
+              ->select('proposals.*');
+    } elseif ($sortBy === 'average_rating') {
+        $query->leftJoin('freelancer_profiles', 'proposals.freelancer_id', '=', 'freelancer_profiles.user_id')
+              ->orderBy('freelancer_profiles.average_rating', $sortDir)
+              ->select('proposals.*');
+    } else {
+        $query->orderBy('created_at', $sortDir);
+    }
+
+    $proposals = $query->paginate(10);
 
     return response()->json([
         'proposals' => $proposals->items(),
@@ -405,6 +453,7 @@ public function related($slug)
     $project = Project::with('skills')->findOrFail($projectId);
 
     $skillIds = $project->skills->pluck('id');
+    $safeSkillIds = $skillIds->isEmpty() ? '0' : $skillIds->map(fn($id) => (int) $id)->implode(',');
 
     // Related projects
     $relatedProjects = Project::query()
@@ -421,7 +470,7 @@ public function related($slug)
         // Count matching skills
         ->selectRaw('
             projects.*,
-            COUNT(CASE WHEN project_skills.skill_id IN (' . ($skillIds->isEmpty() ? '0' : $skillIds->implode(',')) . ') THEN 1 END) as skill_match_count
+            COUNT(CASE WHEN project_skills.skill_id IN (' . $safeSkillIds . ') THEN 1 END) as skill_match_count
         ')
 
         ->groupBy('projects.id')
@@ -469,8 +518,8 @@ public function nearbyProjects(Request $request)
         'lng' => 'required|numeric',
     ]);
 
-    $lat = $request->lat;
-    $lng = $request->lng;
+    $lat = (float) $request->lat;
+    $lng = (float) $request->lng;
     $radius = 15; // km
 
     $projects = DB::table(DB::raw("

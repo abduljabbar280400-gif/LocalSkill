@@ -133,7 +133,7 @@ export default function NearbyFreelancers() {
         </div>
 
         {/* STATES */}
-        {loading && <p role="status"> Loading... </p>}
+        {loading && <div className="flex justify-center py-4"><div className="common-spinner"></div></div>}
         {!loading && freelancers.length === 0 && <p>No freelancers found nearby.</p>}
 
         {/* LIST */}

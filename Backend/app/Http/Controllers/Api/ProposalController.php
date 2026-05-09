@@ -100,13 +100,16 @@ if ($request->hasFile('attachment_file')) {
             'status' => $request->status
         ]);
 
-        // 🚀 Send notification if accepted
-    if ($request->status === 'accepted') {
-        $freelancer = $proposal->freelancer;
+        // 🚀 Handle rejection of others if accepted
+        if ($request->status === 'accepted') {
+            Proposal::where('project_id', $proposal->project_id)
+                ->where('id', '!=', $proposal->id)
+                ->update(['status' => 'rejected']);
 
-        $freelancer->notify(new ProposalAcceptedNotification($proposal));
-        
-    }
+            $freelancer = $proposal->freelancer;
+            $freelancer->notify(new ProposalAcceptedNotification($proposal));
+        }
+
 
         return response()->json([
             'message' => 'Proposal status updated successfully',

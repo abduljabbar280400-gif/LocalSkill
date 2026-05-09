@@ -11,6 +11,10 @@ import {
   FiFileText,
   FiImage,
   FiArchive,
+  FiFilter,
+  FiTrendingUp,
+  FiChevronDown,
+  FiStar,
 } from "react-icons/fi";
 
 const ProposalModal = ({
@@ -26,6 +30,15 @@ const ProposalModal = ({
   const [activeFilter, setActiveFilter] = useState("all");
   const [contractLoading, setContractLoading] = useState(null);
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+  });
+  const [sortBy, setSortBy] = useState("created_at");
+  const [sortDirection, setSortDirection] = useState("desc");
+  const [ratingFilter, setRatingFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   const [contracts, setContracts] = useState([]);
 
@@ -41,24 +54,43 @@ const ProposalModal = ({
     }
   }, [projectId, username]);
 
-  const fetchProposals = useCallback(async () => {
-    try {
-      setLoading(true);
+  const fetchProposals = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
 
-      // ✅ Prevent stale flash
-      setProposals([]);
+        const params = {
+          page,
+          status: activeFilter,
+          sort_by: sortBy,
+          sort_direction: sortDirection,
+          rating: ratingFilter,
+          date_filter: dateFilter,
+        };
 
-      const res = await api.get(
-        `/hire-freelancer/${username}/projects/${projectId}/proposals`,
-      );
+        const res = await api.get(
+          `/hire-freelancer/${username}/projects/${projectId}/proposals`,
+          { params },
+        );
 
-      setProposals(res.data.proposals || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, username]);
+        setProposals(res.data.proposals || []);
+        setPagination(res.data.pagination);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      projectId,
+      username,
+      activeFilter,
+      sortBy,
+      sortDirection,
+      ratingFilter,
+      dateFilter,
+    ],
+  );
 
   useEffect(() => {
     if (isOpen && projectId) {
@@ -86,10 +118,7 @@ const ProposalModal = ({
 
   if (!isOpen) return null;
 
-  const filteredProposals =
-    activeFilter === "all"
-      ? proposals
-      : proposals.filter((p) => p.status === activeFilter);
+  const filteredProposals = proposals; // Now handled by backend
 
   const StatusButton = ({
     label,
@@ -106,7 +135,7 @@ const ProposalModal = ({
       <button
         type="button"
         disabled={isLocked || isUpdating}
-        onClick={() => updateStatus(proposal.id, value)}
+        onClick={() => updateStatus(proposal, value)}
         className={`
         px-4 py-1.5 text-sm rounded-full border transition-all duration-200
         ${
@@ -122,18 +151,33 @@ const ProposalModal = ({
     );
   };
 
-  const updateStatus = async (proposalId, newStatus) => {
+  const updateStatus = async (proposal, newStatus) => {
+    if (newStatus === "accepted") {
+      const freelancerName = `${proposal.freelancer.first_name} ${proposal.freelancer.last_name}`;
+      const confirmed = window.confirm(
+        `Are you sure to Accept this '${freelancerName}' and set other user's to Rejected?`,
+      );
+      if (!confirmed) return;
+    }
+
     try {
-      setUpdatingStatusId(proposalId);
-      await api.put(`/proposals/${proposalId}`, {
+      setUpdatingStatusId(proposal.id);
+      await api.put(`/proposals/${proposal.id}`, {
         status: newStatus,
       });
 
-      // Update only local proposals
+      // Update local proposals
       setProposals((prev) =>
-        prev.map((p) =>
-          p.id === proposalId ? { ...p, status: newStatus } : p,
-        ),
+        prev.map((p) => {
+          if (p.id === proposal.id) {
+            return { ...p, status: newStatus };
+          }
+          // If we accepted one, reject others
+          if (newStatus === "accepted") {
+            return { ...p, status: "rejected" };
+          }
+          return p;
+        }),
       );
     } catch (error) {
       console.error(error);
@@ -325,11 +369,88 @@ const ProposalModal = ({
         {!loading && filteredProposals.length > 0 && (
           <div className="space-y-8">
             {/* Section Title */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Proposals</h2>
-              <span className="text-sm text-gray-500 dark:text-slate-400">
-                {filteredProposals.length} total
-              </span>
+            {/* Section Title & Controls */}
+            {/* Streamlined Controls Row */}
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl p-4 px-6 rounded-[2rem] border border-white/20 dark:border-slate-700/30 shadow-xl shadow-indigo-500/5">
+              {/* Left: Stats */}
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md">
+                  <FiFileText className="text-white w-5 h-5" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-slate-200">
+                    {pagination.total}{" "}
+                    <span className="text-gray-500 dark:text-slate-400 font-medium">
+                      Applications
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Right: Actions */}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Sort Group */}
+                <div className="flex items-center gap-2 bg-white/60 dark:bg-slate-900/60 p-1 pl-3 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm">
+                  <FiTrendingUp className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <div className="relative group">
+                    <select
+                      value={`${sortBy}:${sortDirection}`}
+                      onChange={(e) => {
+                        const [field, dir] = e.target.value.split(":");
+                        setSortBy(field);
+                        setSortDirection(dir);
+                      }}
+                      className="appearance-none bg-transparent pr-7 py-1 text-xs font-bold text-gray-700 dark:text-slate-200 outline-none cursor-pointer [&>option]:bg-white [&>option]:dark:bg-slate-900"
+                    >
+                      <option value="created_at:desc">Newest</option>
+                      <option value="created_at:asc">Oldest</option>
+                      <option value="proposed_amount:asc">Budget ↑</option>
+                      <option value="proposed_amount:desc">Budget ↓</option>
+                      <option value="completed_jobs:desc">Exp.</option>
+                      <option value="average_rating:desc">Rating</option>
+                    </select>
+                    <FiChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-3 h-3" />
+                  </div>
+                </div>
+
+                {/* Filter Group */}
+                <div className="flex items-center gap-2 bg-white/60 dark:bg-slate-900/60 p-1 pl-3 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm">
+                  <FiFilter className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+
+                  {/* Rating */}
+                  <div className="relative group">
+                    <select
+                      value={ratingFilter}
+                      onChange={(e) => setRatingFilter(e.target.value)}
+                      className="appearance-none bg-transparent pr-7 py-1 text-xs font-bold text-gray-700 dark:text-slate-200 outline-none cursor-pointer [&>option]:bg-white [&>option]:dark:bg-slate-900"
+                    >
+                      <option value="">Ratings</option>
+                      <option value="4">4+ ★</option>
+                      <option value="3">3+ ★</option>
+                      <option value="2">2+ ★</option>
+                    </select>
+                    <FiStar className="absolute right-0 top-1/2 -translate-y-1/2 text-yellow-500 pointer-events-none w-3 h-3" />
+                  </div>
+
+                  <div className="h-3 w-px bg-gray-200 dark:bg-slate-700 mx-0.5"></div>
+
+                  {/* Date */}
+                  <div className="relative group">
+                    <select
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="appearance-none bg-transparent pr-7 py-1 text-xs font-bold text-gray-700 dark:text-slate-200 outline-none cursor-pointer [&>option]:bg-white [&>option]:dark:bg-slate-900"
+                    >
+                      <option value="">Time</option>
+                      <option value="today">Today</option>
+                      <option value="last_7_days">Week</option>
+                      <option value="this_month">Month</option>
+                    </select>
+                    <FiCalendar className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-3 h-3" />
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Cards */}
@@ -578,6 +699,29 @@ const ProposalModal = ({
                 </div>
               ))}
             </div>
+
+            {/* Pagination */}
+            {pagination.last_page > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-12 pb-8">
+                {Array.from(
+                  { length: pagination.last_page },
+                  (_, i) => i + 1,
+                ).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => fetchProposals(page)}
+                    className={`w-10 h-10 rounded-xl font-semibold transition-all duration-200 
+                      ${
+                        pagination.current_page === page
+                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none scale-110"
+                          : "bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-700 hover:border-indigo-600 hover:text-indigo-600"
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

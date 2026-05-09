@@ -9,6 +9,7 @@ import {
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
 
 import useSavedFreelancers from "../../../hooks/useSavedFreelancers";
+import { useClientAuth } from "../../../context/client/useClientAuth";
 
 export default function FreelancerCard({
   freelancer,
@@ -40,10 +41,7 @@ export default function FreelancerCard({
 
   const isSaved = isSavedPage || savedIds.includes(profileId);
 
-  const token =
-    localStorage.getItem("client_token") ||
-    localStorage.getItem("freelancer_token");
-  const isLoggedIn = !!token;
+  const { isAuthenticated: isClient } = useClientAuth();
 
   const sortedSkills = [...(freelancer.skills || [])].sort(
     (a, b) => b.is_primary - a.is_primary,
@@ -53,7 +51,7 @@ export default function FreelancerCard({
     <div className="relative  group rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 hover:from-blue-300 hover:via-purple-300 hover:to-pink-300 transition-all duration-500">
       <Link to={`/freelancer/${freelancer.username}`}>
         <div className="relative h-full w-full rounded-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
-          {isLoggedIn && !loading && (
+          {isClient && !loading && (
             <button
               onClick={async (e) => {
                 e.preventDefault();

@@ -16,10 +16,12 @@ import {
   currencyOptions,
   formatHourlyRate,
 } from "../../constants/currencies";
+import { useTheme } from "../../context/useTheme";
 
 export default function EditProfilePage() {
   const { username } = useParams();
   const { logout } = useAuth();
+  const { isDark } = useTheme();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [savingLocation, setSavingLocation] = useState(false);
@@ -128,8 +130,8 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <p className="text-gray-600 dark:text-slate-400 text-lg animate-pulse"> Loading... </p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
+        <div className="flex justify-center py-4"><div className="common-spinner"></div></div>
       </div>
     );
   }
@@ -223,8 +225,71 @@ export default function EditProfilePage() {
     }
   };
 
+  // Custom styles for react-select in dark mode
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      backgroundColor: isDark ? "#1e293b" : "white",
+      borderColor: isDark ? "#475569" : "#d1d5db",
+      borderRadius: "12px",
+      padding: "5px",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: isDark ? "#64748b" : "#9ca3af",
+      },
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: isDark ? "#1e293b" : "white",
+      borderRadius: "12px",
+      overflow: "hidden",
+      zIndex: 50,
+    }),
+    option: (base, { isFocused, isSelected }) => ({
+      ...base,
+      backgroundColor: isSelected
+        ? "#3b82f6"
+        : isFocused
+        ? isDark
+          ? "#334155"
+          : "#f3f4f6"
+        : "transparent",
+      color: isSelected ? "white" : isDark ? "#f8fafc" : "#111827",
+      cursor: "pointer",
+    }),
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: isDark ? "#334155" : "#e5e7eb",
+      borderRadius: "6px",
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      color: isDark ? "#f8fafc" : "#111827",
+    }),
+    multiValueRemove: (base) => ({
+      ...base,
+      color: isDark ? "#94a3b8" : "#6b7280",
+      "&:hover": {
+        backgroundColor: isDark ? "#475569" : "#d1d5db",
+        color: isDark ? "white" : "black",
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: isDark ? "#f8fafc" : "#111827",
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: isDark ? "#64748b" : "#9ca3af",
+    }),
+    input: (base) => ({
+      ...base,
+      color: isDark ? "#f8fafc" : "#111827",
+    }),
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-4 px-4">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 py-4 px-4 transition-colors duration-300">
       <div className="max-w-3xl mx-auto">
         {/* HEADER */}
         <div className="mb-6">
@@ -251,7 +316,7 @@ export default function EditProfilePage() {
             <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
               <div
                 className={`h-2 rounded-full transition-all duration-500 ${
-                  progress === 100 ? "bg-green-500" : "bg-black"
+                  progress === 100 ? "bg-green-500" : "bg-black dark:bg-blue-600"
                 }`}
                 style={{ width: `${progress}%` }}
               />
@@ -275,7 +340,7 @@ export default function EditProfilePage() {
                         key={index}
                         className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-2"
                       >
-                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                        <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-slate-500 rounded-full"></span>
                         {item}
                       </li>
                     ))}
@@ -315,12 +380,7 @@ export default function EditProfilePage() {
             ].map((item, i) => (
               <div key={i}>
                 <label className="text-xs text-gray-500 dark:text-slate-400">{item.label}</label>
-                {/* <input
-                      value={item.value || ""}
-                      readOnly
-                      className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-700 cursor-not-allowed"
-                    /> */}
-                <p className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 cursor-default">
+                <p className="w-full mt-1 rounded-lg px-3 py-2 bg-gray-100 dark:bg-slate-900/50 text-gray-600 dark:text-slate-400 cursor-default border border-transparent dark:border-slate-700/50">
                   {item.value || ""}
                 </p>
               </div>
@@ -406,7 +466,7 @@ export default function EditProfilePage() {
               />
 
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">
                   Languages
                 </label>
 
@@ -424,6 +484,7 @@ export default function EditProfilePage() {
                         : [],
                     }));
                   }}
+                  styles={selectStyles}
                 />
               </div>
 
@@ -433,7 +494,7 @@ export default function EditProfilePage() {
                   Location & Address
                 </label>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-4 mt-2">
                   <input
                     name="street_address"
                     value={form.street_address}
@@ -488,20 +549,19 @@ export default function EditProfilePage() {
                   Define your hourly rate and availability so clients can easily
                   understand your working preferences.
                 </p>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                      Hourly Rate
-                    </label>
-
-                    <div className="flex gap-4 mt-1">
+                <div className="mt-4">
+                  <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">
+                    Hourly Rate
+                  </label>
+                  
+                  <div className="max-w-md">
+                    <div className="flex gap-0 overflow-hidden rounded-xl border border-gray-300 dark:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500 dark:focus-within:ring-blue-400 transition-all shadow-sm">
+                      {/* Currency Selector */}
                       <select
                         name="currency"
                         value={form.currency}
                         onChange={handleChange}
-                        className="w-[170px] border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-3 
-                              focus:ring-2 focus:ring-black focus:outline-none transition"
+                        className="w-[220px] bg-gray-50 dark:bg-slate-900 border-r border-gray-300 dark:border-slate-600 px-3 py-3 text-gray-700 dark:text-slate-200 focus:outline-none cursor-pointer font-medium"
                       >
                         {currencyOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -510,8 +570,9 @@ export default function EditProfilePage() {
                         ))}
                       </select>
 
-                      <div className="relative flex-1">
-                        <span className="absolute left-4 top-3 text-gray-500 dark:text-slate-400">
+                      {/* Rate Input */}
+                      <div className="relative flex-1 bg-white dark:bg-slate-800">
+                        <span className="absolute left-4 top-3.5 text-gray-400 dark:text-slate-500 font-medium">
                           {currencySymbol}
                         </span>
                         <input
@@ -519,33 +580,42 @@ export default function EditProfilePage() {
                           name="hourly_rate"
                           value={form.hourly_rate}
                           onChange={handleChange}
-                          className="pl-12 w-[150px] border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-3 
-                                focus:ring-2 focus:ring-black focus:outline-none transition"
-                          placeholder="Enter rate"
+                          className="pl-15 w-full bg-transparent py-3 text-gray-900 dark:text-slate-100 focus:outline-none font-semibold"
+                          placeholder="0.00"
                         />
                       </div>
                     </div>
-
-                    <p className="text-xs text-gray-400 mt-1">
-                      {formattedRate}
-                    </p>
+                    
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-xs text-gray-500 dark:text-slate-400">
+                        Estimated client cost:
+                      </span>
+                      <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                        {formattedRate}
+                      </span>
+                    </div>
                   </div>
+
                 </div>
               </div>
               {/* PREFERENCES */}
               <div className="grid md:grid-cols-2 gap-4">
-                <select
-                  name="preferred_work_type"
-                  value={form.preferred_work_type}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  <option value="remote">Remote</option>
-                  <option value="local">Local</option>
-                  <option value="both">Both</option>
-                </select>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">Preferred Work Type</label>
+                  <select
+                    name="preferred_work_type"
+                    value={form.preferred_work_type}
+                    onChange={handleChange}
+                    className="input"
+                  >
+                    <option value="remote">Remote</option>
+                    <option value="local">Local</option>
+                    <option value="both">Both</option>
+                  </select>
+                </div>
 
                 <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">Profile Visibility</label>
                   <select
                     name="profile_visibility"
                     value={form.profile_visibility}
@@ -568,17 +638,20 @@ export default function EditProfilePage() {
           </div>
 
           {/* SAVE */}
-          <button 
-            disabled={isSaving} 
-            className="w-full btn btn-primary px-6 py-3 rounded-xl hover:bg-gray-800 transition font-semibold disabled:opacity-50"
-          >
-            {isSaving ? "Saving Changes..." : "Save Changes"}
-          </button>
+          <div className="flex justify-center md:justify-end">
+            <button 
+              disabled={isSaving} 
+              className="w-full mx-auto md:w-fit btn btn-primary px-10 py-4 rounded-xl transition font-bold text-lg disabled:opacity-50 shadow-xl shadow-blue-600/20"
+            >
+              {isSaving ? "Saving Changes..." : "Save Changes"}
+            </button>
+          </div>
         </form>
+
 
         {/* SKILLS */}
         <div className="bg-white dark:bg-slate-800 p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700">
-          <h2 className="text-lg font-semibold mb-3">Skills</h2>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-3">Skills</h2>
           <p className="text-gray-500 dark:text-slate-400 text-sm mb-2">
             Showcase your strengths by adding relevant skills. Clients often
             search based on skills, so keep them accurate and up to date.
@@ -591,14 +664,14 @@ export default function EditProfilePage() {
 
         {/* SIDE PANEL */}
 
-        <div className="bg-white dark:bg-slate-800 p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700">
-          <h2 className="text-lg font-semibold mb-2">Location</h2>
+        <div className="bg-white dark:bg-slate-800 p-6 mt-6 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 mb-10">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-200 mb-2">Location</h2>
           <p className="text-gray-500 dark:text-slate-400 text-sm mb-2">
             Set your location to improve visibility in local searches and help
             clients find you for nearby opportunities.
           </p>
 
-          <div className="rounded-xl overflow-hidden">
+          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700">
             <LocationPicker
               key={form.postcode}
               postcode={form.postcode}
@@ -612,18 +685,21 @@ export default function EditProfilePage() {
           <button
             onClick={handleConfirmLocation}
             disabled={!locationTouched || savingLocation}
-            className="w-full bg-black text-white mt-4 py-3 rounded-xl hover:bg-gray-800 transition disabled:opacity-50"
+            className="w-full bg-black dark:bg-blue-600 text-white mt-4 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-700 transition disabled:opacity-50 font-semibold"
           >
             {savingLocation ? "Saving..." : "Confirm location"}
           </button>
 
-          <hr className="my-6" />
+          <hr className="my-8 border-gray-200 dark:border-slate-700" />
 
           <button
             type="button"
-            className="px-6 py-2 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 font-medium rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+            className="px-6 py-2.5 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 font-medium rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-2"
             onClick={() => setShowDeleteModal(true)}
           >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
             Delete Account
           </button>
         </div>

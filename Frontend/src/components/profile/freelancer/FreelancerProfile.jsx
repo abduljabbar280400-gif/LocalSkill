@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../../context/useAuth";
 import api from "../../../services/api";
+import { toast } from "react-toastify";
 
 // import CreateProfileForm from "./CreateProfileForm-D";
 // import ProfileSection from "./ProfileSection-D";
@@ -50,8 +51,7 @@ export default function FreelancerProfile() {
     return (
       <div className="dashboard-panel">
         <div className="loading-page">
-          <div className="loading-spinner" />
-          <p className="loading-text"> Loading... </p>
+          <div className="common-spinner"></div>
           <div
             className="loading-skeleton-row"
             style={{ width: "100%", maxWidth: 360 }}
@@ -95,13 +95,13 @@ export default function FreelancerProfile() {
     try {
       await api.delete(`/freelancer/${username2}`);
 
-      alert("Account deleted successfully. You will be logged out.");
+      toast.success("Account deleted successfully. You will be logged out.");
 
       await logout();
       window.location.href = "/freelancer/login";
     } catch (error) {
       console.error(error);
-      alert(
+      toast.error(
         error.response?.data?.message ||
           "Failed to delete account. Please try again.",
       );

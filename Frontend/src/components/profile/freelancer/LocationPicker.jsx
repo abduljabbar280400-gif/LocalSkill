@@ -181,8 +181,7 @@ export default function LocationPicker({
     return (
       <div style={{ height: "220px", width: "100%" }} className="relative z-0">
         <div className="loading-page" style={{ minHeight: "100%" }}>
-          <div className="loading-spinner" />
-          <p className="loading-text"> Loading... </p>
+          <div className="common-spinner"></div>
           <div
             className="loading-skeleton-row"
             style={{ width: "100%", maxWidth: 260 }}

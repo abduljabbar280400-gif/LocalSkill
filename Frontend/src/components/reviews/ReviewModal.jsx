@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import api from "../../services/api";
+import { toast } from "react-toastify";
 
 export default function ReviewModal({
   isOpen,
@@ -32,7 +33,7 @@ export default function ReviewModal({
       onClose();
     } catch (err) {
       console.error(err);
-      alert("Failed to submit review");
+      toast.error("Failed to submit review");
     } finally {
       setLoading(false);
     }

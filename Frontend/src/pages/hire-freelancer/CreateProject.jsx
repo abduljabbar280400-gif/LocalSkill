@@ -282,7 +282,7 @@ export default function ProjectModal({
             )}
 
             {skillsLoading && (
-              <p className="form-status form-status-neutral"> Loading... </p>
+              <div className="flex justify-center py-2"><div className="common-spinner"></div></div>
             )}
 
             {formData.category_id &&

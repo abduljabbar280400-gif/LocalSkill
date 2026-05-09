@@ -323,8 +323,7 @@ export default function Projects() {
 
             <div className="dashboard-panel">
               <div className="loading-page">
-                <div className="loading-spinner" />
-                <p className="loading-text"> Loading your projects... </p>
+                <div className="common-spinner"></div>
                 <div className="loading-skeleton-row" style={{ width: "100%" }}>
                   <div className="loading-skeleton-strip" />
                   <div className="loading-skeleton-strip" />

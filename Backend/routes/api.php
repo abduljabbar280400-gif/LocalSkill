@@ -59,18 +59,17 @@ if (app()->environment('local')) {
         $link = $meetService->createMeetLink('Test Meeting');
         return response()->json(['meet_link' => $link]);
     });
+
+    Route::get('/run-migrate', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            return '<pre>Migration Done:' . PHP_EOL . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+        } catch (\Exception $e) {
+            return 'Migration Failed: ' . $e->getMessage();
+        }
+    });
 }
 
-// Production-accessible migration route (Temporary)
-
-Route::get('/run-migrate', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return '<pre>Migration Done:' . PHP_EOL . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
-    } catch (\Exception $e) {
-        return 'Migration Failed: ' . $e->getMessage();
-    }
-});
 
 /*
 |--------------------------------------------------------------------------

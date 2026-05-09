@@ -38,8 +38,7 @@ export default function FreelancerDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-800/50">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 border-4 border-gray-300 dark:border-slate-600 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-gray-500 dark:text-slate-400 text-sm"> Loading... </p>
+          <div className="common-spinner"></div>
         </div>
       </div>
     );

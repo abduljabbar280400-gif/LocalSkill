@@ -4,6 +4,7 @@ import api from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 
 import { FiX, FiUploadCloud, FiCheckCircle } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 import LocationPicker from "../../components/profile/freelancer/LocationPicker";
 
@@ -64,6 +65,19 @@ export default function ProjectDetail() {
       setLoading(false);
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (project) {
+      document.title = `${project.title} | LocalSkill`;
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement("meta");
+        metaDescription.name = "description";
+        document.head.appendChild(metaDescription);
+      }
+      metaDescription.content = project.description ? project.description.substring(0, 160) : "View project details and submit a proposal.";
+    }
+  }, [project]);
 
   // useEffect(() => {
   //   fetchProject();
@@ -142,12 +156,12 @@ export default function ProjectDetail() {
 
   const validateFile = (file) => {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      alert("Only PDF, DOC, DOCX, JPG, PNG, ZIP files are allowed.");
+      toast.error("Only PDF, DOC, DOCX, JPG, PNG, ZIP files are allowed.");
       return false;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      alert("File size must be less than 5MB.");
+      toast.error("File size must be less than 5MB.");
       return false;
     }
 
@@ -160,12 +174,12 @@ export default function ProjectDetail() {
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      alert("Only PDF, DOC, DOCX, JPG, PNG, ZIP files are allowed.");
+      toast.error("Only PDF, DOC, DOCX, JPG, PNG, ZIP files are allowed.");
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      alert("File size must be less than 5MB.");
+      toast.error("File size must be less than 5MB.");
       return;
     }
 
@@ -218,7 +232,7 @@ export default function ProjectDetail() {
         },
       });
 
-      alert("Proposal submitted successfully!");
+      toast.success("Proposal submitted successfully!");
 
       setAlreadyApplied(true);
 
@@ -237,7 +251,7 @@ export default function ProjectDetail() {
         return;
       }
 
-      alert(err.response?.data?.message || "Failed to submit proposal");
+      toast.error(err.response?.data?.message || "Failed to submit proposal");
     } finally {
       setIsSubmitting(false);
     }
@@ -255,7 +269,7 @@ export default function ProjectDetail() {
     });
   };
 
-  if (loading) return <p className="text-center mt-10"> Loading... </p>;
+  if (loading) return <div className="flex justify-center items-center min-h-[200px]"><div className="common-spinner"></div></div>;
   if (notFound)
     return (
       <div className="text-center mt-20">
@@ -269,7 +283,7 @@ export default function ProjectDetail() {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-12 px-6">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-12 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
         {/* LEFT COLUMN */}
         <div className="md:col-span-2 relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200">
@@ -405,7 +419,7 @@ export default function ProjectDetail() {
               </div>
             ) : alreadyApplied ? (
               <div className="flex flex-col items-center text-center py-6">
-                <FiCheckCircle size={48} className="text-green-500 mb-3" />
+                <FiCheckCircle size={48} className="text-green-500 mb-3" aria-hidden="true" />
 
                 <p className="text-green-600 font-semibold">
                   Proposal Submitted Successfully
@@ -423,6 +437,8 @@ export default function ProjectDetail() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <textarea
+                    id="cover-letter"
+                    aria-label="Cover Letter"
                     placeholder="Cover Letter"
                     value={form.cover_letter}
                     onChange={(e) =>
@@ -435,6 +451,8 @@ export default function ProjectDetail() {
 
                   <input
                     type="number"
+                    id="proposed-amount"
+                    aria-label="Proposed Amount"
                     placeholder="Proposed Amount"
                     value={form.proposed_amount}
                     onChange={(e) =>
@@ -446,6 +464,8 @@ export default function ProjectDetail() {
 
                   <input
                     type="text"
+                    id="estimated-duration"
+                    aria-label="Estimated Duration"
                     placeholder="Estimated Duration"
                     value={form.estimated_duration}
                     onChange={(e) =>
@@ -516,6 +536,8 @@ export default function ProjectDetail() {
 
                   <input
                     type="url"
+                    id="attachment-link"
+                    aria-label="Attachment Link"
                     placeholder="Attachment Link (Optional)"
                     value={form.attachment_link}
                     onChange={(e) =>
@@ -588,6 +610,6 @@ export default function ProjectDetail() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

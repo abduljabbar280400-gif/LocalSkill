@@ -8,6 +8,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import ClientProtectedRoute from "./routes/ClientProtectedRoute";
 import AdminProtectedRoute from "./routes/AdminProtectedRoute";
 import OnlineTracker from "./utils/OnlineTracker";
+import ScrollToTop from "./components/ScrollToTop";
+
 
 // Lazy-load toast to keep it off the critical render path
 const LazyToastContainer = lazy(() =>
@@ -65,7 +67,9 @@ function App() {
   return (
     <>
       <OnlineTracker />
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col">
+
         {!isAdminPath && <Header />}
         <Suspense fallback={null}>
           <LazyToastContainer

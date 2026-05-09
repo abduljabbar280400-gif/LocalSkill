@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 
 const ProjectCard = React.memo(
-  ({ project, isLast, lastProjectRef, isSaved, toggleSave }) => {
+  ({ project, isLast, lastProjectRef, isSaved, toggleSave, showSave }) => {
     const saved = isSaved(project.id);
 
     const handleSaveClick = (e) => {
@@ -29,12 +29,15 @@ const ProjectCard = React.memo(
       >
         <div className="relative h-full w-full rounded-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-lg border border-white/40 dark:border-slate-700/40 shadow-lg p-6 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
           {/* ❤️ SAVE BUTTON (Top Right) */}
-          <button
-            onClick={handleSaveClick}
-            className="absolute top-4 right-4 text-xl hover:scale-110 transition"
-          >
-            {saved ? <FaHeart className=" text-red-500 " /> : <FaRegHeart />}
-          </button>
+          {showSave && (
+            <button
+              onClick={handleSaveClick}
+              aria-label={saved ? "Remove from saved projects" : "Save project"}
+              className="absolute top-4 right-4 text-xl hover:scale-110 transition"
+            >
+              {saved ? <FaHeart className=" text-red-500 " aria-hidden="true" /> : <FaRegHeart aria-hidden="true" />}
+            </button>
+          )}
 
           {/* Category */}
           <span className="inline-block text-xs font-semibold px-3 py-1 mb-4 rounded-full bg-blue-100 text-blue-600">
@@ -49,14 +52,14 @@ const ProjectCard = React.memo(
           {/* Client + Time */}
           <div className="flex items-center justify-between text-sm text-gray-600 dark:text-slate-400 mb-3">
             <div className="flex items-center gap-2">
-              <FaUser className="text-gray-400" />
+              <FaUser className="text-gray-400" aria-hidden="true" />
               <span>
                 {project.user.first_name} {project.user.last_name}
               </span>
             </div>
 
             <div className="flex items-center gap-2">
-              <FaClock className="text-gray-400" />
+              <FaClock className="text-gray-400" aria-hidden="true" />
               <span>{dayjs(project.created_at).fromNow()}</span>
             </div>
           </div>
@@ -64,12 +67,12 @@ const ProjectCard = React.memo(
           {/* Experience + Budget */}
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
-              <FaBullseye className="text-gray-400" />
+              <FaBullseye className="text-gray-400" aria-hidden="true" />
               <span>{project.experience_level}</span>
             </div>
 
             <div className="flex items-center gap-2 text-green-600 font-semibold">
-              <FaMoneyBillWave />
+              <FaMoneyBillWave aria-hidden="true" />
               <span>
                 ₹{project.budget_min} - ₹{project.budget_max}
               </span>

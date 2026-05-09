@@ -640,13 +640,9 @@ input, select, textarea,
   gap: 0.75rem;
 }
 
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2563eb;
-  animation: spin 0.7s linear infinite;
+.loading-spinner,
+.common-spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600;
 }
 
 .loading-text {
@@ -667,144 +663,7 @@ input, select, textarea,
   gap: 0.35rem;
 }
 
-/* ─────────────────────────────────────────────
-   Projects
-   ───────────────────────────────────────────── */
-.projects-container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 40px 20px;
-}
 
-.projects-title {
-  font-size: 28px;
-  margin-bottom: 30px;
-  font-weight: 600;
-}
-
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
-}
-
-.project-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-.project-title {
-  font-size: 18px;
-  margin-bottom: 10px;
-  text-align: left;
-}
-
-.project-title a {
-  text-decoration: none;
-  color: #222;
-}
-
-.project-description {
-  color: #555;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.project-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.project-budget {
-  font-weight: bold;
-  color: #28a745;
-}
-
-.view-btn {
-  text-decoration: none;
-  padding: 6px 12px;
-  background: #007bff;
-  color: white;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.view-btn:hover {
-  background: #0056b3;
-}
-
-.meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #555;
-  margin-top: 8px;
-}
-
-.project-wrapper {
-  max-width: 1200px;
-  margin: 40px auto;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 40px;
-  padding: 0 20px;
-}
-
-.project-left {
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  background: #fff;
-}
-
-.project-right {
-  position: relative;
-}
-
-.proposal-card {
-  position: sticky;
-  top: 100px;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 15px;
-}
-
-.skills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
-.skill-badge {
-  background: #f1f5f9;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-}
 
 /* ─────────────────────────────────────────────
    Proposal overlay / modal
@@ -1086,7 +945,6 @@ input, select, textarea,
 .dark .chip-status-cancelled   { background: #450a0a; color: #fca5a5; }
 .dark .chip-status-default     { background: #1e293b; color: #94a3b8; }
 .dark .badge { background: #1e1b4b; color: #a5b4fc; }
-.dark .skill-badge { background: #1e293b; color: #cbd5e1; }
 
 /* ── Pagination ────────────────────────────── */
 .dark .pagination-button {
@@ -1115,25 +973,6 @@ input, select, textarea,
 }
 .dark .skills-checkbox {
   color: var(--text-primary);
-}
-
-/* ── Project cards ─────────────────────────── */
-.dark .project-card {
-  background: var(--bg-card);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-.dark .project-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
-.dark .project-title a    { color: #e2e8f0; }
-.dark .project-description { color: #94a3b8; }
-.dark .meta               { color: #94a3b8; }
-.dark .meta-grid          { color: #94a3b8; }
-.dark .project-left {
-  background: var(--bg-card);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-.dark .proposal-card {
-  background: var(--bg-card);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 /* ── Proposal glassmorphism cards ──────────── */

@@ -28,7 +28,7 @@ export default function SavedFreelancers() {
   // 🔄 Loading State
   if (loading) {
     return (
-      <div className="p-6 text-center text-gray-500 dark:text-slate-400"> Loading... </div>
+      <div className="flex justify-center p-6"><div className="common-spinner"></div></div>
     );
   }
 

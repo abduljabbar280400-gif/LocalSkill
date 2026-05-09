@@ -29,6 +29,43 @@ export default function Signup({ config }) {
   const navigate = useNavigate();
   const { register, type, routes } = config;
 
+  const isFreelancer = type === "freelancer";
+
+  const content = {
+    freelancer: {
+      sidebarGradient: "from-emerald-600 via-teal-700 to-blue-800",
+      sidebarTitle: "Work on your own terms.",
+      sidebarDesc: "Join a community of local experts. Find high-quality projects, build your reputation, and earn what you deserve.",
+      features: [
+        { icon: FiBriefcase, title: "Top Projects", desc: "Access the best local opportunities" },
+        { icon: FiBriefcase, title: "Showcase Skills", desc: "Stand out with a professional profile" },
+      ],
+      heading: "Become a Freelancer",
+      subheading: "Create your professional account and start applying.",
+      buttonText: "Launch my career",
+      accentColor: "emerald",
+      btnGradient: "linear-gradient(135deg, #059669 0%, #047857 100%)",
+      shadowColor: "shadow-emerald-500/20",
+      hoverShadow: "hover:shadow-emerald-500/40"
+    },
+    client: {
+      sidebarGradient: "from-blue-600 via-indigo-700 to-purple-800",
+      sidebarTitle: "Find experts in minutes.",
+      sidebarDesc: "Post your project and instantly connect with verified local professionals. Get things done with confidence and quality.",
+      features: [
+        { icon: FiBriefcase, title: "Verified Talent", desc: "Hand-picked local experts" },
+        { icon: FiShield, title: "Secure Hiring", desc: "Safe payments and verified reviews" },
+      ],
+      heading: "Hire Local Talent",
+      subheading: "Join thousands of businesses hiring local experts.",
+      buttonText: "Find my first expert",
+      accentColor: "blue",
+      btnGradient: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+      shadowColor: "shadow-blue-500/20",
+      hoverShadow: "hover:shadow-blue-500/40"
+    }
+  }[isFreelancer ? "freelancer" : "client"];
+
   const [form, setForm] = useState({
     title: "Mr",
     first_name: "",
@@ -154,53 +191,53 @@ export default function Signup({ config }) {
       <div className="w-full max-w-[1100px] bg-white dark:bg-slate-900 shadow-2xl rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row">
         
         {/* Left Side Branding (Desktop Only) */}
-        <div className="hidden lg:flex flex-col justify-between w-[45%] p-14 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white relative overflow-hidden">
+        <div className={`hidden lg:flex flex-col justify-between w-[45%] p-14 bg-gradient-to-br ${content.sidebarGradient} text-white relative overflow-hidden`}>
           {/* Decorative shapes */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-            <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-400/20 blur-[80px]" />
-            <div className="absolute top-[40%] -right-[20%] w-[60%] h-[60%] rounded-full bg-indigo-400/20 blur-[80px]" />
-            <div className="absolute -bottom-[10%] left-[20%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[80px]" />
+            <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-white/10 blur-[80px]" />
+            <div className="absolute top-[40%] -right-[20%] w-[60%] h-[60%] rounded-full bg-white/10 blur-[80px]" />
+            <div className="absolute -bottom-[10%] left-[20%] w-[50%] h-[50%] rounded-full bg-white/10 blur-[80px]" />
           </div>
 
           <div className="relative z-10">
             <Link to="/" className="inline-block mb-16">
-              <span className="text-2xl font-black tracking-tighter">SkillNet<span className="text-blue-300">.</span></span>
+              <span className="text-2xl font-black tracking-tighter">LocalSkill<span className="text-white/50">.</span></span>
             </Link>
             
-            <h2 className="text-4xl xl:text-5xl font-extrabold mb-6 leading-tight">Start your journey with us.</h2>
-            <p className="text-blue-100 font-medium text-lg leading-relaxed max-w-md">
-              Join our local network of professionals. Discover opportunities, connect with experts, and grow your career.
+            <h2 className="text-4xl xl:text-5xl font-extrabold mb-6 leading-tight">{content.sidebarTitle}</h2>
+            <p className="text-white/80 font-medium text-lg leading-relaxed max-w-md">
+              {content.sidebarDesc}
             </p>
           </div>
 
           <div className="relative z-10 space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">
-                <FiBriefcase className="text-xl" />
+            {content.features.map((feature, i) => (
+              <div key={i} className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">
+                  <feature.icon className="text-xl" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white">{feature.title}</h3>
+                  <p className="text-white/60 text-sm">{feature.desc}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-white">Find Opportunities</h3>
-                <p className="text-blue-200 text-sm">Access exclusive local projects</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">
-                <FiShield className="text-xl" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white">Secure Platform</h3>
-                <p className="text-blue-200 text-sm">Safe and protected collaborations</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
         {/* Right Side Form */}
         <div className="w-full lg:w-[55%] p-8 sm:p-12 xl:p-16 flex flex-col justify-center relative">
           <header className="mb-10">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Create Account</h1>
+            <div className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-3 ${
+              isFreelancer 
+                ? "bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400" 
+                : "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+            }`}>
+              {isFreelancer ? "For Talent" : "For Clients"}
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">{content.heading}</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-              Join our platform today. It's free and takes just a minute.
+              {content.subheading}
             </p>
           </header>
 
@@ -412,10 +449,10 @@ export default function Signup({ config }) {
             )}
 
             <button 
-              className={`w-full py-4 rounded-2xl font-extrabold text-white shadow-xl shadow-blue-500/20 transition-all hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] mt-8 flex items-center justify-center gap-3 ${loading ? "opacity-70 cursor-not-allowed hover:translate-y-0" : ""}`} 
+              className={`w-full py-4 rounded-2xl font-extrabold text-white shadow-xl ${content.shadowColor} transition-all ${content.hoverShadow} hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] mt-8 flex items-center justify-center gap-3 ${loading ? "opacity-70 cursor-not-allowed hover:translate-y-0" : ""}`} 
               type="submit" 
               disabled={loading}
-              style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', height: '56px' }}
+              style={{ background: content.btnGradient, height: '56px' }}
             >
               {loading ? (
                 <>
@@ -423,7 +460,7 @@ export default function Signup({ config }) {
                   <span>Creating Account...</span>
                 </>
               ) : (
-                <span>Create Free Account</span>
+                <span>{content.buttonText}</span>
               )}
             </button>
           </form>

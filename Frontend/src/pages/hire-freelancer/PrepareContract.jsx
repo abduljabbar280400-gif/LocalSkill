@@ -101,7 +101,7 @@ function PrepareContract() {
   // Loading State
   // ===============================
   if (loading) {
-    return <div> Loading... </div>;
+    return <div className="flex justify-center mt-10"><div className="common-spinner"></div></div>;
   }
 
   if (!proposal) {

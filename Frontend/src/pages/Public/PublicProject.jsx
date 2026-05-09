@@ -8,11 +8,12 @@ import Select from "react-select";
 
 import { FaBriefcase } from "react-icons/fa";
 
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiSliders, FiX } from "react-icons/fi";
 
 import herobanner from "../../assets/image/top-laptop-comp.webp";
 
 import ProjectCard from "../../components/ProjectCard";
+import { useAuth } from "../../context/useAuth";
 import useSavedProjects from "../../hooks/useSavedProjects";
 
 dayjs.extend(relativeTime);
@@ -29,10 +30,9 @@ export default function Projects() {
   const [categoryId, setCategoryId] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
 
-  const [minBudget, setMinBudget] = useState("");
-  const [maxBudget, setMaxBudget] = useState("");
-
-  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   const [categories, setCategories] = useState([]);
 
@@ -42,13 +42,26 @@ export default function Projects() {
   const observer = useRef();
 
   const { isSaved, toggleSave } = useSavedProjects();
+  const { user } = useAuth();
+  const isFreelancer = user && user.role === "freelancer";
+
+  useEffect(() => {
+    document.title = "Find Freelance Projects | LocalSkill";
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement("meta");
+      metaDescription.name = "description";
+      document.head.appendChild(metaDescription);
+    }
+    metaDescription.content = "Browse thousands of freelance projects from clients around the world. Filter by category, experience level and budget.";
+  }, []);
 
   useEffect(() => {
     setProjects([]);
     setPage(1);
     setHasMore(true);
     fetchProjects(1);
-  }, [search, categoryId, experienceLevel, minBudget, maxBudget]);
+  }, [search, categoryId, experienceLevel, ]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -93,8 +106,6 @@ export default function Projects() {
           search,
           category_id: categoryId,
           experience_level: experienceLevel,
-          min_budget: minBudget,
-          max_budget: maxBudget,
         },
       });
 
@@ -117,6 +128,14 @@ export default function Projects() {
       setLoadingProjects(false);
       setLoadingMore(false);
     }
+  };
+
+  const handleCloseFilters = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setShowMobileFilters(false);
+      setClosing(false);
+    }, 300);
   };
 
   useEffect(() => {
@@ -165,25 +184,35 @@ export default function Projects() {
     control: (provided) => ({
       ...provided,
       minHeight: "50px",
-      borderRadius: "1rem", // rounded corners
-      borderColor: "#E5E7EB", // gray-200
-      boxShadow: "0 1px 3px rgba(0,0,0,0.1)", // subtle shadow
+      borderRadius: "1rem",
+      borderColor: "var(--border-color)",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
       paddingLeft: "0.5rem",
       paddingRight: "0.5rem",
-      backgroundColor: "white",
+      backgroundColor: "var(--input-bg)",
+      color: "var(--text-primary)",
       transition: "all 0.2s",
       "&:hover": {
-        borderColor: "#3B82F6", // blue-500 on hover
+        borderColor: "#3B82F6",
       },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "var(--text-primary)",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "var(--text-muted)",
     }),
     menu: (provided) => ({
       ...provided,
-      borderRadius: "1rem", // rounded dropdown
-      boxShadow: "0 10px 25px rgba(0,0,0,0.1)", // floating shadow
+      borderRadius: "1rem",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
       marginTop: "4px",
       overflow: "hidden",
-      backgroundColor: "white",
-      zIndex: 50, // ensure it's above other content
+      backgroundColor: "var(--bg-card)",
+      zIndex: 50,
+      border: "1px solid var(--border-color)",
     }),
     menuList: (provided) => ({
       ...provided,
@@ -191,38 +220,32 @@ export default function Projects() {
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isFocused ? "#EFF6FF" : "white",
-      color: "#1F2937",
+      backgroundColor: state.isFocused 
+        ? (document.documentElement.classList.contains('dark') ? "#334155" : "#EFF6FF")
+        : "transparent",
+      color: "var(--text-primary)",
       cursor: "pointer",
       padding: "12px 16px",
+      "&:active": {
+        backgroundColor: "#3B82F6",
+      }
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: "var(--text-primary)",
     }),
   };
 
-  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-    {loadingProjects ? (
-      <div className="col-span-full text-center text-gray-600 dark:text-slate-400 py-20"> Loading... </div>
-    ) : (
-      projects.map((project, index) => (
-        <ProjectCard
-          key={project.id}
-          project={project}
-          isLast={projects.length === index + 1}
-          lastProjectRef={lastProjectRef}
-          isSaved={isSaved}
-          toggleSave={toggleSave}
-        />
-      ))
-    )}
-  </div>;
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-12 px-6">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 py-12 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="relative w-full h-[420px] md:h-[480px] overflow-hidden rounded-3xl mb-12">
           {/* Background Image */}
           <img
             src={herobanner}
             alt="Freelancer workspace"
+            fetchPriority="high"
+            loading="eager"
             className="absolute inset-0 w-full h-full object-cover"
           />
 
@@ -230,8 +253,8 @@ export default function Projects() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
 
           {/* Content */}
-          <div className="relative z-10 flex flex-col justify-center h-full px-8 md:px-16 text-white max-w-5xl">
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-4">
+          <div className="relative z-10 flex flex-col justify-center h-full px-8 md:px-16 text-white dark:text-slate-100 max-w-5xl">
+            <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-4 drop-shadow-lg">
               Find Projects That Match Your Skills
             </h1>
 
@@ -244,16 +267,19 @@ export default function Projects() {
 
         <div className="sticky top-25 z-20 mb-10">
           <div className="mx-auto max-w-7xl backdrop-blur-xl bg-white/70 dark:bg-slate-800/70 border border-white/40 dark:border-slate-700/40 shadow-xl rounded-2xl p-4">
-            <div className="flex flex-col md:flex-row md:items-center gap-4">
+            {/* Desktop Filters */}
+            <div className="hidden md:flex md:flex-row md:items-center gap-4">
               {/* Search Box */}
               <div className="flex items-center gap-3 flex-1 md:flex-[2] bg-white/90 dark:bg-slate-700/90 rounded-xl px-4 py-3 border border-gray-200 dark:border-slate-600 shadow-sm focus-within:ring-2 focus-within:ring-blue-400 transition">
-                <FiSearch className="text-gray-400 text-lg" />
+                <FiSearch className="text-gray-400 text-lg" aria-hidden="true" />
                 <input
                   type="text"
+                  id="search-projects"
+                  aria-label="Search projects or skills"
                   placeholder="Search projects,Skills..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full outline-none bg-transparent placeholder-gray-400 text-gray-700 dark:text-slate-300"
+                  className="w-full outline-none bg-transparent placeholder-gray-500 text-gray-700 dark:text-slate-300"
                 />
               </div>
 
@@ -264,6 +290,7 @@ export default function Projects() {
                 )}
                 onChange={(selected) => setCategoryId(selected?.value || "")}
                 placeholder="Select Category"
+                aria-label="Select Category"
                 isSearchable
                 styles={customSelectStyles}
               />
@@ -277,35 +304,116 @@ export default function Projects() {
                   setExperienceLevel(selected?.value || "")
                 }
                 placeholder="Select Experience Level"
+                aria-label="Select Experience Level"
                 isSearchable
                 styles={customSelectStyles}
               />
+            </div>
 
-              {/* Budget Inputs */}
-              <div className="flex gap-2 w-full md:w-auto">
+            {/* Mobile Header / Search Preview */}
+            <div className="flex md:hidden items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1 bg-white/90 dark:bg-slate-700/90 rounded-xl px-4 py-2 border border-gray-200 dark:border-slate-600 shadow-sm focus-within:ring-2 focus-within:ring-blue-400 transition">
+                <FiSearch className="text-gray-400 text-lg" />
                 <input
-                  type="number"
-                  placeholder="Min ₹"
-                  value={minBudget}
-                  onChange={(e) => setMinBudget(e.target.value)}
-                  className="w-1/2 md:w-auto px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 shadow-sm focus:ring-2 focus:ring-blue-400 transition"
-                />
-                <input
-                  type="number"
-                  placeholder="Max ₹"
-                  value={maxBudget}
-                  onChange={(e) => setMaxBudget(e.target.value)}
-                  className="w-1/2 md:w-auto px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 shadow-sm focus:ring-2 focus:ring-blue-400 transition"
+                  type="text"
+                  placeholder="Search..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="w-full outline-none bg-transparent placeholder-gray-500 text-gray-700 dark:text-slate-300 text-sm"
                 />
               </div>
             </div>
           </div>
         </div>
 
+        {/* Mobile Filter Modal */}
+        {showMobileFilters && (
+          <>
+            {/* BACKDROP */}
+            <div
+              className="fixed inset-0 bg-black/40 z-[60] backdrop-blur-sm"
+              onClick={handleCloseFilters}
+            />
+
+            {/* DRAWER */}
+            <div
+              className={`fixed bottom-0 left-0 right-0 z-[61] bg-white dark:bg-slate-800 rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto ${
+                closing ? "animate-slideDown" : "animate-slideUp"
+              }`}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold dark:text-white">Filter Projects</h2>
+                  <button onClick={handleCloseFilters} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition">
+                    <FiX size={24} className="text-gray-500" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Mobile Search */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Search</label>
+                    <div className="flex items-center gap-3 bg-gray-50 dark:bg-slate-900 rounded-xl px-4 py-3 border border-gray-200 dark:border-slate-700">
+                      <FiSearch className="text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search projects, skills..."
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        className="w-full outline-none bg-transparent text-gray-700 dark:text-slate-300"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Category</label>
+                    <Select
+                      options={categoryOptions}
+                      value={categoryOptions.find(opt => opt.value === categoryId)}
+                      onChange={(selected) => setCategoryId(selected?.value || "")}
+                      placeholder="Select Category"
+                      styles={customSelectStyles}
+                    />
+                  </div>
+
+                  {/* Experience */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Experience Level</label>
+                    <Select
+                      options={experienceOptions}
+                      value={experienceOptions.find(opt => opt.value === experienceLevel)}
+                      onChange={(selected) => setExperienceLevel(selected?.value || "")}
+                      placeholder="Select Experience Level"
+                      styles={customSelectStyles}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleCloseFilters}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition shadow-lg mt-4"
+                  >
+                    Show Results
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Floating Mobile Filter Button */}
+        <button
+          onClick={() => setShowMobileFilters(true)}
+          className="md:hidden fixed bottom-8 right-6 z-[50] bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-all duration-300"
+          aria-label="Open Filters"
+        >
+          <FiSliders size={24} />
+        </button>
+
         {/* Projects Grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {loadingProjects ? (
-            Array.from({ length: 6 }).map((_, index) => (
+            Array.from({ length: 12 }).map((_, index) => (
               <div
                 key={index}
                   className="animate-pulse group relative rounded-2xl p-[1px] bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900"
@@ -327,7 +435,7 @@ export default function Projects() {
           ) : projects.length === 0 ? (
             // ✅ EMPTY STATE UI
             <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
-              <FaBriefcase className="text-5xl text-gray-300 mb-4" />
+              <FaBriefcase className="text-5xl text-gray-300 mb-4" aria-hidden="true" />
               <h2 className="text-xl font-semibold text-gray-700 dark:text-slate-300">
                 No Projects Found
               </h2>
@@ -344,13 +452,14 @@ export default function Projects() {
                 lastProjectRef={lastProjectRef}
                 isSaved={isSaved}
                 toggleSave={toggleSave}
+                showSave={isFreelancer}
               />
             ))
           )}
         </div>
 
         {loadingMore && (
-          <div className="text-center text-gray-600 dark:text-slate-400 mt-10"> Loading... </div>
+          <div className="flex justify-center mt-10"><div className="common-spinner"></div></div>
         )}
 
         {!hasMore && !loadingProjects && projects.length > 0 && (
@@ -359,6 +468,39 @@ export default function Projects() {
           </div>
         )}
       </div>
-    </div>
+      <style>
+        {`
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-in forwards;
+}
+`}
+      </style>
+    </main>
   );
 }
